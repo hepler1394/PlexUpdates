@@ -1278,7 +1278,7 @@
     // 1. LISTEN TO FIREBASE REAL-TIME
     onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snapshot) => {
       globalRequests = [];
-      snapshot.forEach(doc => globalRequests.push(doc.data()));
+      snapshot.forEach(doc => globalRequests.push({ ...doc.data(), firestoreId: doc.id }));
       console.log('=== FIREBASE UPDATED ===');
       console.log('Total requests:', globalRequests.length);
       console.log('Sample item:', globalRequests[0]);
@@ -2115,8 +2115,16 @@
         const dbItem = globalRequests.find(r => String(r.id) === String(id));
         console.log('Found in globalRequests:', !!dbItem);
 
+        if (dbItem && dbItem.firestoreId) {
+          console.log('Deleting via Firestore ID:', dbItem.firestoreId);
+          await deleteDoc(doc(db, "requests", dbItem.firestoreId));
+          alert('Request deleted!');
+          document.getElementById('detail-overlay').classList.remove('open');
+          return; // Success
+        }
+
         if (dbItem) {
-          // Try multiple possible document ID formats
+          // Legacy Fallback: Try multiple possible document ID formats
           const possibleDocIds = [
             `${dbItem.mediaType || 'movie'}_${dbItem.id}`,
             `movie_${dbItem.id}`,
@@ -2140,8 +2148,6 @@
           if (deletedFromDb) {
             document.getElementById('detail-overlay').classList.remove('open');
             alert('Request deleted!');
-            // Force refresh logic via listener mostly, but we can do manual updateUI
-            updateUI();
           } else {
             console.error('❌ Could not delete item with any docId format');
             alert('Error: Could not delete item. Check console for details.');
@@ -2699,8 +2705,15 @@
           // Find the item in globalRequests - compare as strings
           const dbItem = globalRequests.find(r => String(r.id) === String(item.id));
 
+          if (dbItem && dbItem.firestoreId) {
+            console.log('Deleting via Firestore ID:', dbItem.firestoreId);
+            await deleteDoc(doc(db, "requests", dbItem.firestoreId));
+            deleted++;
+            continue; // Move to next item
+          }
+
           if (dbItem) {
-            // Try multiple possible document ID formats
+            // Legacy Fallback: Try multiple possible document ID formats
             const possibleDocIds = [
               `${dbItem.mediaType || 'movie'}_${dbItem.id}`,
               `movie_${dbItem.id}`,
@@ -2708,11 +2721,9 @@
               String(dbItem.id)
             ];
 
-            let deletedFromDb = false;
             for (const docId of possibleDocIds) {
               try {
                 await deleteDoc(doc(db, "requests", docId));
-                deletedFromDb = true;
                 deleted++;
                 break;
               } catch (e) { }
