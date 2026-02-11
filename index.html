@@ -1089,6 +1089,9 @@
         <button class="control-btn" onclick="window.bulkSearchPirateBay()" style="background:var(--red);">
           <i class="fa-solid fa-search"></i> Search Selected on Pirate Bay
         </button>
+        <button class="control-btn" onclick="window.bulkDeleteSelected()" style="background:#dc143c;">
+          <i class="fa-solid fa-trash"></i> Delete Selected
+        </button>
         <select id="requests-filter" class="control-select" onchange="updateUI()">
           <option value="all">All Requests</option>
           <option value="pending">Pending Only</option>
@@ -2551,6 +2554,29 @@
         const q = encodeURIComponent(`${item.title} ${year}`);
         window.open(`https://piratebay.org/search.php?q=${q}`, '_blank');
       });
+    };
+
+    window.bulkDeleteSelected = async () => {
+      const checkboxes = document.querySelectorAll('.request-checkbox:checked');
+
+      if (checkboxes.length === 0) {
+        alert('Please select at least one item to delete');
+        return;
+      }
+
+      if (!confirm(`Delete ${checkboxes.length} selected item(s)? This cannot be undone.`)) {
+        return;
+      }
+
+      for (const cb of checkboxes) {
+        const item = JSON.parse(cb.getAttribute('data-item'));
+        await window.deleteRequest(item.id);
+      }
+
+      // Uncheck select all
+      document.getElementById('select-all-requests').checked = false;
+
+      alert(`✅ Deleted ${checkboxes.length} item(s)`);
     };
 
     // 17. COPY REQUEST LIST
