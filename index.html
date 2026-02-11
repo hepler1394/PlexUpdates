@@ -997,21 +997,46 @@
       updateUI();
     });
 
+    // INITIALIZATION - Call on page load
+    async function initApp() {
+      try {
+        // Hide all loaders initially
+        document.getElementById('loader-movies').style.display = 'none';
+        document.getElementById('loader-tv').style.display = 'none';
+        document.getElementById('loader-coming').style.display = 'none';
+
+        // Load trending movies
+        await fetchTrending();
+
+        updateLastRefreshUI();
+      } catch (e) {
+        console.error('Init error:', e);
+        // Hide loaders even on error
+        document.getElementById('loader-movies').style.display = 'none';
+        document.getElementById('loader-tv').style.display = 'none';
+        document.getElementById('loader-coming').style.display = 'none';
+      }
+    }
+
+    // Call init when page loads
+    initApp();
+
     // 2. FETCH TRENDING MOVIES (with auto-refresh - DAILY)
     async function fetchTrending(page = 1, append = false) {
-      // Check cache first only on first page - NOW DAILY
-      if (page === 1 && !append && !shouldRefresh('trending_movies', DAY_MS)) {
-        const cached = getCached('trending_movies');
-        if (cached) {
-          currentMovies = cached;
-          renderGrid(currentMovies, 'grid-movies');
-          updateLastRefreshUI();
-          return;
-        }
-      }
-
-      document.getElementById('loader-movies').style.display = 'flex';
       try {
+        // Check cache first only on first page - NOW DAILY
+        if (page === 1 && !append && !shouldRefresh('trending_movies', DAY_MS)) {
+          const cached = getCached('trending_movies');
+          if (cached) {
+            currentMovies = cached;
+            renderGrid(currentMovies, 'grid-movies');
+            updateLastRefreshUI();
+            document.getElementById('loader-movies').style.display = 'none';
+            return;
+          }
+        }
+
+        document.getElementById('loader-movies').style.display = 'flex';
         const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_KEY}&page=${page}`);
         const data = await res.json();
         const newMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
@@ -1025,8 +1050,11 @@
         if (page === 1) cacheData('trending_movies', currentMovies);
         renderGrid(currentMovies, 'grid-movies');
         updateLastRefreshUI();
-      } catch (e) { console.error("TMDB Fetch Error", e); }
-      document.getElementById('loader-movies').style.display = 'none';
+      } catch (e) {
+        console.error("TMDB Fetch Error", e);
+      } finally {
+        document.getElementById('loader-movies').style.display = 'none';
+      }
     }
 
     // 3. FETCH TRENDING TV SHOWS (with auto-refresh - DAILY)
@@ -1102,22 +1130,26 @@
     window.forceRefreshMovies = () => {
       localStorage.removeItem('trending_movies');
       currentMoviePage = 1;
+      currentMovies = []; // Clear existing
       fetchTrending(1, false);
     };
 
     window.loadMoreMovies = () => {
       currentMoviePage++;
+      console.log('Loading page:', currentMoviePage);
       fetchTrending(currentMoviePage, true);
     };
 
     window.forceRefreshTV = () => {
       localStorage.removeItem('trending_tv');
       currentTVPage = 1;
+      currentTVShows = []; // Clear existing
       fetchTrendingTV(1, false);
     };
 
     window.loadMoreTV = () => {
       currentTVPage++;
+      console.log('Loading TV page:', currentTVPage);
       fetchTrendingTV(currentTVPage, true);
     };
 
@@ -1136,16 +1168,16 @@
       }
     });
 
-    // 3ETV SHOW TRACKING SYSTEM
+    // 3E. TV SHOW TRACKING SYSTEM
     // Listen to tracked shows in Firebase
     onSnapshot(collection(db, "tracked_shows"), (snapshot) => {
       trackedShows = [];
       snapshot.forEach(doc => trackedShows.push({ docId: doc.id, ...doc.data() }));
       renderTrackedShows();
-      checkForNewEpisodesAuto(); // Auto-check daily
+      // REMOVED auto-check to prevent popup on load
     });
 
-    // Add show to tracking
+    // Add show to tracking - Updated to use search in Track Shows tab
     window.showAddShowModal = () => {
       const searchQuery = prompt("Enter TV show name to track:");
       if (!searchQuery) return;
@@ -1796,6 +1828,10 @@
       // Find the DB entry first - this is critical for requested items
       const dbEntry = globalRequests.find(r => r.id === item.id && r.mediaType === (item.mediaType || 'movie'));
 
+      // Debug logging
+      console.log('openDetail called with:', item);
+      console.log('Found dbEntry:', dbEntry);
+
       // Use DB data first if available, fallback to item data
       const displayItem = dbEntry || item;
       const year = displayItem.release_date?.split('-')[0] || '';
@@ -1828,6 +1864,10 @@
 
       // Use overview from dbEntry first (for requested items), then displayItem, then fallback
       const description = dbEntry?.overview || displayItem.overview || 'No description available.';
+
+      console.log('Using description:', description);
+      console.log('Using posterUrl:', posterUrl);
+      console.log('Using backdropUrl:', backdropUrl);
 
       body.innerHTML = `
       <div class="modal-backdrop" style="background-image:url(${backdropUrl})"></div>
