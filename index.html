@@ -50,7 +50,8 @@
       padding: 0;
       margin-left: 300px;
       /* Space for sidebar */
-      padding-top: 20px;
+      padding-top: 80px;
+      /* Space for fixed controls bar */
       padding-bottom: 80px;
       overflow-x: hidden;
     }
@@ -193,16 +194,20 @@
     .controls-bar {
       display: flex;
       gap: 12px;
-      margin: 0 0 20px 0;
+      margin: 0;
       padding: 15px;
+      padding-left: 320px;
+      /* Account for sidebar */
       background: var(--bg-card);
-      border-radius: 8px;
-      border: 1px solid var(--border);
+      border-radius: 0;
+      border-bottom: 1px solid var(--border);
       flex-wrap: wrap;
       align-items: center;
-      position: sticky;
-      top: 20px;
-      z-index: 999;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 900;
       backdrop-filter: blur(10px);
     }
 
@@ -1156,19 +1161,24 @@
 
     window.loadMoreMovies = async () => {
       currentMoviePage++;
-      console.log('Loading page:', currentMoviePage);
+      console.log('=== LOAD MORE MOVIES ===');
+      console.log('Current page:', currentMoviePage);
+      console.log('Current movie count:', currentMovies.length);
 
       // Get current filter values
       const ratingFilter = document.getElementById('movie-rating-filter').value;
       const yearFilter = document.getElementById('movie-year-filter').value;
       const genreFilter = document.getElementById('movie-genre').value;
 
+      console.log('Filters:', { rating: ratingFilter, year: yearFilter, genre: genreFilter });
+
       // Build API URL based on filters
       let apiUrl = `https://api.themoviedb.org/3/`;
       const params = new URLSearchParams({
         api_key: TMDB_KEY,
         page: currentMoviePage,
-        sort_by: 'popularity.desc'
+        sort_by: 'popularity.desc',
+        'vote_count.gte': 50 // Ensure quality movies with enough votes
       });
 
       // If filters are active, use discover endpoint
@@ -1209,11 +1219,18 @@
         apiUrl += `trending/movie/week?`;
       }
 
+      console.log('API URL:', apiUrl + params.toString());
+
       try {
         const res = await fetch(apiUrl + params.toString());
         const data = await res.json();
+        console.log('API response:', data);
+        console.log('New movies fetched:', data.results?.length || 0);
+
         const newMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
         currentMovies = [...currentMovies, ...newMovies];
+        console.log('Total movies now:', currentMovies.length);
+
         renderGrid(currentMovies, 'grid-movies');
       } catch (e) {
         console.error('Load more error:', e);
