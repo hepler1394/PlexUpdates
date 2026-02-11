@@ -1077,6 +1077,18 @@
     <!-- REQUESTS SECTION -->
     <div id="view-requests" class="view-section">
       <div class="controls-bar">
+        <label
+          style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px; background:var(--bg-card); border-radius:8px;">
+          <input type="checkbox" id="select-all-requests" onchange="window.toggleSelectAll()"
+            style="width:18px; height:18px; cursor:pointer;">
+          <span>Select All</span>
+        </label>
+        <button class="control-btn" onclick="window.bulkSearchExt()" style="background:var(--green);">
+          <i class="fa-solid fa-search"></i> Search Selected on Ext.to
+        </button>
+        <button class="control-btn" onclick="window.bulkSearchPirateBay()" style="background:var(--red);">
+          <i class="fa-solid fa-search"></i> Search Selected on Pirate Bay
+        </button>
         <select id="requests-filter" class="control-select" onchange="updateUI()">
           <option value="all">All Requests</option>
           <option value="pending">Pending Only</option>
@@ -1899,6 +1911,11 @@
 
         card.innerHTML = `
         <div class="poster-wrapper">
+          ${targetId === 'grid-requests' ? `
+            <label style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.7); padding:8px; border-radius:8px; cursor:pointer;" onclick="event.stopPropagation()">
+              <input type="checkbox" class="request-checkbox" data-item='${JSON.stringify(item).replace(/'/g, "\\'")}' style="width:20px; height:20px; cursor:pointer;">
+            </label>
+          ` : ''}
           <img src="${poster}" class="poster-img" loading="lazy">
           <div class="rating-badge"><i class="fa-solid fa-star"></i> ${item.vote_average?.toFixed(1) || 'NR'}</div>
           ${dbEntry?.priority === 'high' ? '<div class="priority-badge"><i class="fa-solid fa-fire"></i> HIGH</div>' : ''}
@@ -2240,7 +2257,7 @@
         posterUrl = 'https://via.placeholder.com/500x750/16161f/ffffff?text=No+Poster';
       }
 
-      const isPending = dbEntry?.status === 'pending';
+      const isPending = !!dbEntry; // Show delete for any requested item
       const description = displayItem.overview || 'No description available.';
 
       console.log('Final render data:');
@@ -2482,7 +2499,61 @@
       overlay.classList.add('open');
     };
 
-    // 16. COPY REQUEST LIST
+    // 16. BULK TORRENT SEARCH
+    window.toggleSelectAll = () => {
+      const selectAllCheckbox = document.getElementById('select-all-requests');
+      const checkboxes = document.querySelectorAll('.request-checkbox');
+
+      checkboxes.forEach(cb => {
+        cb.checked = selectAllCheckbox.checked;
+      });
+    };
+
+    window.bulkSearchExt = () => {
+      const checkboxes = document.querySelectorAll('.request-checkbox:checked');
+
+      if (checkboxes.length === 0) {
+        alert('Please select at least one item to search');
+        return;
+      }
+
+      if (checkboxes.length > 10) {
+        if (!confirm(`This will open ${checkboxes.length} tabs. Are you sure?`)) {
+          return;
+        }
+      }
+
+      checkboxes.forEach(cb => {
+        const item = JSON.parse(cb.getAttribute('data-item'));
+        const year = item.release_date ? item.release_date.split('-')[0] : '';
+        const q = encodeURIComponent(`${item.title} ${year}`);
+        window.open(`https://ext.to/search/?q=${q}`, '_blank');
+      });
+    };
+
+    window.bulkSearchPirateBay = () => {
+      const checkboxes = document.querySelectorAll('.request-checkbox:checked');
+
+      if (checkboxes.length === 0) {
+        alert('Please select at least one item to search');
+        return;
+      }
+
+      if (checkboxes.length > 10) {
+        if (!confirm(`This will open ${checkboxes.length} tabs. Are you sure?`)) {
+          return;
+        }
+      }
+
+      checkboxes.forEach(cb => {
+        const item = JSON.parse(cb.getAttribute('data-item'));
+        const year = item.release_date ? item.release_date.split('-')[0] : '';
+        const q = encodeURIComponent(`${item.title} ${year}`);
+        window.open(`https://piratebay.org/search.php?q=${q}`, '_blank');
+      });
+    };
+
+    // 17. COPY REQUEST LIST
     window.copyRequestList = () => {
       const pending = globalRequests.filter(r => r.status === 'pending');
       const text = pending.map((r, i) => `${i + 1}. ${r.title} (${r.mediaType === 'tv' ? 'TV Show' : 'Movie'})${r.requester ? ' - Requested by ' + r.requester : ''}${r.priority === 'high' ? ' [HIGH PRIORITY]' : ''}`).join('\n');
