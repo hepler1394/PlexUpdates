@@ -586,6 +586,49 @@
       color: var(--text-muted);
     }
 
+    /* --- CONTEXT MENU --- */
+    .context-menu {
+      position: fixed;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 0;
+      z-index: 10000;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      min-width: 200px;
+      display: none;
+    }
+
+    .context-menu.active {
+      display: block;
+    }
+
+    .context-menu-item {
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .context-menu-item:hover {
+      background: rgba(229, 9, 20, 0.1);
+    }
+
+    .context-menu-item i {
+      width: 18px;
+      text-align: center;
+    }
+
+    .context-menu-separator {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 0;
+    }
+
     /* --- BUTTONS --- */
     .btn-wrapper {
       margin-top: auto;
@@ -973,6 +1016,15 @@
     <!-- MOVIES SECTION -->
     <div id="view-movies" class="view-section active">
       <div class="controls-bar">
+        <label
+          style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px; background:var(--bg-card); border-radius:8px;">
+          <input type="checkbox" onchange="window.toggleSelectAllInView(this)"
+            style="width:18px; height:18px; cursor:pointer;">
+          <span>Select All</span>
+        </label>
+        <button class="control-btn" onclick="window.bulkRequestSelected()" style="background:var(--blue);">
+          <i class="fa-solid fa-plus"></i> Request Selected
+        </button>
         <select id="movie-sort" class="control-select">
           <option value="trending">Trending</option>
           <option value="rating">By Rating</option>
@@ -1019,6 +1071,15 @@
     <!-- TV SHOWS SECTION -->
     <div id="view-tvshows" class="view-section">
       <div class="controls-bar">
+        <label
+          style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px; background:var(--bg-card); border-radius:8px;">
+          <input type="checkbox" onchange="window.toggleSelectAllInView(this)"
+            style="width:18px; height:18px; cursor:pointer;">
+          <span>Select All</span>
+        </label>
+        <button class="control-btn" onclick="window.bulkRequestSelected()" style="background:var(--blue);">
+          <i class="fa-solid fa-plus"></i> Request Selected
+        </button>
         <select id="tv-sort" class="control-select">
           <option value="trending">Trending</option>
           <option value="rating">By Rating</option>
@@ -1045,6 +1106,17 @@
 
     <!-- COMING SOON SECTION -->
     <div id="view-coming" class="view-section">
+      <div class="controls-bar">
+        <label
+          style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px; background:var(--bg-card); border-radius:8px;">
+          <input type="checkbox" onchange="window.toggleSelectAllInView(this)"
+            style="width:18px; height:18px; cursor:pointer;">
+          <span>Select All</span>
+        </label>
+        <button class="control-btn" onclick="window.bulkRequestSelected()" style="background:var(--blue);">
+          <i class="fa-solid fa-plus"></i> Request Selected
+        </button>
+      </div>
       <div class="section-header"><i class="fa-solid fa-calendar-star"></i> Upcoming Releases</div>
       <div id="loader-coming" class="loader"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
       <div id="grid-coming" class="movie-grid"></div>
@@ -1079,7 +1151,7 @@
       <div class="controls-bar">
         <label
           style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px; background:var(--bg-card); border-radius:8px;">
-          <input type="checkbox" id="select-all-requests" onchange="window.toggleSelectAll()"
+          <input type="checkbox" onchange="window.toggleSelectAllInView(this)"
             style="width:18px; height:18px; cursor:pointer;">
           <span>Select All</span>
         </label>
@@ -1127,6 +1199,9 @@
   <div class="overlay" id="torrent-overlay" onclick="if(event.target==this)this.classList.remove('open')">
     <div class="modal torrent-hub-modal" id="torrent-modal-body"></div>
   </div>
+
+  <!-- CONTEXT MENU -->
+  <div id="context-menu" class="context-menu"></div>
 
   <script type="module">
     // FIREBASE CONFIGURATION
@@ -1914,11 +1989,9 @@
 
         card.innerHTML = `
         <div class="poster-wrapper">
-          ${targetId === 'grid-requests' ? `
-            <label style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.7); padding:8px; border-radius:8px; cursor:pointer;" onclick="event.stopPropagation()">
-              <input type="checkbox" class="request-checkbox" data-item='${JSON.stringify(item).replace(/'/g, "\\'")}' style="width:20px; height:20px; cursor:pointer;">
-            </label>
-          ` : ''}
+          <label style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.7); padding:8px; border-radius:8px; cursor:pointer;" onclick="event.stopPropagation()">
+            <input type="checkbox" class="request-checkbox" data-item='${JSON.stringify(item).replace(/'/g, "\\'")}' style="width:20px; height:20px; cursor:pointer;">
+          </label>
           <img src="${poster}" class="poster-img" loading="lazy">
           <div class="rating-badge"><i class="fa-solid fa-star"></i> ${item.vote_average?.toFixed(1) || 'NR'}</div>
           ${dbEntry?.priority === 'high' ? '<div class="priority-badge"><i class="fa-solid fa-fire"></i> HIGH</div>' : ''}
@@ -1983,7 +2056,7 @@
     };
 
     // 8. DATABASE ACTIONS - Save complete item object
-    window.saveItemFromObject = async (itemObj, status, note = '', requester = '', priority = 'normal') => {
+    window.saveItemFromObject = async (itemObj, status, note = '', requester = '', priority = 'normal', silent = false) => {
       try {
         const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
 
@@ -1998,46 +2071,100 @@
         const existingItem = globalRequests.find(r => r.id === item.id && r.mediaType === (item.mediaType || 'movie'));
         console.log('Existing item found:', !!existingItem);
 
-        // CRITICAL: Preserve all important fields, prioritize new data, fallback to existing
-        const dataToSave = {
-          id: item.id,
+        // Preserve existing data if available
+        const noteToSave = note || (existingItem ? existingItem.note : '');
+        const requesterToSave = requester || (existingItem ? existingItem.requester : '');
+        const priorityToSave = priority || (existingItem ? existingItem.priority : 'normal');
+
+        const docId = `${item.mediaType || 'movie'}_${item.id}`;
+        const timestamp = existingItem ? existingItem.timestamp : Date.now();
+
+        await setDoc(doc(db, "requests", docId), {
+          ...item,
           mediaType: item.mediaType || 'movie',
-          title: item.title,
-          poster_path: item.poster_path || existingItem?.poster_path || '',
-          backdrop_path: item.backdrop_path || existingItem?.backdrop_path || '',
-          overview: item.overview || existingItem?.overview || '',
-          release_date: item.release_date || existingItem?.release_date || '',
-          vote_average: item.vote_average || existingItem?.vote_average || 0,
+          timestamp: timestamp,
           status: status,
-          note: note,
-          requester: requester,
-          priority: priority,
-          timestamp: existingItem?.timestamp || Date.now()
-        };
+          note: noteToSave,
+          requester: requesterToSave,
+          priority: priorityToSave
+        });
 
-        console.log('Data to save:', dataToSave);
-        console.log('Saving overview:', dataToSave.overview ? 'YES' : 'NO');
-        console.log('Saving poster:', dataToSave.poster_path ? 'YES' : 'NO');
+        console.log('✅ Item saved successfully:', docId);
 
-        await setDoc(doc(db, "requests", `${dataToSave.mediaType}_${item.id}`), dataToSave);
-        console.log('✅ Saved to Firebase successfully');
+        if (!silent) {
+          if (status === 'added') alert(`"${item.title}" marked as available!`);
+          else alert(`Request for "${item.title}" submitted!`);
+          document.getElementById('detail-overlay').classList.remove('open');
+        }
       } catch (e) {
-        console.error("Firebase Save Error:", e);
+        console.error("Error adding request: ", e);
+        if (!silent) alert("Error saving request. See console for details.");
       }
     };
 
     // 9. DELETE REQUEST
     window.deleteRequest = async (id) => {
-      if (confirm('Are you sure you want to delete this request?')) {
-        try {
-          // Find the item to get its mediaType
-          const item = globalRequests.find(r => r.id === id);
-          if (item) {
-            await deleteDoc(doc(db, "requests", `${item.mediaType}_${item.id}`));
-            document.getElementById('detail-overlay').classList.remove('open');
-          }
-        } catch (e) { console.error("Delete Error", e); }
+      if (!confirm('Are you sure you want to delete this request?')) {
+        return;
       }
+
+      try {
+        console.log('Attempting to delete ID:', id);
+
+        // Find the item in globalRequests - compare as strings
+        const dbItem = globalRequests.find(r => String(r.id) === String(id));
+        console.log('Found in globalRequests:', !!dbItem);
+
+        if (dbItem) {
+          // Try multiple possible document ID formats
+          const possibleDocIds = [
+            `${dbItem.mediaType || 'movie'}_${dbItem.id}`,
+            `movie_${dbItem.id}`,
+            `tv_${dbItem.id}`,
+            String(dbItem.id)
+          ];
+
+          let deletedFromDb = false;
+          for (const docId of possibleDocIds) {
+            try {
+              console.log('Trying to delete with docId:', docId);
+              await deleteDoc(doc(db, "requests", docId));
+              console.log('✅ Successfully deleted:', docId);
+              deletedFromDb = true;
+              break;
+            } catch (e) {
+              console.log('Failed with docId:', docId, e.message);
+            }
+          }
+
+          if (deletedFromDb) {
+            document.getElementById('detail-overlay').classList.remove('open');
+            alert('Request deleted!');
+            // Force refresh logic via listener mostly, but we can do manual updateUI
+            updateUI();
+          } else {
+            console.error('❌ Could not delete item with any docId format');
+            alert('Error: Could not delete item. Check console for details.');
+          }
+        } else {
+          // Fallback: try to construct ID if we have enough info, or just try id as docId
+          console.log('Item not found in memory, trying direct ID deletion...');
+          try {
+            await deleteDoc(doc(db, "requests", `movie_${id}`));
+            alert('Request deleted!');
+            document.getElementById('detail-overlay').classList.remove('open');
+          } catch (e) {
+            try {
+              await deleteDoc(doc(db, "requests", `tv_${id}`));
+              alert('Request deleted!');
+              document.getElementById('detail-overlay').classList.remove('open');
+            } catch (e2) {
+              console.error("Direct delete failed", e2);
+              alert('Error: Could not find item to delete.');
+            }
+          }
+        }
+      } catch (e) { console.error("Delete Error", e); }
     };
 
     // 10. UI UPDATES
@@ -2498,69 +2625,60 @@
         </a>
       </div>
       <button onclick="document.getElementById('torrent-overlay').classList.remove('open')" class="torrent-btn" style="background:#333; width:100%; margin-top:25px; justify-content:center;">Close</button>
-    `;
-      overlay.classList.add('open');
     };
 
-    // 16. BULK TORRENT SEARCH
-    window.toggleSelectAll = () => {
-      const selectAllCheckbox = document.getElementById('select-all-requests');
-      const checkboxes = document.querySelectorAll('.request-checkbox');
+    // 16. BULK ACTIONS
+    window.getActiveCheckboxes = () => {
+      const activeView = document.querySelector('.view-section.active') || document.querySelector('.view-section:not([style*="display: none"])');
+      if (!activeView) return [];
+      return Array.from(activeView.querySelectorAll('.request-checkbox:checked'));
+    };
 
+    window.toggleSelectAllInView = (sourceCheckbox) => {
+      const viewSection = sourceCheckbox.closest('.view-section');
+      if (!viewSection) return;
+      
+      const checkboxes = viewSection.querySelectorAll('.request-checkbox');
       checkboxes.forEach(cb => {
-        cb.checked = selectAllCheckbox.checked;
+        cb.checked = sourceCheckbox.checked;
       });
     };
 
     window.bulkSearchExt = () => {
-      const checkboxes = document.querySelectorAll('.request-checkbox:checked');
-
+      const checkboxes = getActiveCheckboxes();
       if (checkboxes.length === 0) {
         alert('Please select at least one item to search');
         return;
       }
-
-      if (checkboxes.length > 10) {
-        if (!confirm(`This will open ${checkboxes.length} tabs. Are you sure?`)) {
-          return;
-        }
-      }
+      if (checkboxes.length > 10 && !confirm(`Open ${ checkboxes.length } tabs ? `)) return;
 
       checkboxes.forEach(cb => {
         const item = JSON.parse(cb.getAttribute('data-item'));
         const year = item.release_date ? item.release_date.split('-')[0] : '';
-        const q = encodeURIComponent(`${item.title} ${year}`);
+        const q = encodeURIComponent(`${ item.title } ${ year } `);
         window.open(`https://ext.to/search/?q=${q}`, '_blank');
       });
     };
 
     window.bulkSearchPirateBay = () => {
-      const checkboxes = document.querySelectorAll('.request-checkbox:checked');
-
+      const checkboxes = getActiveCheckboxes();
       if (checkboxes.length === 0) {
         alert('Please select at least one item to search');
         return;
       }
-
-      if (checkboxes.length > 10) {
-        if (!confirm(`This will open ${checkboxes.length} tabs. Are you sure?`)) {
-          return;
-        }
-      }
+      if (checkboxes.length > 10 && !confirm(`Open ${checkboxes.length} tabs?`)) return;
 
       checkboxes.forEach(cb => {
         const item = JSON.parse(cb.getAttribute('data-item'));
         const year = item.release_date ? item.release_date.split('-')[0] : '';
         const q = encodeURIComponent(`${item.title} ${year}`);
-        window.open(`https://piratebay.org/search.php?q=${q}`, '_blank');
+        window.open(`https://piratebay.org/search/?q=${q}`, '_blank');
       });
     };
 
     window.bulkDeleteSelected = async () => {
-      const checkboxes = document.querySelectorAll('.request-checkbox:checked');
-
-      console.log('=== BULK DELETE ===');
-      console.log('Checkboxes selected:', checkboxes.length);
+      const checkboxes = getActiveCheckboxes();
+      console.log('=== BULK DELETE ===', checkboxes.length);
 
       if (checkboxes.length === 0) {
         alert('Please select at least one item to delete');
@@ -2575,15 +2693,11 @@
       for (const cb of checkboxes) {
         try {
           const item = JSON.parse(cb.getAttribute('data-item'));
-          console.log('Attempting to delete item:', item.title, 'ID:', item.id);
 
           // Find the item in globalRequests - compare as strings
           const dbItem = globalRequests.find(r => String(r.id) === String(item.id));
-          console.log('Found in globalRequests:', !!dbItem);
 
           if (dbItem) {
-            console.log('DB Item:', dbItem);
-
             // Try multiple possible document ID formats
             const possibleDocIds = [
               `${dbItem.mediaType || 'movie'}_${dbItem.id}`,
@@ -2595,41 +2709,174 @@
             let deletedFromDb = false;
             for (const docId of possibleDocIds) {
               try {
-                console.log('Trying to delete with docId:', docId);
                 await deleteDoc(doc(db, "requests", docId));
-                console.log('✅ Successfully deleted:', docId);
                 deletedFromDb = true;
                 deleted++;
                 break;
-              } catch (e) {
-                console.log('Failed with docId:', docId, e.message);
-              }
+              } catch (e) { }
             }
-
-            if (!deletedFromDb) {
-              console.error('❌ Could not delete item with any docId format');
-            }
-          } else {
-            console.error('Item not found in globalRequests');
           }
         } catch (e) {
           console.error('Delete error:', e);
         }
       }
 
-      // Uncheck select all
-      document.getElementById('select-all-requests').checked = false;
+      // Uncheck select all in active view
+      const activeView = checkboxes[0].closest('.view-section');
+      const selectAll = activeView.querySelector('input[onchange*="toggleSelectAllInView"]');
+      if (selectAll) selectAll.checked = false;
 
       console.log(`Total deleted: ${deleted}`);
       alert(`✅ Deleted ${deleted} item(s). Page will refresh.`);
 
-      // Force refresh the UI
       setTimeout(() => {
         updateUI();
       }, 1000);
     };
 
-    // 17. COPY REQUEST LIST
+    window.bulkRequestSelected = async () => {
+      const checkboxes = getActiveCheckboxes();
+      if (checkboxes.length === 0) {
+        alert('Please select items to request.');
+        return;
+      }
+
+      if (!confirm(`Request ${checkboxes.length} items?`)) return;
+
+      let count = 0;
+      for (const cb of checkboxes) {
+        try {
+          const item = JSON.parse(cb.getAttribute('data-item'));
+          // Check if already requested (in globalRequests) matches loose ID check
+          const existing = globalRequests.find(r => String(r.id) === String(item.id));
+
+          if (!existing) {
+            // Determine mediaType if not present
+            if (!item.mediaType) {
+              // Try to verify if it's tv or movie based on properties
+              if (item.first_air_date) item.mediaType = 'tv';
+              else item.mediaType = 'movie';
+            }
+
+            await saveItemFromObject(item, 'pending', 'Bulk Request', 'USER', 'normal', true);
+            count++;
+          }
+        } catch (e) { console.error('Bulk request error:', e); }
+      }
+
+      alert(`Requested ${count} new items.`);
+
+      // Uncheck Select All in active view
+      const activeView = checkboxes[0].closest('.view-section');
+      const selectAll = activeView.querySelector('input[onchange*="toggleSelectAllInView"]');
+      if (selectAll) selectAll.checked = false;
+
+      checkboxes.forEach(cb => cb.checked = false);
+    };
+
+    // 17. CONTEXT MENU LOGIC
+    document.addEventListener('click', () => {
+      document.getElementById('context-menu').classList.remove('active');
+    });
+
+    document.addEventListener('contextmenu', (e) => {
+      const card = e.target.closest('.movie-card') || e.target.closest('.episode-card');
+      if (!card) return;
+
+      e.preventDefault();
+      const menu = document.getElementById('context-menu');
+      const itemData = card.querySelector('.request-checkbox')?.getAttribute('data-item') ||
+        card.querySelector('button[onclick*="openRequestModal"]')?.getAttribute('onclick').match(/openRequestModal\((.*)\)/)?.[1] ||
+        card.querySelector('button[onclick*="requestEpisode"]')?.getAttribute('onclick').match(/requestEpisode\((.*)\)/)?.[1]?.split(',')[1];
+
+      let item;
+      try {
+        if (card.classList.contains('episode-card')) {
+          // Handle episode card context menu
+          const showData = JSON.parse(card.querySelector('button[onclick*="requestEpisode"]').getAttribute('onclick').match(/requestEpisode\((.*)\)/)[1].split('},')[0] + '}');
+          const episodeData = JSON.parse(card.querySelector('button[onclick*="requestEpisode"]').getAttribute('onclick').match(/requestEpisode\((.*)\)/)[1].split('},')[1]);
+          item = { ...episodeData, show: showData, mediaType: 'tv_episode' };
+        } else {
+          item = JSON.parse(itemData.replace(/&quot;/g, '"'));
+        }
+      } catch (err) {
+        console.error('Error parsing item data for context menu', err);
+        return;
+      }
+
+      // Check if item is already requested
+      const dbEntry = globalRequests.find(r => (r.id === item.id) || (r.id === `${item.show?.id}_s${item.season_number}e${item.episode_number}`));
+      const isPending = dbEntry?.status === 'pending';
+      const isAdded = dbEntry?.status === 'added';
+
+      let menuHtml = '';
+
+      if (card.classList.contains('episode-card')) {
+        // Episode Context Menu
+        menuHtml = `
+          <div class="context-menu-item" onclick="window.requestEpisode(${JSON.stringify(item.show).replace(/"/g, '&quot;')}, ${JSON.stringify(item).replace(/"/g, '&quot;')})">
+            <i class="fa-solid fa-plus"></i> Request Episode
+          </div>
+          ${isPending ? `
+          <div class="context-menu-item" onclick="window.deleteRequest('${dbEntry.id}')">
+            <i class="fa-solid fa-trash"></i> Delete Request
+          </div>` : ''}
+         `;
+      } else {
+        // Movie/Show Context Menu
+        menuHtml = `
+          <div class="context-menu-item" onclick="openDetail(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+            <i class="fa-solid fa-info-circle"></i> View Details
+          </div>
+          <div class="context-menu-separator"></div>
+        `;
+
+        if (!isPending && !isAdded) {
+          menuHtml += `
+            <div class="context-menu-item" onclick="window.openRequestModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+              <i class="fa-solid fa-plus"></i> Request
+            </div>
+            <div class="context-menu-item" onclick="window.saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'added')">
+              <i class="fa-solid fa-check"></i> Mark Available
+            </div>
+          `;
+        }
+
+        if (isPending) {
+          menuHtml += `
+            <div class="context-menu-item" onclick="window.saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'added', '${dbEntry.note || ''}', '${dbEntry.requester || ''}', '${dbEntry.priority || 'normal'}')">
+              <i class="fa-solid fa-check"></i> Mark Available
+            </div>
+            <div class="context-menu-item" onclick="window.deleteRequest(${item.id})">
+              <i class="fa-solid fa-trash"></i> Delete Request
+            </div>
+          `;
+        }
+
+        if (isAdded) {
+          menuHtml += `
+            <div class="context-menu-item" onclick="window.deleteRequest(${item.id})">
+              <i class="fa-solid fa-trash"></i> Remove from Library
+            </div>
+          `;
+        }
+
+        const year = item.release_date ? item.release_date.split('-')[0] : '';
+        menuHtml += `
+          <div class="context-menu-separator"></div>
+          <div class="context-menu-item" onclick="window.openTorrentHub('${item.title.replace(/'/g, "\\'")}', '${year}', '${item.mediaType || 'movie'}')">
+            <i class="fa-solid fa-magnet"></i> Search Torrents
+          </div>
+        `;
+      }
+
+      menu.innerHTML = menuHtml;
+      menu.style.top = `${e.clientY}px`;
+      menu.style.left = `${e.clientX}px`;
+      menu.classList.add('active');
+    });
+
+    // 18. COPY REQUEST LIST
     window.copyRequestList = () => {
       const pending = globalRequests.filter(r => r.status === 'pending');
       const text = pending.map((r, i) => `${i + 1}. ${r.title} (${r.mediaType === 'tv' ? 'TV Show' : 'Movie'})${r.requester ? ' - Requested by ' + r.requester : ''}${r.priority === 'high' ? ' [HIGH PRIORITY]' : ''}`).join('\n');
@@ -2637,7 +2884,7 @@
       alert('Request list copied to clipboard!');
     };
 
-    // 17. BULK MARK AVAILABLE
+    // 19. BULK MARK AVAILABLE
     window.bulkMarkAvailable = async () => {
       const titles = prompt('Enter movie/show titles to mark as available (one per line or comma-separated):');
       if (!titles) return;
