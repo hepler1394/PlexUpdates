@@ -409,6 +409,183 @@
       overflow: hidden;
     }
 
+    /* --- RESPONSIVE --- */
+    @media (max-width: 768px) {
+      .tabs {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .tab-btn {
+        width: 100%;
+      }
+    }
+
+    /* --- TV SHOW SEASON/EPISODE BROWSER --- */
+    .seasons-container {
+      margin-top: 20px;
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .season-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 15px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .season-card:hover {
+      border-color: var(--red);
+    }
+
+    .season-header {
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.02);
+      transition: background 0.2s;
+    }
+
+    .season-header:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .season-toggle {
+      font-size: 14px;
+      transition: transform 0.3s ease;
+      color: var(--red);
+      min-width: 20px;
+    }
+
+    .season-card.collapsed .season-toggle {
+      transform: rotate(-90deg);
+    }
+
+    .season-title {
+      flex: 1;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .episode-count {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .request-season-btn {
+      padding: 8px 16px;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .request-season-btn:hover {
+      background: #c4070f;
+      transform: scale(1.05);
+    }
+
+    .episodes-list {
+      padding: 0 15px 15px;
+      display: grid;
+      gap: 10px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .season-card:not(.collapsed) .episodes-list {
+      max-height: 2000px;
+    }
+
+    .episode-card {
+      display: flex;
+      gap: 15px;
+      padding: 12px;
+      background: var(--bg-card);
+      border-radius: 8px;
+      align-items: center;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .episode-card:hover {
+      border-color: var(--red);
+      background: rgba(229, 9, 20, 0.1);
+    }
+
+    .episode-thumb {
+      width: 140px;
+      height: 79px;
+      object-fit: cover;
+      border-radius: 6px;
+      flex-shrink: 0;
+      background: var(--bg-secondary);
+    }
+
+    .episode-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .episode-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      color: var(--text-primary);
+    }
+
+    .episode-overview {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: 0 0 6px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .episode-date {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .request-episode-btn {
+      padding: 10px 20px;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .request-episode-btn:hover {
+      background: #c4070f;
+      transform: scale(1.05);
+    }
+
+    .episodes-loading {
+      padding: 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
     /* --- BUTTONS --- */
     .btn-wrapper {
       margin-top: auto;
@@ -1979,6 +2156,15 @@
 
       console.log('\n=== OPEN DETAIL CALLED ===');
       console.log('Item clicked:', item);
+      console.log('Media type:', item.mediaType);
+
+      // **TV SHOW - Use season/episode browser**
+      if (item.mediaType === 'tv') {
+        await openTVShowDetail(item);
+        return;
+      }
+
+      // **MOVIE - Continue with existing logic**
       console.log('Item has overview:', !!item.overview);
       console.log('Item has poster_path:', !!item.poster_path);
 
@@ -2084,6 +2270,197 @@
       console.log('✅ Modal rendered');
     }
 
+    // 14b. TV SHOW DETAIL WITH SEASONS
+    async function openTVShowDetail(item) {
+      const overlay = document.getElementById('detail-overlay');
+      const body = document.getElementById('detail-modal-body');
+
+      console.log('\n=== TV SHOW DETAIL ===');
+      console.log('Fetching show data for ID:', item.id);
+
+      // Show loading
+      body.innerHTML = `
+        <div style="display:flex; justify-content:center; align-items:center; height:400px;">
+          <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color:var(--red);"></i>
+        </div>
+      `;
+      overlay.classList.add('open');
+
+      try {
+        // Fetch full show details with seasons
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${item.id}?api_key=${TMDB_KEY}`);
+        const showData = await res.json();
+        console.log('Show data:', showData);
+
+        const year = showData.first_air_date?.split('-')[0] || '';
+        const posterUrl = showData.poster_path ? `https://image.tmdb.org/t/p/w500${showData.poster_path}` : 'https://via.placeholder.com/500x750/16161f/ffffff?text=No+Poster';
+        const backdropUrl = showData.backdrop_path ? `https://image.tmdb.org/t/p/w1280${showData.backdrop_path}` : 'https://via.placeholder.com/1280x720/16161f/ffffff?text=No+Backdrop';
+
+        // Render show info + seasons
+        body.innerHTML = `
+          <div class="modal-backdrop" style="background-image:url(${backdropUrl})"></div>
+          <div class="modal-content">
+            <img src="${posterUrl}" class="modal-poster">
+            <div class="modal-info">
+              <h2>${showData.name} (${year})</h2>
+              <p>${showData.overview || 'No description available.'}</p>
+              <div style="display:flex; gap:15px; margin:15px 0; color:var(--text-muted);">
+                <span>⭐ ${showData.vote_average?.toFixed(1) || 'N/A'}</span>
+                <span>📺 ${showData.number_of_seasons} Season${showData.number_of_seasons !== 1 ? 's' : ''}</span>
+                <span>📅 ${showData.status || 'Unknown'}</span>
+              </div>
+              
+              <div class="seasons-container">
+                ${showData.seasons.filter(s => s.season_number > 0).map(season => `
+                  <div class="season-card ${season.season_number === 1 ? '' : 'collapsed'}" id="season-${season.season_number}">
+                    <div class="season-header" onclick="window.toggleSeason(${item.id}, ${season.season_number}, ${JSON.stringify(showData).replace(/"/g, '&quot;')})">
+                      <span class="season-toggle">▼</span>
+                      <h3 class="season-title">Season ${season.season_number}</h3>
+                      <span class="episode-count">${season.episode_count} Episode${season.episode_count !== 1 ? 's' : ''}</span>
+                      <button class="request-season-btn" onclick="event.stopPropagation(); window.requestSeason(${item.id}, ${season.season_number}, ${JSON.stringify(showData).replace(/"/g, '&quot;')})">
+                        <i class="fa-solid fa-download"></i> Request All
+                      </button>
+                    </div>
+                    <div class="episodes-list" id="season-${season.season_number}-episodes">
+                      ${season.season_number === 1 ? '<div class="episodes-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading episodes...</div>' : ''}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
+                <button onclick="window.openTorrentHub('${showData.name.replace(/'/g, "\\'")}', '${year}', 'tv')" class="torrent-btn">
+                  <i class="fa-solid fa-magnet"></i> Search Torrents
+                </button>
+                <button onclick="document.getElementById('detail-overlay').classList.remove('open')" class="torrent-btn" style="background:#333;">
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Auto-load Season 1 episodes
+        if (showData.seasons.find(s => s.season_number === 1)) {
+          await fetchSeasonEpisodes(item.id, 1, showData);
+        }
+
+      } catch (e) {
+        console.error('Error fetching TV show:', e);
+        body.innerHTML = `
+          <div style="padding:40px; text-align:center;">
+            <h2>Error Loading Show</h2>
+            <p>Could not fetch show details. Please try again.</p>
+            <button onclick="document.getElementById('detail-overlay').classList.remove('open')" class="torrent-btn" style="background:#333;">Close</button>
+          </div>
+        `;
+      }
+    }
+
+    // Toggle season expand/collapse
+    window.toggleSeason = async function (showId, seasonNumber, showData) {
+      const seasonCard = document.getElementById(`season-${seasonNumber}`);
+      const episodesContainer = document.getElementById(`season-${seasonNumber}-episodes`);
+
+      if (seasonCard.classList.contains('collapsed')) {
+        // Expand
+        seasonCard.classList.remove('collapsed');
+
+        // Fetch episodes if not already loaded
+        if (!episodesContainer.innerHTML || episodesContainer.querySelector('.episodes-loading')) {
+          episodesContainer.innerHTML = '<div class="episodes-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading episodes...</div>';
+          await fetchSeasonEpisodes(showId, seasonNumber, showData);
+        }
+      } else {
+        // Collapse
+        seasonCard.classList.add('collapsed');
+      }
+    };
+
+    // Fetch episodes for a season
+    async function fetchSeasonEpisodes(showId, seasonNumber, showData) {
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNumber}?api_key=${TMDB_KEY}`);
+        const seasonData = await res.json();
+        console.log(`Season ${seasonNumber} episodes:`, seasonData.episodes);
+
+        renderEpisodes(seasonNumber, seasonData.episodes, showData);
+      } catch (e) {
+        console.error(`Error fetching season ${seasonNumber}:`, e);
+        const container = document.getElementById(`season-${seasonNumber}-episodes`);
+        container.innerHTML = '<div class="episodes-loading" style="color:var(--red);">Failed to load episodes</div>';
+      }
+    }
+
+    // Render episodes in a season
+    function renderEpisodes(seasonNumber, episodes, showData) {
+      const container = document.getElementById(`season-${seasonNumber}-episodes`);
+
+      container.innerHTML = episodes.map(ep => {
+        const thumbUrl = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : 'https://via.placeholder.com/300x169/1c1c1e/ffffff?text=No+Image';
+        const epNum = String(ep.episode_number).padStart(2, '0');
+        const seasonNum = String(seasonNumber).padStart(2, '0');
+
+        return `
+          <div class="episode-card">
+            <img src="${thumbUrl}" class="episode-thumb" alt="Episode ${ep.episode_number}">
+            <div class="episode-info">
+              <h4 class="episode-title">S${seasonNum}E${epNum}: ${ep.name || 'Episode ' + ep.episode_number}</h4>
+              <p class="episode-overview">${ep.overview || 'No description available.'}</p>
+              <span class="episode-date">📅 ${ep.air_date || 'TBA'}</span>
+            </div>
+            <button class="request-episode-btn" onclick="window.requestEpisode(${JSON.stringify(showData).replace(/"/g, '&quot;')}, ${JSON.stringify(ep).replace(/"/g, '&quot;')})">
+              <i class="fa-solid fa-plus"></i> Request
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Request individual episode
+    window.requestEpisode = async function (show, episode) {
+      const seasonNum = String(episode.season_number).padStart(2, '0');
+      const epNum = String(episode.episode_number).padStart(2, '0');
+      const title = `${show.name} - S${seasonNum}E${epNum}: ${episode.name}`;
+
+      await saveItemFromObject({
+        id: `${show.id}_s${episode.season_number}e${episode.episode_number}`,
+        mediaType: 'tv_episode',
+        showId: show.id,
+        showName: show.name,
+        seasonNumber: episode.season_number,
+        episodeNumber: episode.episode_number,
+        title: title,
+        episodeTitle: episode.name,
+        poster_path: episode.still_path || show.poster_path,
+        backdrop_path: show.backdrop_path,
+        overview: episode.overview || show.overview,
+        release_date: episode.air_date,
+        vote_average: show.vote_average
+      }, 'pending', '', 'User', 'normal');
+
+      alert(`✅ Requested: ${title}`);
+    };
+
+    // Request entire season
+    window.requestSeason = async function (showId, seasonNumber, showData) {
+      try {
+        // Fetch season episodes
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNumber}?api_key=${TMDB_KEY}`);
+        const seasonData = await res.json();
+
+        // Request each episode
+        for (const episode of seasonData.episodes) {
+          await window.requestEpisode(showData, episode);
+        }
+
+        alert(`✅ Requested all ${seasonData.episodes.length} episodes from Season ${seasonNumber}`);
+      } catch (e) {
+        console.error('Error requesting season:', e);
+        alert('❌ Failed to request season. Please try again.');
+      }
+    };
+
     // 15. TORRENT HUB
     window.openTorrentHub = (title, year, mediaType = 'movie') => {
       const overlay = document.getElementById('torrent-overlay');
@@ -2093,18 +2470,11 @@
       body.innerHTML = `
       <h2 style="margin-bottom:20px;">Find Torrents</h2>
       <div class="hub-list">
-        ${mediaType === 'movie' ? `
-        <a href="https://yts.mx/browse-movies/${encodeURIComponent(title)}" target="_blank" class="hub-item" style="border-left:5px solid #4cd137">
-          <span>YTS (Movies - High Quality)</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
-        </a>` : ''}
-        <a href="https://1337x.to/search/${q}/1/" target="_blank" class="hub-item" style="border-left:5px solid #e84118">
-          <span>1337x Search</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        <a href="https://piratebay.org/search.php?q=${q}" target="_blank" class="hub-item" style="border-left:5px solid #e84118">
+          <span>The Pirate Bay</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
         </a>
-        <a href="https://torrentgalaxy.to/torrents.php?search=${q}" target="_blank" class="hub-item" style="border-left:5px solid #9c88ff">
-          <span>TorrentGalaxy</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
-        </a>
-        <a href="https://www.google.com/search?q=${q}+magnet+torrent" target="_blank" class="hub-item" style="border-left:5px solid #00a8ff">
-          <span>Google Smart Search</span> <i class="fa-solid fa-magnifying-glass"></i>
+        <a href="https://ext.to/search/?q=${q}" target="_blank" class="hub-item" style="border-left:5px solid #4cd137">
+          <span>Ext.to Search</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
         </a>
       </div>
       <button onclick="document.getElementById('torrent-overlay').classList.remove('open')" class="torrent-btn" style="background:#333; width:100%; margin-top:25px; justify-content:center;">Close</button>
