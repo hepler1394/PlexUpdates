@@ -47,7 +47,7 @@
       color: var(--text-primary);
       margin: 0;
       padding: 0;
-      padding-top: 160px;
+      padding-top: 120px;
       /* Space for fixed header */
       overflow-x: hidden;
     }
@@ -55,7 +55,7 @@
     /* --- HEADER & NAVIGATION --- */
     header {
       background: rgba(10, 10, 15, 0.95);
-      padding: 20px 0 0 0;
+      padding: 10px 0 0 0;
       position: fixed;
       top: 0;
       left: 0;
@@ -74,19 +74,15 @@
 
     .header-content {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
       align-items: center;
-      gap: 15px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
     h1 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff 0%, #888 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -1px;
+      font-size: 1.5rem;
+      margin: 0;
+      color: var(--accent);
     }
 
     .tabs {
@@ -103,7 +99,7 @@
     #search {
       padding: 12px 20px;
       border-radius: 25px;
-      border: 2px solid var(--red);
+      border: 2px solid var(--accent);
       background: var(--bg-card);
       color: var(--text-primary);
       font-size: 1rem;
@@ -114,7 +110,7 @@
 
     #search:focus {
       outline: none;
-      border-color: var(--red);
+      border-color: var(--accent);
       box-shadow: 0 0 20px rgba(229, 9, 20, 0.8), 0 0 40px rgba(229, 9, 20, 0.4);
       transform: scale(1.02);
     }
