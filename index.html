@@ -1,399 +1,509 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Movie Request Portal</title>
-<!-- Google Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<!-- Font Awesome Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Request Portal</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-  :root {
-    --bg-primary: #0a0a0f;
-    --bg-secondary: #12121a;
-    --bg-card: #16161f;
-    --bg-card-hover: #1c1c28;
-    --border: #2a2a3a;
-    --border-hover: #3a3a5a;
-    --text-primary: #eeeef0;
-    --text-secondary: #9898a8;
-    --text-muted: #68687a;
-    --accent: #e50914; /* Netflix/Plex Red */
-    --accent-glow: rgba(229, 9, 20, 0.4);
-    --green: #00d26a;
-    --green-neon: #39ff14; /* Neon Green for Added items */
-    --blue: #0984e3;
-  }
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #16161f;
+      --bg-card-hover: #1c1c28;
+      --border: #2a2a3a;
+      --border-hover: #3a3a5a;
+      --text-primary: #eeeef0;
+      --text-secondary: #9898a8;
+      --text-muted: #68687a;
+      --accent: #e50914;
+      /* Netflix/Plex Red */
+      --accent-glow: rgba(229, 9, 20, 0.4);
+      --green: #00d26a;
+      --green-neon: #39ff14;
+      /* Neon Green for Added items */
+      --blue: #0984e3;
+    }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      outline: none;
+    }
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    min-height: 100vh;
-    padding-bottom: 80px;
-    overflow-x: hidden;
-  }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding-bottom: 80px;
+      overflow-x: hidden;
+    }
 
-  /* --- HEADER & NAVIGATION --- */
-  header {
-    background: rgba(10, 10, 15, 0.95);
-    padding: 20px 0 0 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
-  }
+    /* --- HEADER & NAVIGATION --- */
+    header {
+      background: rgba(10, 10, 15, 0.95);
+      padding: 20px 0 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
 
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
 
-  .header-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-  }
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
 
-  h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #fff 0%, #888 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -1px;
-  }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, #888 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
 
-  .tabs {
-    display: flex;
-    gap: 10px;
-    background: var(--bg-secondary);
-    padding: 6px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    margin-bottom: 15px;
-  }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      background: var(--bg-secondary);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 15px;
+    }
 
-  .tab-btn {
-    padding: 12px 28px;
-    border-radius: 8px;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+    .tab-btn {
+      padding: 12px 28px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-  .tab-btn.active {
-    background: var(--accent);
-    color: white;
-    box-shadow: 0 4px 15px var(--accent-glow);
-  }
+    .tab-btn.active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
 
-  .tab-badge {
-    background: white;
-    color: var(--accent);
-    font-size: 0.75rem;
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-weight: 900;
-  }
+    .tab-badge {
+      background: white;
+      color: var(--accent);
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 900;
+    }
 
-  .search-container {
-    width: 100%;
-    max-width: 600px;
-    position: relative;
-    margin-bottom: 15px;
-  }
-  
-  .search-container.hidden { display: none; }
+    .search-container {
+      width: 100%;
+      max-width: 600px;
+      position: relative;
+      margin-bottom: 15px;
+    }
 
-  .search-input {
-    width: 100%;
-    padding: 16px 24px;
-    padding-left: 50px;
-    border-radius: 14px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 1rem;
-    transition: border 0.3s;
-  }
+    .search-container.hidden {
+      display: none;
+    }
 
-  .search-input:focus { border-color: var(--accent); }
+    .search-input {
+      width: 100%;
+      padding: 16px 24px;
+      padding-left: 50px;
+      border-radius: 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
 
-  .search-icon {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    font-size: 1.1rem;
-  }
+    .search-input:focus {
+      border-color: var(--accent);
+    }
 
-  /* --- GRID SYSTEM --- */
-  .view-section { display: none; animation: fadeIn 0.4s ease; }
-  .view-section.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
 
-  .section-header {
-    margin: 30px 0 20px 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+    /* --- GRID SYSTEM --- */
+    .view-section {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
 
-  .movie-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 25px;
-    margin-top: 10px;
-  }
+    .view-section.active {
+      display: block;
+    }
 
-  .movie-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    transition: transform 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    cursor: pointer;
-  }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
 
-  .movie-card:hover { transform: translateY(-8px); border-color: var(--border-hover); }
+      to {
+        opacity: 1;
+      }
+    }
 
-  /* PERSISTENT NEON GLOW for Added items */
-  .movie-card.library-item {
-    border: 2px solid var(--green-neon);
-    box-shadow: 0 0 20px rgba(57, 255, 20, 0.25);
-  }
+    .section-header {
+      margin: 30px 0 20px 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-  .poster-wrapper {
-    position: relative;
-    aspect-ratio: 2/3;
-    background: #000;
-    overflow: hidden;
-  }
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 25px;
+      margin-top: 10px;
+    }
 
-  .poster-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-  }
+    .movie-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      cursor: pointer;
+    }
 
-  .movie-card:hover .poster-img { transform: scale(1.05); }
+    .movie-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--border-hover);
+    }
 
-  .rating-badge {
-    position: absolute;
-    top: 10px; right: 10px;
-    background: rgba(0,0,0,0.85);
-    color: var(--green);
-    padding: 5px 8px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 800;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255,255,255,0.1);
-  }
+    /* PERSISTENT NEON GLOW for Added items */
+    .movie-card.library-item {
+      border: 2px solid var(--green-neon);
+      box-shadow: 0 0 20px rgba(57, 255, 20, 0.25);
+    }
 
-  .card-content {
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
+    .poster-wrapper {
+      position: relative;
+      aspect-ratio: 2/3;
+      background: #000;
+      overflow: hidden;
+    }
 
-  .movie-title {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 5px;
-    color: var(--text-primary);
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+    .poster-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
 
-  .movie-year { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px; }
+    .movie-card:hover .poster-img {
+      transform: scale(1.05);
+    }
 
-  /* --- BUTTONS --- */
-  .btn-wrapper { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+    .rating-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.85);
+      color: var(--green);
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-  .btn-card {
-    width: 100%;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s;
-  }
+    .card-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
 
-  .btn-mark-added {
-    background: transparent;
-    border: 1px dashed var(--text-muted);
-    font-size: 0.8rem;
-  }
+    .movie-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: var(--text-primary);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-  .btn-mark-added:hover {
-    color: var(--green-neon);
-    border-color: var(--green-neon);
-    background: rgba(57, 255, 20, 0.05);
-  }
+    .movie-year {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+    }
 
-  .btn-request:hover {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-  }
+    /* --- BUTTONS --- */
+    .btn-wrapper {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-  .btn-status-requested {
-    background: rgba(229, 9, 20, 0.1);
-    border-color: var(--accent);
-    color: var(--accent);
-    cursor: default;
-  }
+    .btn-card {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
 
-  .btn-status-available {
-    background: var(--green-neon);
-    color: black;
-    border-color: var(--green-neon);
-    cursor: default;
-  }
+    .btn-mark-added {
+      background: transparent;
+      border: 1px dashed var(--text-muted);
+      font-size: 0.8rem;
+    }
 
-  /* --- MODALS --- */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.92);
-    backdrop-filter: blur(10px);
-    z-index: 1000;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-  }
+    .btn-mark-added:hover {
+      color: var(--green-neon);
+      border-color: var(--green-neon);
+      background: rgba(57, 255, 20, 0.05);
+    }
 
-  .overlay.open { display: flex; }
+    .btn-request:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
 
-  .modal {
-    background: var(--bg-card);
-    width: 100%;
-    max-width: 800px;
-    border-radius: 28px;
-    border: 1px solid var(--border);
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
-  }
+    .btn-status-requested {
+      background: rgba(229, 9, 20, 0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+      cursor: default;
+    }
 
-  .modal-backdrop {
-    height: 280px;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-  }
+    .btn-status-available {
+      background: var(--green-neon);
+      color: black;
+      border-color: var(--green-neon);
+      cursor: default;
+    }
 
-  .modal-backdrop::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 20%, var(--bg-card) 100%);
-  }
+    /* --- MODALS --- */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
 
-  .modal-content {
-    padding: 0 40px 40px 40px;
-    display: flex;
-    gap: 40px;
-    margin-top: -120px;
-    position: relative;
-    z-index: 1;
-  }
+    .overlay.open {
+      display: flex;
+    }
 
-  .modal-poster {
-    width: 200px;
-    border-radius: 16px;
-    border: 1px solid var(--border);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-    flex-shrink: 0;
-  }
+    .modal {
+      background: var(--bg-card);
+      width: 100%;
+      max-width: 800px;
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
+    }
 
-  .modal-info { flex: 1; padding-top: 60px; }
-  .modal-info h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 10px; }
-  .modal-info p { color: var(--text-secondary); line-height: 1.6; font-size: 1rem; margin-bottom: 25px; }
+    .modal-backdrop {
+      height: 280px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
 
-  .torrent-btn {
-    display: inline-flex;
-    padding: 14px 28px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: 700;
-    background: var(--blue);
-    color: white;
-    align-items: center;
-    gap: 10px;
-    transition: transform 0.2s;
-  }
-  .torrent-btn:hover { transform: scale(1.03); }
+    .modal-backdrop::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 20%, var(--bg-card) 100%);
+    }
 
-  .torrent-hub-modal { max-width: 500px; padding: 30px; }
-  .hub-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-  .hub-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 18px; background: var(--bg-secondary); border: 1px solid var(--border);
-    border-radius: 14px; text-decoration: none; color: white; font-weight: 600;
-    transition: all 0.2s;
-  }
-  .hub-item:hover { border-color: var(--text-secondary); background: var(--bg-card-hover); }
+    .modal-content {
+      padding: 0 40px 40px 40px;
+      display: flex;
+      gap: 40px;
+      margin-top: -120px;
+      position: relative;
+      z-index: 1;
+    }
 
-  .loader { display: flex; justify-content: center; padding: 100px; color: var(--accent); }
+    .modal-poster {
+      width: 200px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      flex-shrink: 0;
+    }
 
-  @media (max-width: 768px) {
-    .movie-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-    .modal-content { flex-direction: column; align-items: center; margin-top: -60px; text-align: center; padding: 20px; }
-    .modal-info { padding-top: 0; }
-    .modal-poster { width: 150px; }
-    h1 { font-size: 1.8rem; }
-  }
-</style>
+    .modal-info {
+      flex: 1;
+      padding-top: 60px;
+    }
+
+    .modal-info h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .modal-info p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-size: 1rem;
+      margin-bottom: 25px;
+    }
+
+    .torrent-btn {
+      display: inline-flex;
+      padding: 14px 28px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      background: var(--blue);
+      color: white;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.2s;
+    }
+
+    .torrent-btn:hover {
+      transform: scale(1.03);
+    }
+
+    .torrent-hub-modal {
+      max-width: 500px;
+      padding: 30px;
+    }
+
+    .hub-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .hub-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .hub-item:hover {
+      border-color: var(--text-secondary);
+      background: var(--bg-card-hover);
+    }
+
+    .loader {
+      display: flex;
+      justify-content: center;
+      padding: 100px;
+      color: var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      .movie-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+
+      .modal-content {
+        flex-direction: column;
+        align-items: center;
+        margin-top: -60px;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .modal-info {
+        padding-top: 0;
+      }
+
+      .modal-poster {
+        width: 150px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
   <header>
     <div class="container header-content">
       <h1><i class="fa-solid fa-clapperboard"></i> Plex Hub</h1>
       <div class="tabs">
-        <button class="tab-btn active" id="tab-discover-btn" onclick="switchTab('discover')"><i class="fa-solid fa-compass"></i> Discover</button>
-        <button class="tab-btn" id="tab-requests-btn" onclick="switchTab('requests')"><i class="fa-solid fa-list-check"></i> Requests <span class="tab-badge" id="tab-count">0</span></button>
+        <button class="tab-btn active" id="tab-discover-btn" onclick="switchTab('discover')"><i
+            class="fa-solid fa-compass"></i> Discover</button>
+        <button class="tab-btn" id="tab-requests-btn" onclick="switchTab('requests')"><i
+            class="fa-solid fa-list-check"></i> Requests <span class="tab-badge" id="tab-count">0</span></button>
       </div>
       <div class="search-container" id="search-box">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -427,83 +537,92 @@
     <div class="modal torrent-hub-modal" id="torrent-modal-body"></div>
   </div>
 
-<script type="module">
-  // FIREBASE CONFIGURATION
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+  <script type="module">
+    // FIREBASE CONFIGURATION
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCftljTkWcA2-CyojsF40Dpjm9rAiSlKNc",
-    authDomain: "plexmovies-530e4.firebaseapp.com",
-    projectId: "plexmovies-530e4",
-    storageBucket: "plexmovies-530e4.firebasestorage.app",
-    messagingSenderId: "890489788932",
-    appId: "1:890489788932:web:7b606cb4a67ba70b23f351",
-    measurementId: "G-ZBZ7YQ1GYR"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCftljTkWcA2-CyojsF40Dpjm9rAiSlKNc",
+      authDomain: "plexmovies-530e4.firebaseapp.com",
+      projectId: "plexmovies-530e4",
+      storageBucket: "plexmovies-530e4.firebasestorage.app",
+      messagingSenderId: "890489788932",
+      appId: "1:890489788932:web:7b606cb4a67ba70b23f351",
+      measurementId: "G-ZBZ7YQ1GYR"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const TMDB_KEY = '5e30970a964f6e59d184fa77433b17ca';
-  
-  let globalRequests = []; // Stores live Firestore data
-  let currentDiscovery = []; // Stores current TMDB results
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const TMDB_KEY = '5e30970a964f6e59d184fa77433b17ca';
 
-  // 1. LISTEN TO FIREBASE REAL-TIME
-  onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snapshot) => {
-    globalRequests = [];
-    snapshot.forEach(doc => globalRequests.push(doc.data()));
-    updateUI();
-  });
+    let globalRequests = []; // Stores live Firestore data
+    let currentDiscovery = []; // Stores current TMDB results
 
-  // 2. FETCH TRENDING MOVIES
-  async function fetchTrending() {
-    document.getElementById('loader').style.display = 'flex';
-    try {
-      const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_KEY}`);
-      const data = await res.json();
-      currentDiscovery = data.results;
-      renderGrid(currentDiscovery, 'grid-discover');
-    } catch (e) { console.error("TMDB Fetch Error", e); }
-    document.getElementById('loader').style.display = 'none';
-  }
+    // 1. LISTEN TO FIREBASE REAL-TIME
+    onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snapshot) => {
+      globalRequests = [];
+      snapshot.forEach(doc => globalRequests.push(doc.data()));
+      updateUI();
+    });
 
-  // 3. SEARCH LOGIC
-  document.getElementById('search').addEventListener('input', async (e) => {
-    const val = e.target.value;
-    if (val.length > 2) {
-      document.getElementById('discover-header').innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Search Results`;
-      const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`);
-      const data = await res.json();
-      currentDiscovery = data.results;
-      renderGrid(currentDiscovery, 'grid-discover');
-    } else if (val.length === 0) {
-      document.getElementById('discover-header').innerHTML = `<i class="fa-solid fa-fire"></i> Trending Movies`;
-      fetchTrending();
-    }
-  });
-
-  // 4. RENDERING CARDS
-  function renderGrid(movies, targetId) {
-    const grid = document.getElementById(targetId);
-    grid.innerHTML = '';
-    if(!movies || movies.length === 0) {
-      grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">No movies found.</p>`;
-      return;
+    // 2. FETCH TRENDING MOVIES
+    async function fetchTrending() {
+      document.getElementById('loader').style.display = 'flex';
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_KEY}`);
+        const data = await res.json();
+        currentDiscovery = data.results;
+        renderGrid(currentDiscovery, 'grid-discover');
+      } catch (e) { console.error("TMDB Fetch Error", e); }
+      document.getElementById('loader').style.display = 'none';
     }
 
-    movies.forEach(movie => {
-      const dbEntry = globalRequests.find(r => r.id === movie.id);
-      const isAdded = dbEntry?.status === 'added';
-      const isPending = dbEntry?.status === 'pending';
+    // 3. SEARCH LOGIC
+    document.getElementById('search').addEventListener('input', async (e) => {
+      const val = e.target.value;
+      if (val.length > 2) {
+        document.getElementById('discover-header').innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Search Results`;
+        const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`);
+        const data = await res.json();
+        currentDiscovery = data.results;
+        renderGrid(currentDiscovery, 'grid-discover');
+      } else if (val.length === 0) {
+        document.getElementById('discover-header').innerHTML = `<i class="fa-solid fa-fire"></i> Trending Movies`;
+        fetchTrending();
+      }
+    });
 
-      const card = document.createElement('div');
-      card.className = `movie-card ${isAdded ? 'library-item' : ''}`;
-      
-      const poster = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'https://via.placeholder.com/500x750/16161f/ffffff?text=No+Poster';
-      const year = movie.release_date ? movie.release_date.split('-')[0] : 'N/A';
+    // 4. RENDERING CARDS
+    function renderGrid(movies, targetId) {
+      const grid = document.getElementById(targetId);
+      grid.innerHTML = '';
+      if (!movies || movies.length === 0) {
+        grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">No movies found.</p>`;
+        return;
+      }
 
-      card.innerHTML = `
+      movies.forEach(movie => {
+        const dbEntry = globalRequests.find(r => r.id === movie.id);
+        const isAdded = dbEntry?.status === 'added';
+        const isPending = dbEntry?.status === 'pending';
+
+        const card = document.createElement('div');
+        card.className = `movie-card ${isAdded ? 'library-item' : ''}`;
+
+        // Handle both TMDB format (poster_path) and stored format (poster full URL)
+        let poster;
+        if (movie.poster_path) {
+          poster = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+        } else if (movie.poster && movie.poster.startsWith('http')) {
+          poster = movie.poster;
+        } else {
+          poster = 'https://via.placeholder.com/500x750/16161f/ffffff?text=No+Poster';
+        }
+
+        const year = movie.release_date ? movie.release_date.split('-')[0] : 'N/A';
+
+        card.innerHTML = `
         <div class="poster-wrapper">
           <img src="${poster}" class="poster-img" loading="lazy">
           <div class="rating-badge"><i class="fa-solid fa-star"></i> ${movie.vote_average?.toFixed(1) || 'NR'}</div>
@@ -512,64 +631,78 @@
           <div class="movie-title">${movie.title}</div>
           <div class="movie-year">${year}</div>
           <div class="btn-wrapper">
-            ${isAdded ? '<button class="btn-card btn-status-available"><i class="fa-solid fa-circle-check"></i> Available</button>' : 
-              `<button class="btn-card btn-mark-added" onclick="event.stopPropagation(); window.saveMovie(${movie.id}, '${movie.title.replace(/'/g, "\\'")}', '${poster}', 'added')"><i class="fa-solid fa-check"></i> Mark Available</button>
-               <button class="btn-card btn-request ${isPending ? 'btn-status-requested' : ''}" onclick="event.stopPropagation(); if('${isPending}'=='false') window.saveMovie(${movie.id}, '${movie.title.replace(/'/g, "\\'")}', '${poster}', 'pending')">
+            ${isAdded ? '<button class="btn-card btn-status-available"><i class="fa-solid fa-circle-check"></i> Available</button>' :
+            `<button class="btn-card btn-mark-added" onclick="event.stopPropagation(); window.saveMovieFromObject(${JSON.stringify(movie).replace(/"/g, '&quot;')}, 'added')"><i class="fa-solid fa-check"></i> Mark Available</button>
+               <button class="btn-card btn-request ${isPending ? 'btn-status-requested' : ''}" onclick="event.stopPropagation(); if('${isPending}'=='false') window.saveMovieFromObject(${JSON.stringify(movie).replace(/"/g, '&quot;')}, 'pending')">
                  ${isPending ? '<i class="fa-solid fa-hourglass-start"></i> Requested' : '<i class="fa-solid fa-plus"></i> Request Movie'}
                </button>`}
           </div>
         </div>
       `;
-      card.onclick = () => openDetail(movie);
-      grid.appendChild(card);
-    });
-  }
-
-  // 5. DATABASE ACTIONS
-  window.saveMovie = async (id, title, poster, status) => {
-    try {
-      await setDoc(doc(db, "requests", String(id)), { id, title, poster, status, timestamp: Date.now() });
-    } catch (e) { console.error("Firebase Error", e); }
-  };
-
-  // 6. UI UPDATES
-  function updateUI() {
-    const pendingCount = globalRequests.filter(r => r.status === 'pending').length;
-    document.getElementById('tab-count').innerText = pendingCount;
-    
-    // Refresh Discovery Grid to show new glows/badges
-    if (document.getElementById('view-discover').classList.contains('active')) {
-      renderGrid(currentDiscovery, 'grid-discover');
+        card.onclick = () => openDetail(movie);
+        grid.appendChild(card);
+      });
     }
-    // Refresh Request Grid
-    if (document.getElementById('view-requests').classList.contains('active')) {
-      renderGrid(globalRequests.filter(r => r.status === 'pending'), 'grid-requests');
-    }
-  }
 
-  window.switchTab = (tab) => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(`tab-${tab}-btn`).classList.add('active');
-    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-    document.getElementById(`view-${tab}`).classList.add('active');
-    
-    const searchBox = document.getElementById('search-box');
-    if (tab === 'discover') {
-      searchBox.classList.remove('hidden');
-      renderGrid(currentDiscovery, 'grid-discover');
-    } else {
-      searchBox.classList.add('hidden');
-      renderGrid(globalRequests.filter(r => r.status === 'pending'), 'grid-requests');
-    }
-  };
+    // 5. DATABASE ACTIONS - Save complete movie object
+    window.saveMovieFromObject = async (movieObj, status) => {
+      try {
+        const movie = typeof movieObj === 'string' ? JSON.parse(movieObj) : movieObj;
+        await setDoc(doc(db, "requests", String(movie.id)), {
+          id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_path,
+          backdrop_path: movie.backdrop_path,
+          overview: movie.overview,
+          release_date: movie.release_date,
+          vote_average: movie.vote_average,
+          status: status,
+          timestamp: Date.now()
+        });
+      } catch (e) { console.error("Firebase Error", e); }
+    };
 
-  // 7. DETAIL MODAL
-  function openDetail(movie) {
-    const overlay = document.getElementById('detail-overlay');
-    const body = document.getElementById('detail-modal-body');
-    const year = movie.release_date?.split('-')[0] || '';
-    
-    body.innerHTML = `
+    // Legacy support for old saveMovie calls
+    window.saveMovie = window.saveMovieFromObject;
+
+    // 6. UI UPDATES
+    function updateUI() {
+      const pendingCount = globalRequests.filter(r => r.status === 'pending').length;
+      document.getElementById('tab-count').innerText = pendingCount;
+
+      // Refresh Discovery Grid to show new glows/badges
+      if (document.getElementById('view-discover').classList.contains('active')) {
+        renderGrid(currentDiscovery, 'grid-discover');
+      }
+      // Refresh Request Grid
+      if (document.getElementById('view-requests').classList.contains('active')) {
+        renderGrid(globalRequests.filter(r => r.status === 'pending'), 'grid-requests');
+      }
+    }
+
+    window.switchTab = (tab) => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`tab-${tab}-btn`).classList.add('active');
+      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+      document.getElementById(`view-${tab}`).classList.add('active');
+
+      const searchBox = document.getElementById('search-box');
+      if (tab === 'discover') {
+        searchBox.classList.remove('hidden');
+        renderGrid(currentDiscovery, 'grid-discover');
+      } else {
+        searchBox.classList.add('hidden');
+        renderGrid(globalRequests.filter(r => r.status === 'pending'), 'grid-requests');
+      }
+    };
+
+    // 7. DETAIL MODAL
+    function openDetail(movie) {
+      const overlay = document.getElementById('detail-overlay');
+      const body = document.getElementById('detail-modal-body');
+      const year = movie.release_date?.split('-')[0] || '';
+
+      body.innerHTML = `
       <div class="modal-backdrop" style="background-image:url(https://image.tmdb.org/t/p/w1280${movie.backdrop_path})"></div>
       <div class="modal-content">
         <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="modal-poster">
@@ -581,16 +714,16 @@
         </div>
       </div>
     `;
-    overlay.classList.add('open');
-  }
+      overlay.classList.add('open');
+    }
 
-  // 8. TORRENT HUB
-  window.openTorrentHub = (title, year) => {
-    const overlay = document.getElementById('torrent-overlay');
-    const body = document.getElementById('torrent-modal-body');
-    const q = encodeURIComponent(`${title} ${year}`);
-    
-    body.innerHTML = `
+    // 8. TORRENT HUB
+    window.openTorrentHub = (title, year) => {
+      const overlay = document.getElementById('torrent-overlay');
+      const body = document.getElementById('torrent-modal-body');
+      const q = encodeURIComponent(`${title} ${year}`);
+
+      body.innerHTML = `
       <h2 style="margin-bottom:20px;">Torrent Hub</h2>
       <div class="hub-list">
         <a href="https://yts.mx/browse-movies/${encodeURIComponent(title)}" target="_blank" class="hub-item" style="border-left:5px solid #4cd137">
@@ -608,11 +741,12 @@
       </div>
       <button onclick="document.getElementById('torrent-overlay').classList.remove('open')" class="torrent-btn" style="background:#333; width:100%; margin-top:25px; justify-content:center;">Back to Portal</button>
     `;
-    overlay.classList.add('open');
-  };
+      overlay.classList.add('open');
+    };
 
-  // Start the app
-  fetchTrending();
-</script>
+    // Start the app
+    fetchTrending();
+  </script>
 </body>
+
 </html>
