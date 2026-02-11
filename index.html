@@ -613,11 +613,14 @@
   <header>
     <div class="container header-content">
       <h1><i class="fa-solid fa-clapperboard"></i> Plex Hub</h1>
+      <p style="color: var(--text-secondary); font-size: 1.1rem; margin-top: -10px;">Request Movies For Corys Plex</p>
       <div class="tabs">
         <button class="tab-btn active" id="tab-movies-btn" onclick="switchTab('movies')"><i
             class="fa-solid fa-film"></i> Movies</button>
         <button class="tab-btn" id="tab-tvshows-btn" onclick="switchTab('tvshows')"><i class="fa-solid fa-tv"></i> TV
           Shows</button>
+        <button class="tab-btn" id="tab-coming-btn" onclick="switchTab('coming')"><i
+            class="fa-solid fa-calendar-star"></i> Coming Soon</button>
         <button class="tab-btn" id="tab-requests-btn" onclick="switchTab('requests')"><i
             class="fa-solid fa-list-check"></i> Requests <span class="tab-badge" id="tab-count">0</span></button>
         <button class="tab-btn" id="tab-stats-btn" onclick="switchTab('stats')"><i class="fa-solid fa-chart-pie"></i>
@@ -684,6 +687,13 @@
       <div id="grid-tvshows" class="movie-grid"></div>
     </div>
 
+    <!-- COMING SOON SECTION -->
+    <div id="view-coming" class="view-section">
+      <div class="section-header"><i class="fa-solid fa-calendar-star"></i> Upcoming Releases</div>
+      <div id="loader-coming" class="loader"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+      <div id="grid-coming" class="movie-grid"></div>
+    </div>
+
     <!-- REQUESTS SECTION -->
     <div id="view-requests" class="view-section">
       <div class="controls-bar">
@@ -745,6 +755,7 @@
     let globalRequests = []; // Stores live Firestore data
     let currentMovies = []; // Stores current TMDB movie results
     let currentTVShows = []; // Stores current TMDB TV results
+    let currentComingSoon = []; // Stores upcoming movies
     let currentTab = 'movies';
 
     // 1. LISTEN TO FIREBASE REAL-TIME
@@ -781,6 +792,23 @@
         renderGrid(currentTVShows, 'grid-tvshows');
       } catch (e) { console.error("TMDB TV Fetch Error", e); }
       document.getElementById('loader-tv').style.display = 'none';
+    }
+
+    // 3B. FETCH COMING SOON MOVIES
+    async function fetchComingSoon() {
+      document.getElementById('loader-coming').style.display = 'flex';
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const futureDate = new Date();
+        futureDate.setMonth(futureDate.getMonth() + 3);
+        const future = futureDate.toISOString().split('T')[0];
+
+        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&primary_release_date.gte=${today}&primary_release_date.lte=${future}&sort_by=popularity.desc`);
+        const data = await res.json();
+        currentComingSoon = data.results.map(m => ({ ...m, mediaType: 'movie' }));
+        renderGrid(currentComingSoon, 'grid-coming');
+      } catch (e) { console.error("TMDB Coming Soon Error", e); }
+      document.getElementById('loader-coming').style.display = 'none';
     }
 
     // 4. SEARCH LOGIC
@@ -1107,6 +1135,10 @@
         document.getElementById('search').placeholder = 'Search TV shows...';
         if (currentTVShows.length === 0) fetchTrendingTV();
         else renderGrid(currentTVShows, 'grid-tvshows');
+      } else if (tab === 'coming') {
+        searchBox.classList.add('hidden');
+        if (currentComingSoon.length === 0) fetchComingSoon();
+        else renderGrid(currentComingSoon, 'grid-coming');
       } else if (tab === 'requests') {
         searchBox.classList.add('hidden');
         renderRequestsGrid();
@@ -1145,7 +1177,7 @@
         <img src="${posterUrl}" class="modal-poster">
         <div class="modal-info">
           <h2>${item.title} (${year})</h2>
-          <p>${item.overview || 'No description available.'}</p>
+          <p>${item.overview || dbEntry?.overview || 'No description available.'}</p>
           ${dbEntry?.note ? `<p style="font-style: italic; color: var(--purple);">"${dbEntry.note}"</p>` : ''}
           ${dbEntry?.requester ? `<p style="color: var(--text-muted); font-size: 0.9rem;">Requested by: ${dbEntry.requester}</p>` : ''}
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
