@@ -977,6 +977,18 @@
 </head>
 
 <body>
+  <!-- MOVIE/TV DETAIL MODAL -->
+  <div class="overlay" id="detail-overlay" onclick="if(event.target==this)this.classList.remove('open')">
+    <div class="modal" id="detail-modal-body"></div>
+  </div>
+
+  <!-- TORRENT HUB MODAL -->
+  <div class="overlay" id="torrent-overlay" onclick="if(event.target==this)this.classList.remove('open')">
+    <div class="modal torrent-hub-modal" id="torrent-modal-body"></div>
+  </div>
+
+  <!-- CONTEXT MENU -->
+  <div id="context-menu" class="context-menu"></div>
 
   <header>
     <div class="container header-content">
@@ -1190,18 +1202,7 @@
     </div>
   </main>
 
-  <!-- MOVIE/TV DETAIL MODAL -->
-  <div class="overlay" id="detail-overlay" onclick="if(event.target==this)this.classList.remove('open')">
-    <div class="modal" id="detail-modal-body"></div>
-  </div>
 
-  <!-- TORRENT HUB MODAL -->
-  <div class="overlay" id="torrent-overlay" onclick="if(event.target==this)this.classList.remove('open')">
-    <div class="modal torrent-hub-modal" id="torrent-modal-body"></div>
-  </div>
-
-  <!-- CONTEXT MENU -->
-  <div id="context-menu" class="context-menu"></div>
 
   <script type="module">
     // FIREBASE CONFIGURATION
