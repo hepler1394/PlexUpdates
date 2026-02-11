@@ -46,29 +46,28 @@
       background-color: var(--bg-primary);
       color: var(--text-primary);
       min-height: 100vh;
-      padding-top: 250px;
-      /* Space for fixed header + sticky controls */
+      margin: 0;
+      padding: 0;
+      margin-left: 300px;
+      /* Space for sidebar */
+      padding-top: 20px;
       padding-bottom: 80px;
       overflow-x: hidden;
     }
 
-    /* --- HEADER & NAVIGATION --- */
+    /* --- SIDEBAR (was header) --- */
     header {
-      background: rgba(10, 10, 15, 0.95);
-      padding: 20px 0 0 0;
+      background: rgba(10, 10, 15, 0.98);
+      padding: 30px 20px;
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      width: 100%;
+      width: 300px;
+      height: 100vh;
       z-index: 1000;
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-      transition: transform 0.3s ease;
-    }
-
-    header.hidden {
-      transform: translateY(-100%);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
     }
 
     .container {
@@ -81,8 +80,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
-      margin-bottom: 15px;
+      gap: 20px;
+      margin-bottom: 20px;
     }
 
     h1 {
@@ -97,13 +96,9 @@
 
     .tabs {
       display: flex;
-      gap: 10px;
-      background: var(--bg-secondary);
-      padding: 6px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      margin-bottom: 15px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
     }
 
     #search {
@@ -112,8 +107,8 @@
       border: 2px solid var(--red);
       background: var(--bg-card);
       color: var(--text-primary);
-      font-size: 1rem;
-      width: 400px;
+      font-size: 0.95rem;
+      width: 100%;
       transition: all 0.3s ease;
       box-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
     }
@@ -125,15 +120,18 @@
       transform: scale(1.02);
     }
 
-    .tab-btn {
-      padding: 12px 28px;
-      border-radius: 8px;
-      border: none;
+    .tabs button {
+      padding: 12px 20px;
       background: transparent;
       color: var(--text-secondary);
-      font-weight: 600;
+      border: none;
       cursor: pointer;
-      transition: all 0.2s ease;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      border-radius: 10px;
+      position: relative;
+      width: 100%;
+      text-align: left;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -195,18 +193,15 @@
     .controls-bar {
       display: flex;
       gap: 12px;
-      margin: 0;
+      margin: 0 0 20px 0;
       padding: 15px;
       background: var(--bg-card);
-      border-radius: 0;
+      border-radius: 8px;
       border: 1px solid var(--border);
-      border-left: none;
-      border-right: none;
       flex-wrap: wrap;
       align-items: center;
       position: sticky;
-      top: 160px;
-      /* Below header */
+      top: 20px;
       z-index: 999;
       backdrop-filter: blur(10px);
     }
@@ -1012,6 +1007,13 @@
     onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snapshot) => {
       globalRequests = [];
       snapshot.forEach(doc => globalRequests.push(doc.data()));
+      console.log('=== FIREBASE UPDATED ===');
+      console.log('Total requests:', globalRequests.length);
+      console.log('Sample item:', globalRequests[0]);
+      if (globalRequests[0]) {
+        console.log('Sample has overview:', !!globalRequests[0].overview);
+        console.log('Sample has poster:', !!globalRequests[0].poster_path);
+      }
       updateUI();
     });
 
@@ -1038,24 +1040,6 @@
 
     // Call init when page loads
     initApp();
-
-    // AUTO-HIDE HEADER ON SCROLL
-    let lastScrollTop = 0;
-    const header = document.querySelector('header');
-
-    window.addEventListener('scroll', () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-      if (scrollTop > lastScrollTop && scrollTop > 100) {
-        // Scrolling down & past 100px
-        header.classList.add('hidden');
-      } else {
-        // Scrolling up or at top
-        header.classList.remove('hidden');
-      }
-
-      lastScrollTop = scrollTop;
-    });
 
     // 2. FETCH TRENDING MOVIES (with auto-refresh - DAILY)
     async function fetchTrending(page = 1, append = false) {
@@ -1759,26 +1743,43 @@
       try {
         const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
 
-        // Check if item already exists in DB to preserve overview
-        const existingItem = globalRequests.find(r => r.id === item.id && r.mediaType === (item.mediaType || 'movie'));
-        const overview = item.overview || existingItem?.overview || '';
+        // Debug logging
+        console.log('=== SAVING ITEM ===');
+        console.log('Item received:', item);
+        console.log('Has overview:', !!item.overview);
+        console.log('Has poster_path:', !!item.poster_path);
+        console.log('Status:', status);
 
-        await setDoc(doc(db, "requests", `${item.mediaType || 'movie'}_${item.id}`), {
+        // Check if item already exists in DB to preserve data
+        const existingItem = globalRequests.find(r => r.id === item.id && r.mediaType === (item.mediaType || 'movie'));
+        console.log('Existing item found:', !!existingItem);
+
+        // CRITICAL: Preserve all important fields, prioritize new data, fallback to existing
+        const dataToSave = {
           id: item.id,
           mediaType: item.mediaType || 'movie',
           title: item.title,
-          poster_path: item.poster_path,
-          backdrop_path: item.backdrop_path,
-          overview: overview,
-          release_date: item.release_date,
-          vote_average: item.vote_average,
+          poster_path: item.poster_path || existingItem?.poster_path || '',
+          backdrop_path: item.backdrop_path || existingItem?.backdrop_path || '',
+          overview: item.overview || existingItem?.overview || '',
+          release_date: item.release_date || existingItem?.release_date || '',
+          vote_average: item.vote_average || existingItem?.vote_average || 0,
           status: status,
           note: note,
           requester: requester,
           priority: priority,
           timestamp: existingItem?.timestamp || Date.now()
-        });
-      } catch (e) { console.error("Firebase Error", e); }
+        };
+
+        console.log('Data to save:', dataToSave);
+        console.log('Saving overview:', dataToSave.overview ? 'YES' : 'NO');
+        console.log('Saving poster:', dataToSave.poster_path ? 'YES' : 'NO');
+
+        await setDoc(doc(db, "requests", `${dataToSave.mediaType}_${item.id}`), dataToSave);
+        console.log('✅ Saved to Firebase successfully');
+      } catch (e) {
+        console.error("Firebase Save Error:", e);
+      }
     };
 
     // 9. DELETE REQUEST
@@ -1921,42 +1922,60 @@
       const overlay = document.getElementById('detail-overlay');
       const body = document.getElementById('detail-modal-body');
 
+      console.log('\n=== OPEN DETAIL CALLED ===');
+      console.log('Item clicked:', item);
+      console.log('Item has overview:', !!item.overview);
+      console.log('Item has poster_path:', !!item.poster_path);
+
       // Find the DB entry first - this is critical for requested items
       const dbEntry = globalRequests.find(r => r.id === item.id && r.mediaType === (item.mediaType || 'movie'));
-
-      // Debug logging
-      console.log('openDetail called with:', item);
-      console.log('Found dbEntry:', dbEntry);
+      console.log('DB entry found:', !!dbEntry);
+      if (dbEntry) {
+        console.log('DB entry data:', dbEntry);
+        console.log('DB has overview:', !!dbEntry.overview);
+        console.log('DB has poster:', !!dbEntry.poster_path);
+      }
 
       // Use DB data first if available, fallback to item data
       let displayItem = dbEntry || item;
 
-      // If dbEntry exists but missing overview/poster, fetch from TMDB
-      if (dbEntry && (!dbEntry.overview || !dbEntry.poster_path)) {
-        console.log('DB entry missing data, fetching from TMDB...');
+      // If missing critical data, fetch from TMDB
+      if (!displayItem.overview || !displayItem.poster_path) {
+        console.log('⚠️ Missing data, fetching from TMDB...');
+
+        // Show loading state
+        body.innerHTML = `
+          <div style="display:flex; justify-content:center; align-items:center; height:400px;">
+            <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color:var(--red);"></i>
+          </div>
+        `;
+        overlay.classList.add('open');
+
         try {
-          const mediaType = dbEntry.mediaType || 'movie';
+          const mediaType = displayItem.mediaType || 'movie';
           const endpoint = mediaType === 'tv' ? 'tv' : 'movie';
-          const res = await fetch(`https://api.themoviedb.org/3/${endpoint}/${dbEntry.id}?api_key=${TMDB_KEY}`);
+          const res = await fetch(`https://api.themoviedb.org/3/${endpoint}/${displayItem.id}?api_key=${TMDB_KEY}`);
           const tmdbData = await res.json();
           console.log('TMDB data fetched:', tmdbData);
 
-          // Merge TMDB data with DB data
+          // Merge TMDB data with existing data
           displayItem = {
-            ...dbEntry,
-            overview: dbEntry.overview || tmdbData.overview,
-            poster_path: dbEntry.poster_path || tmdbData.poster_path,
-            backdrop_path: dbEntry.backdrop_path || tmdbData.backdrop_path,
-            release_date: dbEntry.release_date || tmdbData.release_date || tmdbData.first_air_date
+            ...displayItem,
+            overview: displayItem.overview || tmdbData.overview || '',
+            poster_path: displayItem.poster_path || tmdbData.poster_path || '',
+            backdrop_path: displayItem.backdrop_path || tmdbData.backdrop_path || '',
+            release_date: displayItem.release_date || tmdbData.release_date || tmdbData.first_air_date || ''
           };
+
+          console.log('Merged displayItem:', displayItem);
         } catch (e) {
-          console.error('Error fetching TMDB data:', e);
+          console.error('TMDB fetch error:', e);
         }
       }
 
       const year = displayItem.release_date?.split('-')[0] || '';
 
-      // Handle backdrop - check if it's a full URL or just a path
+      // Handle backdrop
       let backdropUrl;
       if (displayItem.backdrop_path) {
         if (displayItem.backdrop_path.startsWith('http')) {
@@ -1968,7 +1987,7 @@
         backdropUrl = 'https://via.placeholder.com/1280x720/16161f/ffffff?text=No+Backdrop';
       }
 
-      // Handle poster - check if it's a full URL or just a path
+      // Handle poster
       let posterUrl;
       if (displayItem.poster_path) {
         if (displayItem.poster_path.startsWith('http')) {
@@ -1981,13 +2000,13 @@
       }
 
       const isPending = dbEntry?.status === 'pending';
-
-      // Use overview from displayItem (now enriched with TMDB data if needed)
       const description = displayItem.overview || 'No description available.';
 
-      console.log('Using description:', description);
-      console.log('Using posterUrl:', posterUrl);
-      console.log('Using backdropUrl:', backdropUrl);
+      console.log('Final render data:');
+      console.log('Description:', description.substring(0, 50) + '...');
+      console.log('Poster URL:', posterUrl);
+      console.log('Backdrop URL:', backdropUrl);
+      console.log('Year:', year);
 
       body.innerHTML = `
       <div class="modal-backdrop" style="background-image:url(${backdropUrl})"></div>
@@ -2007,6 +2026,7 @@
       </div>
     `;
       overlay.classList.add('open');
+      console.log('✅ Modal rendered');
     }
 
     // 15. TORRENT HUB
