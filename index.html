@@ -1922,6 +1922,14 @@
       const overlay = document.getElementById('detail-overlay');
       const body = document.getElementById('detail-modal-body');
 
+      // Safety check
+      if (!overlay || !body) {
+        console.error('❌ Modal elements not found!');
+        console.error('overlay:', overlay);
+        console.error('body:', body);
+        return;
+      }
+
       console.log('\n=== OPEN DETAIL CALLED ===');
       console.log('Item clicked:', item);
       console.log('Item has overview:', !!item.overview);
