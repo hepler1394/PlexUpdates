@@ -2559,6 +2559,9 @@
     window.bulkDeleteSelected = async () => {
       const checkboxes = document.querySelectorAll('.request-checkbox:checked');
 
+      console.log('=== BULK DELETE ===');
+      console.log('Checkboxes selected:', checkboxes.length);
+
       if (checkboxes.length === 0) {
         alert('Please select at least one item to delete');
         return;
@@ -2572,15 +2575,42 @@
       for (const cb of checkboxes) {
         try {
           const item = JSON.parse(cb.getAttribute('data-item'));
+          console.log('Attempting to delete item:', item.title, 'ID:', item.id);
 
-          // Find the item in globalRequests to get proper info
-          const dbItem = globalRequests.find(r => r.id === item.id);
+          // Find the item in globalRequests - compare as strings
+          const dbItem = globalRequests.find(r => String(r.id) === String(item.id));
+          console.log('Found in globalRequests:', !!dbItem);
 
           if (dbItem) {
-            // Delete from Firebase using the correct document ID format
-            const docId = `${dbItem.mediaType || 'movie'}_${dbItem.id}`;
-            await deleteDoc(doc(db, "requests", docId));
-            deleted++;
+            console.log('DB Item:', dbItem);
+
+            // Try multiple possible document ID formats
+            const possibleDocIds = [
+              `${dbItem.mediaType || 'movie'}_${dbItem.id}`,
+              `movie_${dbItem.id}`,
+              `tv_${dbItem.id}`,
+              String(dbItem.id)
+            ];
+
+            let deletedFromDb = false;
+            for (const docId of possibleDocIds) {
+              try {
+                console.log('Trying to delete with docId:', docId);
+                await deleteDoc(doc(db, "requests", docId));
+                console.log('✅ Successfully deleted:', docId);
+                deletedFromDb = true;
+                deleted++;
+                break;
+              } catch (e) {
+                console.log('Failed with docId:', docId, e.message);
+              }
+            }
+
+            if (!deletedFromDb) {
+              console.error('❌ Could not delete item with any docId format');
+            }
+          } else {
+            console.error('Item not found in globalRequests');
           }
         } catch (e) {
           console.error('Delete error:', e);
@@ -2590,7 +2620,13 @@
       // Uncheck select all
       document.getElementById('select-all-requests').checked = false;
 
-      alert(`✅ Deleted ${deleted} item(s)`);
+      console.log(`Total deleted: ${deleted}`);
+      alert(`✅ Deleted ${deleted} item(s). Page will refresh.`);
+
+      // Force refresh the UI
+      setTimeout(() => {
+        updateUI();
+      }, 1000);
     };
 
     // 17. COPY REQUEST LIST
