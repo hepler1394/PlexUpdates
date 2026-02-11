@@ -95,6 +95,25 @@
       flex-wrap: wrap;
     }
 
+    #search {
+      padding: 12px 20px;
+      border-radius: 25px;
+      border: 2px solid var(--red);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 1rem;
+      width: 350px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+    }
+
+    #search:focus {
+      outline: none;
+      border-color: var(--red);
+      box-shadow: 0 0 20px rgba(229, 9, 20, 0.8), 0 0 40px rgba(229, 9, 20, 0.4);
+      transform: scale(1.02);
+    }
+
     .tab-btn {
       padding: 12px 28px;
       border-radius: 8px;
@@ -575,6 +594,40 @@
       color: var(--accent);
     }
 
+    /* Scroll to Top Button */
+    #scroll-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      background: var(--red);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(229, 9, 20, 0.6);
+      transition: all 0.3s ease;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #scroll-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    #scroll-to-top:hover {
+      background: #ff0a16;
+      transform: translateY(-5px);
+      box-shadow: 0 6px 25px rgba(229, 9, 20, 0.8);
+    }
+
     @media (max-width: 768px) {
       .movie-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -701,17 +754,25 @@
           Shows</button>
         <button class="tab-btn" id="tab-coming-btn" onclick="switchTab('coming')"><i
             class="fa-solid fa-calendar-star"></i> Coming Soon</button>
+        <button class="tab-btn" id="tab-episodes-btn" onclick="switchTab('episodes')"><i
+            class="fa-solid fa-clock-rotate-left"></i> New Episodes</button>
+        <button class="tab-btn" id="tab-tracking-btn" onclick="switchTab('tracking')"><i class="fa-solid fa-bell"></i>
+          Track Shows</button>
         <button class="tab-btn" id="tab-requests-btn" onclick="switchTab('requests')"><i
             class="fa-solid fa-list-check"></i> Requests <span class="tab-badge" id="tab-count">0</span></button>
         <button class="tab-btn" id="tab-stats-btn" onclick="switchTab('stats')"><i class="fa-solid fa-chart-pie"></i>
           Stats</button>
       </div>
-      <div class="search-container" id="search-box">
-        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="search" class="search-input" placeholder="Search...">
+      <div id="search-box" class="search-container">
+        <input type="text" id="search" placeholder="Search movies...">
       </div>
     </div>
   </header>
+
+  <!-- Scroll to Top Button -->
+  <button id="scroll-to-top" onclick="scrollToTop()">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
 
   <main class="container">
     <!-- MOVIES SECTION -->
@@ -722,6 +783,7 @@
           <option value="rating">By Rating</option>
           <option value="year">By Year</option>
           <option value="title">By Title</option>
+          <option value="popularity">By Popularity</option>
         </select>
         <select id="movie-genre" class="control-select">
           <option value="">All Genres</option>
@@ -736,6 +798,23 @@
           <option value="878">Sci-Fi</option>
           <option value="53">Thriller</option>
         </select>
+        <select id="movie-rating-filter" class="control-select">
+          <option value="all">All Ratings</option>
+          <option value="high">8.0+ ⭐</option>
+          <option value="mid">6.0 - 7.9</option>
+          <option value="low">Below 6.0</option>
+        </select>
+        <select id="movie-year-filter" class="control-select">
+          <option value="all">All Years</option>
+          <option value="2024">2024-2026</option>
+          <option value="2020">2020-2023</option>
+          <option value="2010">2010-2019</option>
+          <option value="2000">2000-2009</option>
+          <option value="classic">Before 2000</option>
+        </select>
+        <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        <button class="control-btn" onclick="loadMoreMovies()"><i class="fa-solid fa-plus-circle"></i> Load
+          More</button>
       </div>
       <div class="section-header" id="movie-header"><i class="fa-solid fa-fire"></i> Trending Movies</div>
       <div id="loader-movies" class="loader"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
@@ -761,6 +840,8 @@
           <option value="18">Drama</option>
           <option value="10765">Sci-Fi & Fantasy</option>
         </select>
+        <button class="control-btn" onclick="forceRefreshTV()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        <button class="control-btn" onclick="loadMoreTV()"><i class="fa-solid fa-plus-circle"></i> Load More</button>
       </div>
       <div class="section-header" id="tv-header"><i class="fa-solid fa-fire"></i> Trending TV Shows</div>
       <div id="loader-tv" class="loader"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
@@ -772,6 +853,30 @@
       <div class="section-header"><i class="fa-solid fa-calendar-star"></i> Upcoming Releases</div>
       <div id="loader-coming" class="loader"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
       <div id="grid-coming" class="movie-grid"></div>
+    </div>
+
+    <!-- NEW EPISODES SECTION -->
+    <div id="view-episodes" class="view-section">
+      <div class="section-header"><i class="fa-solid fa-clock-rotate-left"></i> New Episodes Today</div>
+      <div id="grid-episodes" class="movie-grid"></div>
+      <p id="no-episodes" style="text-align: center; color: var(--text-muted); padding: 40px; display: none;">
+        No new episodes from your tracked shows today. Check back tomorrow!
+      </p>
+    </div>
+
+    <!-- TRACK SHOWS SECTION -->
+    <div id="view-tracking" class="view-section">
+      <div class="section-header"><i class="fa-solid fa-bell"></i> TV Show Tracker</div>
+      <div class="controls-bar">
+        <button class="control-btn" onclick="showAddShowModal()"><i class="fa-solid fa-plus"></i> Add Show to
+          Track</button>
+        <button class="control-btn" onclick="checkForNewEpisodes()"><i class="fa-solid fa-sync"></i> Check for
+          Episodes</button>
+      </div>
+      <div id="grid-tracking" class="movie-grid"></div>
+      <p id="no-tracking" style="text-align: center; color: var(--text-muted); padding: 40px;">
+        You're not tracking any shows yet. Click "Add Show to Track" to start!
+      </p>
     </div>
 
     <!-- REQUESTS SECTION -->
@@ -815,8 +920,8 @@
 
   <script type="module">
     // FIREBASE CONFIGURATION
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, setDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCftljTkWcA2-CyojsF40Dpjm9rAiSlKNc",
@@ -836,10 +941,14 @@
     let currentMovies = []; // Stores current TMDB movie results
     let currentTVShows = []; // Stores current TMDB TV results
     let currentComingSoon = []; // Stores upcoming movies
+    let trackedShows = []; // Stores tracked TV shows
+    let newEpisodes = []; // Stores new episodes from tracked shows
     let currentTab = 'movies';
+    let currentMoviePage = 1;
+    let currentTVPage = 1;
 
-    // AUTO-REFRESH HELPERS
-    const WEEK_MS = 7 * 24 * 60 * 60 * 1000; // 1 week
+    // AUTO-REFRESH HELPERS - CHANGED TO DAILY
+    const DAY_MS = 24 * 60 * 60 * 1000; // 1 day (24 hours)
     const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000; // 2 weeks
 
     function shouldRefresh(key, maxAge) {
@@ -888,10 +997,10 @@
       updateUI();
     });
 
-    // 2. FETCH TRENDING MOVIES (with auto-refresh)
-    async function fetchTrending() {
-      // Check cache first
-      if (!shouldRefresh('trending_movies', WEEK_MS)) {
+    // 2. FETCH TRENDING MOVIES (with auto-refresh - DAILY)
+    async function fetchTrending(page = 1, append = false) {
+      // Check cache first only on first page - NOW DAILY
+      if (page === 1 && !append && !shouldRefresh('trending_movies', DAY_MS)) {
         const cached = getCached('trending_movies');
         if (cached) {
           currentMovies = cached;
@@ -903,20 +1012,27 @@
 
       document.getElementById('loader-movies').style.display = 'flex';
       try {
-        const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_KEY}`);
+        const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_KEY}&page=${page}`);
         const data = await res.json();
-        currentMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
-        cacheData('trending_movies', currentMovies);
+        const newMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
+
+        if (append) {
+          currentMovies = [...currentMovies, ...newMovies];
+        } else {
+          currentMovies = newMovies;
+        }
+
+        if (page === 1) cacheData('trending_movies', currentMovies);
         renderGrid(currentMovies, 'grid-movies');
         updateLastRefreshUI();
       } catch (e) { console.error("TMDB Fetch Error", e); }
       document.getElementById('loader-movies').style.display = 'none';
     }
 
-    // 3. FETCH TRENDING TV SHOWS (with auto-refresh)
-    async function fetchTrendingTV() {
-      // Check cache first
-      if (!shouldRefresh('trending_tv', WEEK_MS)) {
+    // 3. FETCH TRENDING TV SHOWS (with auto-refresh - DAILY)
+    async function fetchTrendingTV(page = 1, append = false) {
+      // Check cache first only on first page - NOW DAILY
+      if (page === 1 && !append && !shouldRefresh('trending_tv', DAY_MS)) {
         const cached = getCached('trending_tv');
         if (cached) {
           currentTVShows = cached;
@@ -928,15 +1044,22 @@
 
       document.getElementById('loader-tv').style.display = 'flex';
       try {
-        const res = await fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_KEY}`);
+        const res = await fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_KEY}&page=${page}`);
         const data = await res.json();
-        currentTVShows = data.results.map(tv => ({
+        const newShows = data.results.map(tv => ({
           ...tv,
           mediaType: 'tv',
           title: tv.name,
           release_date: tv.first_air_date
         }));
-        cacheData('trending_tv', currentTVShows);
+
+        if (append) {
+          currentTVShows = [...currentTVShows, ...newShows];
+        } else {
+          currentTVShows = newShows;
+        }
+
+        if (page === 1) cacheData('trending_tv', currentTVShows);
         renderGrid(currentTVShows, 'grid-tvshows');
         updateLastRefreshUI();
       } catch (e) { console.error("TMDB TV Fetch Error", e); }
@@ -974,6 +1097,270 @@
       } catch (e) { console.error("TMDB Coming Soon Error", e); }
       document.getElementById('loader-coming').style.display = 'none';
     }
+
+    // 3C. TOOLBAR ACTIONS
+    window.forceRefreshMovies = () => {
+      localStorage.removeItem('trending_movies');
+      currentMoviePage = 1;
+      fetchTrending(1, false);
+    };
+
+    window.loadMoreMovies = () => {
+      currentMoviePage++;
+      fetchTrending(currentMoviePage, true);
+    };
+
+    window.forceRefreshTV = () => {
+      localStorage.removeItem('trending_tv');
+      currentTVPage = 1;
+      fetchTrendingTV(1, false);
+    };
+
+    window.loadMoreTV = () => {
+      currentTVPage++;
+      fetchTrendingTV(currentTVPage, true);
+    };
+
+    // 3D. SCROLL TO TOP FUNCTIONALITY
+    window.scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Show/hide scroll button based on scroll position
+    window.addEventListener('scroll', () => {
+      const scrollBtn = document.getElementById('scroll-to-top');
+      if (window.scrollY > 300) {
+        scrollBtn.classList.add('visible');
+      } else {
+        scrollBtn.classList.remove('visible');
+      }
+    });
+
+    // 3ETV SHOW TRACKING SYSTEM
+    // Listen to tracked shows in Firebase
+    onSnapshot(collection(db, "tracked_shows"), (snapshot) => {
+      trackedShows = [];
+      snapshot.forEach(doc => trackedShows.push({ docId: doc.id, ...doc.data() }));
+      renderTrackedShows();
+      checkForNewEpisodesAuto(); // Auto-check daily
+    });
+
+    // Add show to tracking
+    window.showAddShowModal = () => {
+      const searchQuery = prompt("Enter TV show name to track:");
+      if (!searchQuery) return;
+
+      fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(searchQuery)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.results && data.results.length > 0) {
+            const show = data.results[0];
+            addShowToTracking(show);
+          } else {
+            alert("Show not found!");
+          }
+        });
+    };
+
+    async function addShowToTracking(show) {
+      try {
+        await setDoc(doc(db, "tracked_shows", `tv_${show.id}`), {
+          id: show.id,
+          name: show.name,
+          poster_path: show.poster_path,
+          first_air_date: show.first_air_date,
+          last_checked: Date.now(),
+          last_episode_date: null,
+          auto_request: false
+        });
+        alert(`Now tracking: ${show.name}`);
+      } catch (e) {
+        console.error("Error tracking show:", e);
+      }
+    }
+
+    // Check for new episodes (manual)
+    window.checkForNewEpisodes = async () => {
+      if (trackedShows.length === 0) {
+        alert("You're not tracking any shows yet!");
+        return;
+      }
+
+      document.getElementById('grid-episodes').innerHTML = '<div style="text-align:center; padding:40px;"><i class="fa-solid fa-spinner fa-spin fa-3x"></i></div>';
+
+      newEpisodes = [];
+      const today = new Date().toISOString().split('T')[0];
+
+      for (const show of trackedShows) {
+        try {
+          const res = await fetch(`https://api.themoviedb.org/3/tv/${show.id}?api_key=${TMDB_KEY}&append_to_response=season/1`);
+          const data = await res.json();
+
+          if (data.last_episode_to_air && data.last_episode_to_air.air_date === today) {
+            newEpisodes.push({
+              ...data,
+              episode: data.last_episode_to_air,
+              tracked_show: show
+            });
+
+            // Auto-request if enabled
+            if (show.auto_request) {
+              await autoRequestEpisode(data, show);
+            }
+          }
+        } catch (e) {
+          console.error(`Error checking ${show.name}:`, e);
+        }
+      }
+
+      renderNewEpisodes();
+    };
+
+    // Auto-check daily (called when tracked shows load)
+    async function checkForNewEpisodesAuto() {
+      const lastCheck = localStorage.getItem('last_episode_check');
+      const today = new Date().toISOString().split('T')[0];
+
+      if (lastCheck !== today) {
+        localStorage.setItem('last_episode_check', today);
+        await window.checkForNewEpisodes();
+      }
+    }
+
+    async function autoRequestEpisode(showData, trackedShow) {
+      const episode = showData.last_episode_to_air;
+      const title = `${showData.name} - S${episode.season_number}E${episode.episode_number}`;
+
+      try {
+        await setDoc(doc(db, "requests", `tv_${showData.id}_${episode.id}`), {
+          id: showData.id,
+          mediaType: 'tv',
+          title: title,
+          poster_path: showData.poster_path,
+          backdrop_path: showData.backdrop_path,
+          overview: episode.overview || showData.overview,
+          release_date: episode.air_date,
+          vote_average: showData.vote_average,
+          status: 'pending',
+          note: `Auto-requested new episode`,
+          requester: 'Auto-Tracker',
+          priority: 'normal',
+          timestamp: Date.now()
+        });
+      } catch (e) {
+        console.error("Auto-request failed:", e);
+      }
+    }
+
+    function renderTrackedShows() {
+      const grid = document.getElementById('grid-tracking');
+      const noTracking = document.getElementById('no-tracking');
+
+      if (trackedShows.length === 0) {
+        grid.innerHTML = '';
+        noTracking.style.display = 'block';
+        return;
+      }
+
+      noTracking.style.display = 'none';
+      grid.innerHTML = '';
+
+      trackedShows.forEach(show => {
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.innerHTML = `
+          <div class="poster-wrapper">
+            <img src="https://image.tmdb.org/t/p/w500${show.poster_path}" class="poster-img" loading="lazy">
+          </div>
+          <div class="card-content">
+            <div class="movie-title">${show.name}</div>
+            <div class="btn-wrapper">
+              <button class="btn-card" onclick="toggleAutoRequest('${show.docId}', ${!show.auto_request})" style="background: ${show.auto_request ? 'var(--green)' : 'var(--text-muted)'}">
+                <i class="fa-solid fa-robot"></i> Auto-Request: ${show.auto_request ? 'ON' : 'OFF'}
+              </button>
+              <button class="btn-card" onclick="untrackShow('${show.docId}')" style="background: var(--red)">
+                <i class="fa-solid fa-trash"></i> Untrack
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderNewEpisodes() {
+      const grid = document.getElementById('grid-episodes');
+      const noEpisodes = document.getElementById('no-episodes');
+
+      if (newEpisodes.length === 0) {
+        grid.innerHTML = '';
+        noEpisodes.style.display = 'block';
+        return;
+      }
+
+      noEpisodes.style.display = 'none';
+      grid.innerHTML = '';
+
+      newEpisodes.forEach(item => {
+        const ep = item.episode;
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.style.boxShadow = '0 4px 20px rgba(76, 175, 80, 0.5)'; // Green glow
+
+        card.innerHTML = `
+          <div class="poster-wrapper">
+            <img src="https://image.tmdb.org/t/p/w500${item.poster_path}" class="poster-img" loading="lazy">
+            <div class="priority-badge" style="background: var(--green);"><i class="fa-solid fa-bell"></i> NEW!</div>
+          </div>
+          <div class="card-content">
+            <div class="movie-title">${item.name}</div>
+            <div class="movie-year">S${ep.season_number}E${ep.episode_number} - ${ep.name}</div>
+            <div class="movie-note">"${ep.overview || 'New episode released today!'}"</div>
+            <div class="btn-wrapper">
+              <button class="btn-card btn-request" onclick="requestEpisode(${JSON.stringify(item).replace(/"/g, '&quot;')}, ${JSON.stringify(ep).replace(/"/g, '&quot;')})">
+                <i class="fa-solid fa-plus"></i> Request
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    window.requestEpisode = async (show, episode) => {
+      const title = `${show.name} - S${episode.season_number}E${episode.episode_number}`;
+      await saveItemFromObject({
+        id: show.id,
+        mediaType: 'tv',
+        title: title,
+        poster_path: show.poster_path,
+        backdrop_path: show.backdrop_path,
+        overview: episode.overview || show.overview,
+        release_date: episode.air_date,
+        vote_average: show.vote_average
+      }, 'pending', `Episode: ${episode.name}`, 'User', 'normal');
+      alert(`Requested: ${title}`);
+    };
+
+    window.toggleAutoRequest = async (docId, enabled) => {
+      try {
+        await updateDoc(doc(db, "tracked_shows", docId), {
+          auto_request: enabled
+        });
+      } catch (e) {
+        console.error("Error toggling auto-request:", e);
+      }
+    };
+
+    window.untrackShow = async (docId) => {
+      if (confirm("Stop tracking this show?")) {
+        try {
+          await deleteDoc(doc(db, "tracked_shows", docId));
+        } catch (e) {
+          console.error("Error untracking:", e);
+        }
+      }
+    };
 
     // 4. SEARCH LOGIC
     document.getElementById('search').addEventListener('input', async (e) => {
@@ -1021,6 +1408,9 @@
       } else if (sort === 'title') {
         currentMovies.sort((a, b) => a.title.localeCompare(b.title));
         renderGrid(currentMovies, 'grid-movies');
+      } else if (sort === 'popularity') {
+        currentMovies.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+        renderGrid(currentMovies, 'grid-movies');
       }
     });
 
@@ -1035,6 +1425,64 @@
         renderGrid(currentMovies, 'grid-movies');
       }
     });
+
+    // NEW: Rating filter
+    document.getElementById('movie-rating-filter').addEventListener('change', () => {
+      applyMovieFilters();
+    });
+
+    // NEW: Year filter
+    document.getElementById('movie-year-filter').addEventListener('change', () => {
+      applyMovieFilters();
+    });
+
+    // Apply all movie filters at once
+    function applyMovieFilters() {
+      const ratingFilter = document.getElementById('movie-rating-filter').value;
+      const yearFilter = document.getElementById('movie-year-filter').value;
+
+      let filtered = [...currentMovies];
+
+      // Apply rating filter
+      if (ratingFilter === 'high') {
+        filtered = filtered.filter(m => m.vote_average >= 8.0);
+      } else if (ratingFilter === 'mid') {
+        filtered = filtered.filter(m => m.vote_average >= 6.0 && m.vote_average < 8.0);
+      } else if (ratingFilter === 'low') {
+        filtered = filtered.filter(m => m.vote_average < 6.0);
+      }
+
+      // Apply year filter
+      const currentYear = new Date().getFullYear();
+      if (yearFilter === '2024') {
+        filtered = filtered.filter(m => {
+          const year = m.release_date ? parseInt(m.release_date.split('-')[0]) : 0;
+          return year >= 2024 && year <= currentYear;
+        });
+      } else if (yearFilter === '2020') {
+        filtered = filtered.filter(m => {
+          const year = m.release_date ? parseInt(m.release_date.split('-')[0]) : 0;
+          return year >= 2020 && year <= 2023;
+        });
+      } else if (yearFilter === '2010') {
+        filtered = filtered.filter(m => {
+          const year = m.release_date ? parseInt(m.release_date.split('-')[0]) : 0;
+          return year >= 2010 && year <= 2019;
+        });
+      } else if (yearFilter === '2000') {
+        filtered = filtered.filter(m => {
+          const year = m.release_date ? parseInt(m.release_date.split('-')[0]) : 0;
+          return year >= 2000 && year <= 2009;
+        });
+      } else if (yearFilter === 'classic') {
+        filtered = filtered.filter(m => {
+          const year = m.release_date ? parseInt(m.release_date.split('-')[0]) : 0;
+          return year > 0 && year < 2000;
+        });
+      }
+
+      renderGrid(filtered, 'grid-movies');
+    }
 
     document.getElementById('tv-sort').addEventListener('change', async (e) => {
       const sort = e.target.value;
@@ -1095,14 +1543,22 @@
           poster = 'https://via.placeholder.com/500x750/16161f/ffffff?text=No+Poster';
         }
 
-        const year = item.release_date ? item.release_date.split('-')[0] : 'N/A';
-
-        // Format release date for Coming Soon items
+        let year;
         let releaseDateBadge = '';
-        if (targetId === 'grid-coming' && item.release_date) {
-          const releaseDate = new Date(item.release_date);
-          const formatted = releaseDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-          releaseDateBadge = `<div class="priority-badge" style="background: var(--blue); left: auto; right: 10px;"><i class="fa-solid fa-calendar"></i> ${formatted}</div>`;
+
+        // For Coming Soon, show full date instead of year
+        if (targetId === 'grid-coming') {
+          if (item.release_date) {
+            const releaseDate = new Date(item.release_date);
+            year = releaseDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            releaseDateBadge = `<div class="priority-badge" style="background: var(--blue); left: auto; right: 10px;"><i class="fa-solid fa-calendar"></i> ${year}</div>`;
+          } else {
+            year = 'TBD';
+            releaseDateBadge = `<div class="priority-badge" style="background: var(--text-muted); left: auto; right: 10px;"><i class="fa-solid fa-calendar"></i> TBD</div>`;
+          }
+        } else {
+          // For other tabs, show year
+          year = item.release_date ? item.release_date.split('-')[0] : 'N/A';
         }
 
         card.innerHTML = `
@@ -1174,20 +1630,25 @@
     window.saveItemFromObject = async (itemObj, status, note = '', requester = '', priority = 'normal') => {
       try {
         const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
-        await setDoc(doc(db, "requests", `${item.mediaType}_${item.id}`), {
+
+        // Check if item already exists in DB to preserve overview
+        const existingItem = globalRequests.find(r => r.id === item.id && r.mediaType === (item.mediaType || 'movie'));
+        const overview = item.overview || existingItem?.overview || '';
+
+        await setDoc(doc(db, "requests", `${item.mediaType || 'movie'}_${item.id}`), {
           id: item.id,
           mediaType: item.mediaType || 'movie',
           title: item.title,
           poster_path: item.poster_path,
           backdrop_path: item.backdrop_path,
-          overview: item.overview,
+          overview: overview,
           release_date: item.release_date,
           vote_average: item.vote_average,
           status: status,
           note: note,
           requester: requester,
           priority: priority,
-          timestamp: Date.now()
+          timestamp: existingItem?.timestamp || Date.now()
         });
       } catch (e) { console.error("Firebase Error", e); }
     };
@@ -1312,6 +1773,12 @@
         searchBox.classList.add('hidden');
         if (currentComingSoon.length === 0) fetchComingSoon();
         else renderGrid(currentComingSoon, 'grid-coming');
+      } else if (tab === 'episodes') {
+        searchBox.classList.add('hidden');
+        renderNewEpisodes();
+      } else if (tab === 'tracking') {
+        searchBox.classList.add('hidden');
+        renderTrackedShows();
       } else if (tab === 'requests') {
         searchBox.classList.add('hidden');
         renderRequestsGrid();
@@ -1325,37 +1792,55 @@
     function openDetail(item) {
       const overlay = document.getElementById('detail-overlay');
       const body = document.getElementById('detail-modal-body');
-      const year = item.release_date?.split('-')[0] || '';
 
-      // Handle both TMDB format and stored format
-      const backdropUrl = item.backdrop_path
-        ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
-        : 'https://via.placeholder.com/1280x720/16161f/ffffff?text=No+Backdrop';
+      // Find the DB entry first - this is critical for requested items
+      const dbEntry = globalRequests.find(r => r.id === item.id && r.mediaType === (item.mediaType || 'movie'));
 
+      // Use DB data first if available, fallback to item data
+      const displayItem = dbEntry || item;
+      const year = displayItem.release_date?.split('-')[0] || '';
+
+      // Handle backdrop - check if it's a full URL or just a path
+      let backdropUrl;
+      if (displayItem.backdrop_path) {
+        if (displayItem.backdrop_path.startsWith('http')) {
+          backdropUrl = displayItem.backdrop_path;
+        } else {
+          backdropUrl = `https://image.tmdb.org/t/p/w1280${displayItem.backdrop_path}`;
+        }
+      } else {
+        backdropUrl = 'https://via.placeholder.com/1280x720/16161f/ffffff?text=No+Backdrop';
+      }
+
+      // Handle poster - check if it's a full URL or just a path
       let posterUrl;
-      if (item.poster_path) {
-        posterUrl = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
-      } else if (item.poster && item.poster.startsWith('http')) {
-        posterUrl = item.poster;
+      if (displayItem.poster_path) {
+        if (displayItem.poster_path.startsWith('http')) {
+          posterUrl = displayItem.poster_path;
+        } else {
+          posterUrl = `https://image.tmdb.org/t/p/w500${displayItem.poster_path}`;
+        }
       } else {
         posterUrl = 'https://via.placeholder.com/500x750/16161f/ffffff?text=No+Poster';
       }
 
-      const dbEntry = globalRequests.find(r => r.id === item.id && r.mediaType === item.mediaType);
       const isPending = dbEntry?.status === 'pending';
+
+      // Use overview from dbEntry first (for requested items), then displayItem, then fallback
+      const description = dbEntry?.overview || displayItem.overview || 'No description available.';
 
       body.innerHTML = `
       <div class="modal-backdrop" style="background-image:url(${backdropUrl})"></div>
       <div class="modal-content">
         <img src="${posterUrl}" class="modal-poster">
         <div class="modal-info">
-          <h2>${item.title} (${year})</h2>
-          <p>${item.overview || dbEntry?.overview || 'No description available.'}</p>
+          <h2>${displayItem.title} (${year})</h2>
+          <p>${description}</p>
           ${dbEntry?.note ? `<p style="font-style: italic; color: var(--purple);">"${dbEntry.note}"</p>` : ''}
           ${dbEntry?.requester ? `<p style="color: var(--text-muted); font-size: 0.9rem;">Requested by: ${dbEntry.requester}</p>` : ''}
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button onclick="window.openTorrentHub('${item.title.replace(/'/g, "\\'")}', '${year}', '${item.mediaType}')" class="torrent-btn"><i class="fa-solid fa-magnet"></i> Search Torrents</button>
-            ${isPending ? `<button onclick="window.deleteRequest(${item.id})" class="torrent-btn" style="background:#e50914;"><i class="fa-solid fa-trash"></i> Delete Request</button>` : ''}
+            <button onclick="window.openTorrentHub('${displayItem.title.replace(/'/g, "\\'")}', '${year}', '${displayItem.mediaType || 'movie'}')" class="torrent-btn"><i class="fa-solid fa-magnet"></i> Search Torrents</button>
+            ${isPending ? `<button onclick="window.deleteRequest(${displayItem.id})" class="torrent-btn" style="background:#e50914;"><i class="fa-solid fa-trash"></i> Delete Request</button>` : ''}
             <button onclick="document.getElementById('detail-overlay').classList.remove('open')" class="torrent-btn" style="background:#333;">Close</button>
           </div>
         </div>
