@@ -46,8 +46,8 @@
       background-color: var(--bg-primary);
       color: var(--text-primary);
       min-height: 100vh;
-      padding-top: 180px;
-      /* Space for fixed header */
+      padding-top: 250px;
+      /* Space for fixed header + sticky controls */
       padding-bottom: 80px;
       overflow-x: hidden;
     }
@@ -195,13 +195,20 @@
     .controls-bar {
       display: flex;
       gap: 12px;
-      margin: 20px 0;
+      margin: 0;
       padding: 15px;
       background: var(--bg-card);
-      border-radius: 14px;
+      border-radius: 0;
       border: 1px solid var(--border);
+      border-left: none;
+      border-right: none;
       flex-wrap: wrap;
       align-items: center;
+      position: sticky;
+      top: 160px;
+      /* Below header */
+      z-index: 999;
+      backdrop-filter: blur(10px);
     }
 
     .control-select {
@@ -1163,10 +1170,70 @@
       fetchTrending(1, false);
     };
 
-    window.loadMoreMovies = () => {
+    window.loadMoreMovies = async () => {
       currentMoviePage++;
       console.log('Loading page:', currentMoviePage);
-      fetchTrending(currentMoviePage, true);
+
+      // Get current filter values
+      const ratingFilter = document.getElementById('movie-rating-filter').value;
+      const yearFilter = document.getElementById('movie-year-filter').value;
+      const genreFilter = document.getElementById('movie-genre').value;
+
+      // Build API URL based on filters
+      let apiUrl = `https://api.themoviedb.org/3/`;
+      const params = new URLSearchParams({
+        api_key: TMDB_KEY,
+        page: currentMoviePage,
+        sort_by: 'popularity.desc'
+      });
+
+      // If filters are active, use discover endpoint
+      if (genreFilter || yearFilter !== 'all' || ratingFilter !== 'all') {
+        apiUrl += 'discover/movie?';
+
+        if (genreFilter) params.append('with_genres', genreFilter);
+
+        // Year filter
+        const currentYear = new Date().getFullYear();
+        if (yearFilter === '2024') {
+          params.append('primary_release_date.gte', '2024-01-01');
+          params.append('primary_release_date.lte', `${currentYear}-12-31`);
+        } else if (yearFilter === '2020') {
+          params.append('primary_release_date.gte', '2020-01-01');
+          params.append('primary_release_date.lte', '2023-12-31');
+        } else if (yearFilter === '2010') {
+          params.append('primary_release_date.gte', '2010-01-01');
+          params.append('primary_release_date.lte', '2019-12-31');
+        } else if (yearFilter === '2000') {
+          params.append('primary_release_date.gte', '2000-01-01');
+          params.append('primary_release_date.lte', '2009-12-31');
+        } else if (yearFilter === 'classic') {
+          params.append('primary_release_date.lte', '1999-12-31');
+        }
+
+        // Rating filter
+        if (ratingFilter === 'high') {
+          params.append('vote_average.gte', '8.0');
+        } else if (ratingFilter === 'mid') {
+          params.append('vote_average.gte', '6.0');
+          params.append('vote_average.lte', '7.9');
+        } else if (ratingFilter === 'low') {
+          params.append('vote_average.lte', '5.9');
+        }
+      } else {
+        // No filters, use trending
+        apiUrl += `trending/movie/week?`;
+      }
+
+      try {
+        const res = await fetch(apiUrl + params.toString());
+        const data = await res.json();
+        const newMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
+        currentMovies = [...currentMovies, ...newMovies];
+        renderGrid(currentMovies, 'grid-movies');
+      } catch (e) {
+        console.error('Load more error:', e);
+      }
     };
 
     window.forceRefreshTV = () => {
