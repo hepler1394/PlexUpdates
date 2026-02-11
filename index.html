@@ -2568,15 +2568,29 @@
         return;
       }
 
+      let deleted = 0;
       for (const cb of checkboxes) {
-        const item = JSON.parse(cb.getAttribute('data-item'));
-        await window.deleteRequest(item.id);
+        try {
+          const item = JSON.parse(cb.getAttribute('data-item'));
+
+          // Find the item in globalRequests to get proper info
+          const dbItem = globalRequests.find(r => r.id === item.id);
+
+          if (dbItem) {
+            // Delete from Firebase using the correct document ID format
+            const docId = `${dbItem.mediaType || 'movie'}_${dbItem.id}`;
+            await deleteDoc(doc(db, "requests", docId));
+            deleted++;
+          }
+        } catch (e) {
+          console.error('Delete error:', e);
+        }
       }
 
       // Uncheck select all
       document.getElementById('select-all-requests').checked = false;
 
-      alert(`✅ Deleted ${checkboxes.length} item(s)`);
+      alert(`✅ Deleted ${deleted} item(s)`);
     };
 
     // 17. COPY REQUEST LIST
