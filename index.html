@@ -64,6 +64,11 @@
       z-index: 1000;
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
+      transition: transform 0.3s ease;
+    }
+
+    header.hidden {
+      transform: translateY(-100%);
     }
 
     .container {
@@ -1026,6 +1031,24 @@
 
     // Call init when page loads
     initApp();
+
+    // AUTO-HIDE HEADER ON SCROLL
+    let lastScrollTop = 0;
+    const header = document.querySelector('header');
+
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (scrollTop > lastScrollTop && scrollTop > 100) {
+        // Scrolling down & past 100px
+        header.classList.add('hidden');
+      } else {
+        // Scrolling up or at top
+        header.classList.remove('hidden');
+      }
+
+      lastScrollTop = scrollTop;
+    });
 
     // 2. FETCH TRENDING MOVIES (with auto-refresh - DAILY)
     async function fetchTrending(page = 1, append = false) {
