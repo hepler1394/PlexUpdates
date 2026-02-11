@@ -2625,6 +2625,8 @@
         </a>
       </div>
       <button onclick="document.getElementById('torrent-overlay').classList.remove('open')" class="torrent-btn" style="background:#333; width:100%; margin-top:25px; justify-content:center;">Close</button>
+    `;
+      overlay.classList.add('open');
     };
 
     // 16. BULK ACTIONS
@@ -2637,7 +2639,7 @@
     window.toggleSelectAllInView = (sourceCheckbox) => {
       const viewSection = sourceCheckbox.closest('.view-section');
       if (!viewSection) return;
-      
+
       const checkboxes = viewSection.querySelectorAll('.request-checkbox');
       checkboxes.forEach(cb => {
         cb.checked = sourceCheckbox.checked;
@@ -2650,12 +2652,12 @@
         alert('Please select at least one item to search');
         return;
       }
-      if (checkboxes.length > 10 && !confirm(`Open ${ checkboxes.length } tabs ? `)) return;
+      if (checkboxes.length > 10 && !confirm(`Open ${checkboxes.length} tabs ? `)) return;
 
       checkboxes.forEach(cb => {
         const item = JSON.parse(cb.getAttribute('data-item'));
         const year = item.release_date ? item.release_date.split('-')[0] : '';
-        const q = encodeURIComponent(`${ item.title } ${ year } `);
+        const q = encodeURIComponent(`${item.title} ${year} `);
         window.open(`https://ext.to/search/?q=${q}`, '_blank');
       });
     };
