@@ -1990,7 +1990,7 @@
         card.innerHTML = `
         <div class="poster-wrapper">
           <label style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.7); padding:8px; border-radius:8px; cursor:pointer;" onclick="event.stopPropagation()">
-            <input type="checkbox" class="request-checkbox" data-item='${JSON.stringify(item).replace(/'/g, "\\'")}' style="width:20px; height:20px; cursor:pointer;">
+            <input type="checkbox" class="request-checkbox" data-item="${encodeURIComponent(JSON.stringify(item))}" style="width:20px; height:20px; cursor:pointer;">
           </label>
           <img src="${poster}" class="poster-img" loading="lazy">
           <div class="rating-badge"><i class="fa-solid fa-star"></i> ${item.vote_average?.toFixed(1) || 'NR'}</div>
@@ -2655,9 +2655,9 @@
       if (checkboxes.length > 10 && !confirm(`Open ${checkboxes.length} tabs ? `)) return;
 
       checkboxes.forEach(cb => {
-        const item = JSON.parse(cb.getAttribute('data-item'));
+        const item = JSON.parse(decodeURIComponent(cb.getAttribute('data-item')));
         const year = item.release_date ? item.release_date.split('-')[0] : '';
-        const q = encodeURIComponent(`${item.title} ${year} `);
+        const q = encodeURIComponent(`${item.title} ${year}`);
         window.open(`https://ext.to/search/?q=${q}`, '_blank');
       });
     };
@@ -2671,7 +2671,7 @@
       if (checkboxes.length > 10 && !confirm(`Open ${checkboxes.length} tabs?`)) return;
 
       checkboxes.forEach(cb => {
-        const item = JSON.parse(cb.getAttribute('data-item'));
+        const item = JSON.parse(decodeURIComponent(cb.getAttribute('data-item')));
         const year = item.release_date ? item.release_date.split('-')[0] : '';
         const q = encodeURIComponent(`${item.title} ${year}`);
         window.open(`https://piratebay.org/search/?q=${q}`, '_blank');
@@ -2694,7 +2694,7 @@
       let deleted = 0;
       for (const cb of checkboxes) {
         try {
-          const item = JSON.parse(cb.getAttribute('data-item'));
+          const item = JSON.parse(decodeURIComponent(cb.getAttribute('data-item')));
 
           // Find the item in globalRequests - compare as strings
           const dbItem = globalRequests.find(r => String(r.id) === String(item.id));
@@ -2748,7 +2748,7 @@
       let count = 0;
       for (const cb of checkboxes) {
         try {
-          const item = JSON.parse(cb.getAttribute('data-item'));
+          const item = JSON.parse(decodeURIComponent(cb.getAttribute('data-item')));
           // Check if already requested (in globalRequests) matches loose ID check
           const existing = globalRequests.find(r => String(r.id) === String(item.id));
 
@@ -2787,10 +2787,6 @@
 
       e.preventDefault();
       const menu = document.getElementById('context-menu');
-      const itemData = card.querySelector('.request-checkbox')?.getAttribute('data-item') ||
-        card.querySelector('button[onclick*="openRequestModal"]')?.getAttribute('onclick').match(/openRequestModal\((.*)\)/)?.[1] ||
-        card.querySelector('button[onclick*="requestEpisode"]')?.getAttribute('onclick').match(/requestEpisode\((.*)\)/)?.[1]?.split(',')[1];
-
       let item;
       try {
         if (card.classList.contains('episode-card')) {
@@ -2799,8 +2795,18 @@
           const episodeData = JSON.parse(card.querySelector('button[onclick*="requestEpisode"]').getAttribute('onclick').match(/requestEpisode\((.*)\)/)[1].split('},')[1]);
           item = { ...episodeData, show: showData, mediaType: 'tv_episode' };
         } else {
-          item = JSON.parse(itemData.replace(/&quot;/g, '"'));
+          // Priority: Checkbox (URI Encoded) > Button (HTML Escaped)
+          const checkbox = card.querySelector('.request-checkbox');
+          if (checkbox) {
+            item = JSON.parse(decodeURIComponent(checkbox.getAttribute('data-item')));
+          } else {
+            // Fallback to scraping buttons
+            const itemData = card.querySelector('button[onclick*="openRequestModal"]')?.getAttribute('onclick').match(/openRequestModal\((.*)\)/)?.[1];
+            if (itemData) item = JSON.parse(itemData.replace(/&quot;/g, '"'));
+          }
         }
+
+        if (!item) return; // Safety check
       } catch (err) {
         console.error('Error parsing item data for context menu', err);
         return;
