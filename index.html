@@ -603,6 +603,83 @@
 
       .controls-bar {
         flex-direction: column;
+        align-items: stretch;
+      }
+
+      .control-select,
+      .control-btn {
+        width: 100%;
+      }
+
+      .tabs {
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .tab-btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+      }
+
+      .btn-card {
+        min-height: 44px;
+        /* Minimum touch target size */
+        font-size: 0.9rem;
+      }
+
+      .rating-badge,
+      .priority-badge {
+        font-size: 0.75rem;
+        padding: 4px 6px;
+      }
+
+      .torrent-btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        width: 100%;
+        /* Full width on mobile */
+        justify-content: center;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .header-content {
+        gap: 10px;
+      }
+
+      #last-updated {
+        font-size: 0.75rem !important;
+      }
+
+      body {
+        padding-bottom: 40px;
+      }
+    }
+
+    /* Extra small devices */
+    @media (max-width: 480px) {
+      .movie-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .movie-card {
+        border-radius: 12px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .tab-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+
+      .tab-badge {
+        font-size: 0.7rem;
       }
     }
   </style>
@@ -614,6 +691,9 @@
     <div class="container header-content">
       <h1><i class="fa-solid fa-clapperboard"></i> Plex Hub</h1>
       <p style="color: var(--text-secondary); font-size: 1.1rem; margin-top: -10px;">Request Movies For Corys Plex</p>
+      <p id="last-updated" style="color: var(--text-muted); font-size: 0.85rem; margin-top: -5px;">
+        <i class="fa-solid fa-clock"></i> Last Updated: <span id="update-time">Loading...</span>
+      </p>
       <div class="tabs">
         <button class="tab-btn active" id="tab-movies-btn" onclick="switchTab('movies')"><i
             class="fa-solid fa-film"></i> Movies</button>
@@ -758,6 +838,49 @@
     let currentComingSoon = []; // Stores upcoming movies
     let currentTab = 'movies';
 
+    // AUTO-REFRESH HELPERS
+    const WEEK_MS = 7 * 24 * 60 * 60 * 1000; // 1 week
+    const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000; // 2 weeks
+
+    function shouldRefresh(key, maxAge) {
+      const cached = localStorage.getItem(key);
+      if (!cached) return true;
+      const data = JSON.parse(cached);
+      return Date.now() - data.timestamp > maxAge;
+    }
+
+    function cacheData(key, data) {
+      localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+    }
+
+    function getCached(key) {
+      const cached = localStorage.getItem(key);
+      return cached ? JSON.parse(cached).data : null;
+    }
+
+    function getLastRefresh(key) {
+      const cached = localStorage.getItem(key);
+      if (!cached) return 'Never';
+      const timestamp = JSON.parse(cached).timestamp;
+      const date = new Date(timestamp);
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function updateLastRefreshUI() {
+      const mostRecent = Math.max(
+        JSON.parse(localStorage.getItem('trending_movies') || '{"timestamp":0}').timestamp,
+        JSON.parse(localStorage.getItem('trending_tv') || '{"timestamp":0}').timestamp,
+        JSON.parse(localStorage.getItem('coming_soon') || '{"timestamp":0}').timestamp
+      );
+
+      if (mostRecent === 0) {
+        document.getElementById('update-time').textContent = 'Just now';
+      } else {
+        const date = new Date(mostRecent);
+        document.getElementById('update-time').textContent = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+
     // 1. LISTEN TO FIREBASE REAL-TIME
     onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snapshot) => {
       globalRequests = [];
@@ -765,20 +888,44 @@
       updateUI();
     });
 
-    // 2. FETCH TRENDING MOVIES
+    // 2. FETCH TRENDING MOVIES (with auto-refresh)
     async function fetchTrending() {
+      // Check cache first
+      if (!shouldRefresh('trending_movies', WEEK_MS)) {
+        const cached = getCached('trending_movies');
+        if (cached) {
+          currentMovies = cached;
+          renderGrid(currentMovies, 'grid-movies');
+          updateLastRefreshUI();
+          return;
+        }
+      }
+
       document.getElementById('loader-movies').style.display = 'flex';
       try {
         const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_KEY}`);
         const data = await res.json();
         currentMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
+        cacheData('trending_movies', currentMovies);
         renderGrid(currentMovies, 'grid-movies');
+        updateLastRefreshUI();
       } catch (e) { console.error("TMDB Fetch Error", e); }
       document.getElementById('loader-movies').style.display = 'none';
     }
 
-    // 3. FETCH TRENDING TV SHOWS
+    // 3. FETCH TRENDING TV SHOWS (with auto-refresh)
     async function fetchTrendingTV() {
+      // Check cache first
+      if (!shouldRefresh('trending_tv', WEEK_MS)) {
+        const cached = getCached('trending_tv');
+        if (cached) {
+          currentTVShows = cached;
+          renderGrid(currentTVShows, 'grid-tvshows');
+          updateLastRefreshUI();
+          return;
+        }
+      }
+
       document.getElementById('loader-tv').style.display = 'flex';
       try {
         const res = await fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_KEY}`);
@@ -789,13 +936,28 @@
           title: tv.name,
           release_date: tv.first_air_date
         }));
+        cacheData('trending_tv', currentTVShows);
         renderGrid(currentTVShows, 'grid-tvshows');
+        updateLastRefreshUI();
       } catch (e) { console.error("TMDB TV Fetch Error", e); }
       document.getElementById('loader-tv').style.display = 'none';
     }
 
-    // 3B. FETCH COMING SOON MOVIES
+    // 3B. FETCH COMING SOON MOVIES (with auto-refresh every 2 weeks)
     async function fetchComingSoon() {
+      // Check cache first
+      if (!shouldRefresh('coming_soon', TWO_WEEKS_MS)) {
+        const cached = getCached('coming_soon');
+        if (cached) {
+          // Filter out past releases
+          const today = new Date().toISOString().split('T')[0];
+          currentComingSoon = cached.filter(m => m.release_date >= today);
+          renderGrid(currentComingSoon, 'grid-coming');
+          updateLastRefreshUI();
+          return;
+        }
+      }
+
       document.getElementById('loader-coming').style.display = 'flex';
       try {
         const today = new Date().toISOString().split('T')[0];
@@ -806,7 +968,9 @@
         const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&primary_release_date.gte=${today}&primary_release_date.lte=${future}&sort_by=popularity.desc`);
         const data = await res.json();
         currentComingSoon = data.results.map(m => ({ ...m, mediaType: 'movie' }));
+        cacheData('coming_soon', currentComingSoon);
         renderGrid(currentComingSoon, 'grid-coming');
+        updateLastRefreshUI();
       } catch (e) { console.error("TMDB Coming Soon Error", e); }
       document.getElementById('loader-coming').style.display = 'none';
     }
@@ -933,11 +1097,20 @@
 
         const year = item.release_date ? item.release_date.split('-')[0] : 'N/A';
 
+        // Format release date for Coming Soon items
+        let releaseDateBadge = '';
+        if (targetId === 'grid-coming' && item.release_date) {
+          const releaseDate = new Date(item.release_date);
+          const formatted = releaseDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          releaseDateBadge = `<div class="priority-badge" style="background: var(--blue); left: auto; right: 10px;"><i class="fa-solid fa-calendar"></i> ${formatted}</div>`;
+        }
+
         card.innerHTML = `
         <div class="poster-wrapper">
           <img src="${poster}" class="poster-img" loading="lazy">
           <div class="rating-badge"><i class="fa-solid fa-star"></i> ${item.vote_average?.toFixed(1) || 'NR'}</div>
           ${dbEntry?.priority === 'high' ? '<div class="priority-badge"><i class="fa-solid fa-fire"></i> HIGH</div>' : ''}
+          ${releaseDateBadge}
         </div>
         <div class="card-content">
           <div class="movie-title">${item.title}</div>
