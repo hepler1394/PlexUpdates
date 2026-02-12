@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -57,48 +56,8 @@
       </div>
     </div>
   </header>
-   <!-- BOTTOM NAVIGATION BAR (Mobile Only) -->
-  <nav class="bottom-nav">
-    <a href="#" class="nav-item active" id="nav-movies" onclick="switchTab('movies'); return false;">
-      <i class="fa-solid fa-film"></i>
-      <span>Movies</span>
-    </a>
-    <a href="#" class="nav-item" id="nav-tvshows" onclick="switchTab('tvshows'); return false;">
-      <i class="fa-solid fa-tv"></i>
-      <span>TV</span>
-    </a>
-    <a href="#" class="nav-item" id="nav-coming" onclick="switchTab('coming'); return false;">
-      <i class="fa-solid fa-calendar-days"></i>
-      <span>Coming</span>
-    </a>
-    <a href="#" class="nav-item" id="nav-requests" onclick="switchTab('requests'); return false;">
-      <div style="position:relative;">
-        <i class="fa-solid fa-list-check"></i>
-        <span id="mobile-req-count" class="tab-badge" style="display:none; position:absolute; top:-5px; right:-8px; font-size:9px; padding:2px 4px;">0</span>
-      </div>
-      <span>Requests</span>
-    </a>
-    <a href="#" class="nav-item" id="nav-tracking" onclick="switchTab('tracking'); return false;">
-      <i class="fa-solid fa-eye"></i>
-      <span>Track</span>
-    </a>
-  </nav>
-
-  <!-- MOBILE FILTER MODAL -->
-  <div class="mobile-filter-modal" id="mobile-filter-modal">
-    <div class="filter-header">
-      <h3>Filters & Sort</h3>
-      <button onclick="closeMobileFilters()" style="background:none; border:none; color:white; font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="filter-body">
-       <!-- Content injected by JS based on active tab -->
-       <div id="mobile-filter-content"></div>
-    </div>
-    <div class="filter-footer">
-      <button class="torrent-btn" style="width:100%; justify-content:center;" onclick="applyMobileFilters()">Apply Filters</button>
-    </div>
-  </div>
-
+<style>
+</style>
   <!-- MAIN CONTENT AREA -->
   <main style="margin-left: 300px; padding: 20px; transition: margin 0.3s ease;">
 
@@ -339,7 +298,7 @@
 
   <!-- Main Application Logic -->
   <script type="module" src="script.js"></script>
-
+<script type="module">
+</script>
 </body>
-
 </html>
