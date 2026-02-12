@@ -219,39 +219,14 @@
 
     /* Hidden on desktop default */
 
-    /* --- SEARCH (Gemini Rainbow Ring - Always Visible) --- */
+    /* --- SEARCH (Simple Purple Border) --- */
     .search-container {
       width: 100%;
       position: relative;
       border-radius: 12px;
-      padding: 3px;
-      /* Slightly thicker for visibility */
-      background: transparent;
-      isolation: isolate;
-      /* Create stacking context */
-    }
-
-    /* The Animated Rainbow Border (Always visible) */
-    .search-container::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 12px;
       padding: 2px;
-      /* Border thickness */
-      background: conic-gradient(from 0deg,
-          #4285f4,
-          #9b72cb,
-          #ea4335,
-          #fbbc05,
-          #34a853,
-          #4285f4);
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask-composite: exclude;
-      animation: rotate-border 3s linear infinite;
-      z-index: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
 
     /* Inner background */
@@ -262,16 +237,6 @@
       background: var(--bg-secondary);
       border-radius: 10px;
       z-index: 1;
-    }
-
-    @keyframes rotate-border {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
     }
 
     .search-input {
