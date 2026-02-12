@@ -13,329 +13,602 @@
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  
-<style>
-:root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-card: #16161f;
-  --bg-card-hover: #1c1c28;
-  --border: #2a2a3a;
-  --border-hover: #3a3a5a;
-  --text-primary: #eeeef0;
-  --text-secondary: #9898a8;
-  --text-muted: #68687a;
-  --accent: #e50914; /* Netflix/Plex Red */
-  --accent-glow: rgba(229, 9, 20, 0.4);
-  --green: #00d26a;
-  --green-neon: #39ff14;
-  --blue: #0984e3;
-  --purple: #a29bfe;
-  
-  --nav-height: 65px; /* Height of bottom nav */
-}
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #16161f;
+      --bg-card-hover: #1c1c28;
+      --border: #2a2a3a;
+      --border-hover: #3a3a5a;
+      --text-primary: #eeeef0;
+      --text-secondary: #9898a8;
+      --text-muted: #68687a;
+      --accent: #e50914;
+      /* Netflix/Plex Red */
+      --accent-glow: rgba(229, 9, 20, 0.4);
+      --green: #00d26a;
+      --green-neon: #39ff14;
+      --blue: #0984e3;
+      --purple: #a29bfe;
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  /* margin-left removed */
-  padding-top: 80px;
-  overflow-x: hidden;
-  font-size: 16px; 
-  -webkit-text-size-adjust: 100%;
-}
+      --nav-height: 65px;
+      /* Height of bottom nav */
+    }
 
-input, select, textarea, button { font-size: 16px !important; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-/* --- DESKTOP SIDEBAR --- */
-header {
-  background: rgba(10, 10, 15, 0.98);
-  padding: 30px 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 300px;
-  height: 100vh;
-  z-index: 1000;
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
-}
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      /* margin-left removed */
+      padding-top: 80px;
+      overflow-x: hidden;
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+    }
 
-.header-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
+    input,
+    select,
+    textarea,
+    button {
+      font-size: 16px !important;
+    }
 
-h1 {
-  font-size: 2.2rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #fff 0%, #888 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+    /* --- DESKTOP SIDEBAR --- */
+    header {
+      background: rgba(10, 10, 15, 0.98);
+      padding: 30px 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 100vh;
+      z-index: 1000;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
 
-/* Tabs & Links */
-.tabs { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-.tab-btn {
-  padding: 12px 20px;
-  background: transparent;
-  color: var(--text-secondary);
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  border-radius: 10px;
-  width: 100%;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.tab-btn.active {
-  background: var(--accent);
-  color: white;
-  box-shadow: 0 4px 15px var(--accent-glow);
-}
-.tab-badge {
-  background: white;
-  color: var(--accent);
-  font-size: 0.75rem;
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-weight: 900;
-}
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
 
-/* Sidebar Toggle */
-.sidebar-toggle-btn { display: none; } /* Hidden on desktop default */
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, #888 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-/* --- SEARCH --- */
-.search-container { width: 100%; position: relative; }
-.search-input {
-  width: 100%;
-  padding: 12px 14px 12px 40px;
-  border-radius: 10px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-}
-.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-
-
-/* --- DESKTOP CONTROLS BAR (STICKY) --- */
-.controls-bar {
-  display: flex;
-  gap: 12px;
-  padding: 15px;
-  padding-left: 320px; /* +20px buffer */
-  background: rgba(10, 10, 15, 0.95);
-  border-bottom: 1px solid var(--border);
-  align-items: center;
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 900;
-  backdrop-filter: blur(10px);
-}
-
-.control-select, .control-btn {
-  padding: 10px 15px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.control-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-/* --- GRID & CARDS --- */
-.view-section { display: none; animation: fadeIn 0.4s ease; }
-.view-section.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.movie-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 25px;
-  margin-top: 10px;
-}
-
-.movie-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-  position: relative;
-  display: flex; flex-direction: column;
-}
-
-.poster-wrapper { position: relative; aspect-ratio: 2/3; background: #000; overflow: hidden; }
-.poster-img { width: 100%; height: 100%; object-fit: cover; }
-.card-content { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
-.movie-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
-.movie-year { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 8px; }
-
-/* Badges */
-.rating-badge { position: absolute; top:8px; right:8px; background:rgba(0,0,0,0.8); color:var(--green); padding:4px 8px; border-radius:6px; font-size:0.8rem; font-weight:bold; backdrop-filter:blur(4px); }
-.priority-badge { position: absolute; top:8px; left:8px; background:rgba(229,9,20,0.9); color:white; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:bold; }
-.library-item { border: 2px solid var(--green-neon); box-shadow: 0 0 15px rgba(57,255,20,0.2); }
-
-/* Buttons inside cards */
-.btn-wrapper { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
-.btn-card {
-  width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
-  background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer;
-  font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px;
-}
-.btn-request:hover { background: var(--accent); color: white; border-color: var(--accent); }
-
-/* Stats */
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }
-.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: center; }
-.stat-value { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
-.stat-label { font-size: 0.85rem; color: var(--text-secondary); }
-
-/* Mobile Tweaks (Original Simple Version) */
-@media (max-width: 768px) {
-  .controls-bar {
-      padding-left: 15px;
-      flex-wrap: wrap;
+    /* Tabs & Links */
+    .tabs {
+      display: flex;
+      flex-direction: column;
       gap: 8px;
-  }
-  .sidebar-toggle-btn { display: block; }
-  main { margin-left: 0 !important; }
-  header { transform: translateX(-100%); transition: transform 0.3s ease; }
-  body.sidebar-open header { transform: translateX(0); }
-  
-  /* Touch Targets - Min 44px */
-  .control-btn, .control-select, .sidebar-toggle-btn, .tab-btn, #search {
-    min-height: 48px;
-    font-size: 16px;
-  }
-  .modal-content {
+      width: 100%;
+    }
+
+    .tab-btn {
+      padding: 12px 20px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      border-radius: 10px;
+      width: 100%;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .tab-badge {
+      background: white;
+      color: var(--accent);
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 900;
+    }
+
+    /* Sidebar Toggle */
+    .sidebar-toggle-btn {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar-toggle-btn {
+        display: block;
+      }
+    }
+
+    /* Hidden on desktop default */
+
+    /* --- SEARCH --- */
+    .search-container {
+      width: 100%;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      border-radius: 10px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+
+    /* --- DESKTOP CONTROLS BAR (STICKY) --- */
+    .controls-bar {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      /* Reduced padding, no left offset */
+      background: transparent;
+      /* Background handled by parent sticky-header */
+      align-items: center;
+      position: relative;
+      /* Changed from fixed */
+      z-index: 900;
+      /* Remove fixed positioning */
+      top: auto;
+      left: auto;
+      right: auto;
+      backdrop-filter: none;
+      overflow-x: auto;
+      /* Allow horizontal scroll if needed */
+    }
+
+    .control-select,
+    .control-btn {
+      padding: 10px 15px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      /* Prevent shrinking */
+    }
+
+    .control-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* --- GRID & CARDS --- */
+    .view-section {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 25px;
+      margin-top: 10px;
+    }
+
+    .movie-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .poster-wrapper {
+      position: relative;
+      aspect-ratio: 2/3;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .poster-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .movie-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .movie-year {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    /* Badges */
+    .rating-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      color: var(--green);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      backdrop-filter: blur(4px);
+    }
+
+    .priority-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(229, 9, 20, 0.9);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    .library-item {
+      border: 2px solid var(--green-neon);
+      box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+    }
+
+    /* Buttons inside cards */
+    .btn-wrapper {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-card {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-request:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* Mobile Tweaks (Original Simple Version) */
+    @media (max-width: 768px) {
+      .controls-bar {
+        padding-left: 0;
+        flex-wrap: nowrap;
+        /* Keep horizontal scroll */
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        /* Space for scrollbar */
+      }
+
+      /* Hide scrollbar visually but keep function */
+      .controls-bar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .sidebar-toggle-btn {
+        display: block;
+      }
+
+      main {
+        margin-left: 0 !important;
+        padding-top: 0;
+        /* Remove top padding since header is sticky inside main */
+      }
+
+      /* Adjust sticky header position on mobile if needed */
+      .sticky-header {
+        top: 0;
+      }
+
+      header {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      body.sidebar-open header {
+        transform: translateX(0);
+      }
+
+      /* Touch Targets - Min 44px */
+      .control-btn,
+      .control-select,
+      .sidebar-toggle-btn,
+      .tab-btn,
+      #search {
+        min-height: 48px;
+        font-size: 16px;
+      }
+
+      .modal-content {
         flex-direction: column;
         padding: 20px;
         margin-top: -60px;
-  }
-  .modal-poster {
-        width: 140px; 
-        margin: 0 auto 20px auto; 
-        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-  }
-  .modal-info { text-align: center; }
-}
+      }
 
-/* --- CONTEXT MENU --- */
-.context-menu {
-  display: none;
-  position: absolute;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  z-index: 10000;
-  min-width: 180px;
-  padding: 5px 0;
-}
-.context-menu.active { display: block; }
-.context-menu-item {
-  padding: 10px 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  transition: background 0.2s;
-}
-.context-menu-item:hover { background: var(--bg-card-hover); color: var(--accent); }
-.context-menu-separator { height: 1px; background: var(--border); margin: 5px 0; }
+      .modal-poster {
+        width: 140px;
+        margin: 0 auto 20px auto;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-info {
+        text-align: center;
+      }
+    }
+
+    /* --- CONTEXT MENU --- */
+    .context-menu {
+      display: none;
+      position: absolute;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      min-width: 180px;
+      padding: 5px 0;
+    }
+
+    .context-menu.active {
+      display: block;
+    }
+
+    .context-menu-item {
+      padding: 10px 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .context-menu-item:hover {
+      background: var(--bg-card-hover);
+      color: var(--accent);
+    }
+
+    .context-menu-separator {
+      height: 1px;
+      background: var(--border);
+      margin: 5px 0;
+    }
+
+    /* --- SCROLL TO TOP --- */
+    #scroll-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--accent);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 999;
+    }
+
+    #scroll-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    #scroll-to-top:hover {
+      background: #f00;
+      transform: translateY(-5px);
+    }
 
 
-/* --- MISSING STYLES RESTORED --- */
-.overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(5px);
-  z-index: 2000;
-  display: none;
-  justify-content: center;
-  align-items: center;
-}
-.overlay.open { display: flex; }
+    /* --- MISSING STYLES RESTORED --- */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
 
-.modal {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  color: var(--text-primary);
-  animation: modalUp 0.3s ease;
-}
-@keyframes modalUp { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    .overlay.open {
+      display: flex;
+    }
 
-.modal-content { padding: 30px; display: flex; gap: 30px; }
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      color: var(--text-primary);
+      animation: modalUp 0.3s ease;
+    }
 
-.torrent-btn {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
-.torrent-btn:hover { background: #f00; transform: translateY(-2px); }
+    @keyframes modalUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
 
-.modal-note-input {
-  width: 100%;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  font-family: inherit;
-}
-.modal-note-input:focus { border-color: var(--accent); }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
 
-.loader {
-  display: none;
-  width: 100%;
-  padding: 40px;
-  justify-content: center;
-  align-items: center;
-  color: var(--accent);
-}
+    .modal-content {
+      padding: 30px;
+      display: flex;
+      gap: 30px;
+    }
 
-</style>
+    .torrent-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .torrent-btn:hover {
+      background: #f00;
+      transform: translateY(-2px);
+    }
+
+    .modal-note-input {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-family: inherit;
+    }
+
+    .modal-note-input:focus {
+      border-color: var(--accent);
+    }
+
+    .loader {
+      display: none;
+      width: 100%;
+      padding: 40px;
+      justify-content: center;
+      align-items: center;
+      color: var(--accent);
+    }
+  </style>
 </head>
 
 <body>
@@ -367,9 +640,9 @@ h1 {
           </button>
         </div>
 
-        <div class="search-container" id="search-box">
-          <i class="fa-solid fa-magnifying-glass search-icon"></i>
-          <input type="text" id="search" class="search-input" placeholder="Search...">
+        <!-- Search moved to Top Toolbar -->
+        <div style="margin-top:auto; font-size:0.8rem; color:var(--text-muted); text-align:center;">
+          v2.5 Pro
         </div>
 
         <div style="margin-top:auto; font-size:0.8rem; color:var(--text-muted); text-align:center;">
@@ -378,76 +651,102 @@ h1 {
       </div>
     </div>
   </header>
-<style>
+  <style>
+    /* --- MISSING STYLES RESTORED --- */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
 
-/* --- MISSING STYLES RESTORED --- */
-.overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(5px);
-  z-index: 2000;
-  display: none;
-  justify-content: center;
-  align-items: center;
-}
-.overlay.open { display: flex; }
+    .overlay.open {
+      display: flex;
+    }
 
-.modal {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  color: var(--text-primary);
-  animation: modalUp 0.3s ease;
-}
-@keyframes modalUp { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      color: var(--text-primary);
+      animation: modalUp 0.3s ease;
+    }
 
-.modal-content { padding: 30px; display: flex; gap: 30px; }
+    @keyframes modalUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
 
-.torrent-btn {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
-.torrent-btn:hover { background: #f00; transform: translateY(-2px); }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
 
-.modal-note-input {
-  width: 100%;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  font-family: inherit;
-}
-.modal-note-input:focus { border-color: var(--accent); }
+    .modal-content {
+      padding: 30px;
+      display: flex;
+      gap: 30px;
+    }
 
-.loader {
-  display: none;
-  width: 100%;
-  padding: 40px;
-  justify-content: center;
-  align-items: center;
-  color: var(--accent);
-}
+    .torrent-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
 
-</style>
+    .torrent-btn:hover {
+      background: #f00;
+      transform: translateY(-2px);
+    }
+
+    .modal-note-input {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-family: inherit;
+    }
+
+    .modal-note-input:focus {
+      border-color: var(--accent);
+    }
+
+    .loader {
+      display: none;
+      width: 100%;
+      padding: 40px;
+      justify-content: center;
+      align-items: center;
+      color: var(--accent);
+    }
+  </style>
   <!-- MAIN CONTENT AREA -->
   <main style="margin-left: 300px; padding: 20px; transition: margin 0.3s ease;">
 
@@ -468,198 +767,295 @@ h1 {
       </button>
 
       <!-- Bulk Actions (Hidden by default) -->
-      <button class="control-btn" id="bulk-request-btn" onclick="bulkRequest()"
-        style="display:none; background:var(--blue); color:white; border:none;">
-        <i class="fa-solid fa-plus"></i> Request Selected
-      </button>
-      <button class="control-btn" id="bulk-delete-btn" onclick="bulkDelete()"
-        style="display:none; background:var(--red); color:white; border:none;">
-        <i class="fa-solid fa-trash"></i> Delete Selected
-      </button>
+      <!-- UNIFIED STICKY HEADER -->
+      <div class="sticky-header"
+        style="position:sticky; top:0; z-index:900; background:rgba(10, 10, 15, 0.95); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
 
-      <div style="flex-grow:1;"></div>
-
-      <select id="movie-genre" class="control-select">
-        <option value="">All Genres</option>
-        <option value="28">Action</option>
-        <option value="12">Adventure</option>
-        <option value="16">Animation</option>
-        <option value="35">Comedy</option>
-        <option value="80">Crime</option>
-        <option value="18">Drama</option>
-        <option value="14">Fantasy</option>
-        <option value="27">Horror</option>
-        <option value="878">Sci-Fi</option>
-        <option value="53">Thriller</option>
-      </select>
-
-      <select id="movie-year-filter" class="control-select">
-        <option value="all">Any Year</option>
-        <option value="2024">2024</option>
-        <option value="2020">2020-2023</option>
-        <option value="2010">2010s</option>
-        <option value="2000">2000s</option>
-        <option value="classic">Classics (<2000)< /option>
-      </select>
-
-      <select id="movie-rating-filter" class="control-select">
-        <option value="all">Any Rating</option>
-        <option value="high">High (8+)</option>
-        <option value="mid">Mid (6-8)</option>
-        <option value="low">Low (<6)< /option>
-      </select>
-
-      <select id="movie-sort" class="control-select">
-        <option value="trending">Trending</option>
-        <option value="rating">Rating</option>
-        <option value="year">Newest</option>
-        <option value="title">A-Z</option>
-        <option value="popularity">Popularity</option>
-      </select>
-
-      <button class="control-btn" onclick="forceRefreshMovies()" title="Reload Data">
-        <i class="fa-solid fa-rotate-right"></i>
-      </button>
-    </div>
-
-    <div class="controls-bar" id="controls-tv" style="display:none;">
-      <button class="sidebar-toggle-btn" onclick="document.body.classList.toggle('sidebar-collapsed')">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-      <div style="flex-grow:1;"></div>
-      <select id="tv-genre" class="control-select">
-        <option value="">All Genres</option>
-        <option value="10759">Action & Adventure</option>
-        <option value="16">Animation</option>
-        <option value="35">Comedy</option>
-        <option value="18">Drama</option>
-        <option value="9648">Mystery</option>
-        <option value="80">Crime</option>
-        <option value="10765">Sci-Fi & Fantasy</option>
-      </select>
-      <select id="tv-sort" class="control-select">
-        <option value="trending">Trending</option>
-        <option value="rating">Rating</option>
-        <option value="year">Newest</option>
-        <option value="title">A-Z</option>
-      </select>
-      <button class="control-btn" onclick="forceRefreshTV()">
-        <i class="fa-solid fa-rotate-right"></i>
-      </button>
-    </div>
-
-    <div class="container" style="margin-top: 80px;">
-
-      <!-- Stats Dashboard -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value" id="stat-total">0</div>
-          <div class="stat-label">Total Requests</div>
+        <!-- SITE TITLE ROW (Restored) -->
+        <div
+          style="padding:10px 20px; text-align:center; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.98);">
+          <h2 style="font-size:1.2rem; margin:0; color:white; font-weight:700; letter-spacing:1px;">Request Movies For
+            Cory's Plex</h2>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;"><i class="fa-solid fa-clock"></i> Last
+            Updated: <span id="update-time">Today</span></div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" style="color:var(--green-neon)" id="stat-avail">0</div>
-          <div class="stat-label">Available</div>
+
+        <!-- Shared Search Bar Row -->
+
+        <!-- Shared Search Bar Row -->
+        <div
+          style="padding:15px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:20px;">
+          <div class="search-container" id="search-box"
+            style="flex:1; max-width:600px; display:flex; align-items:center; gap:10px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:10px; padding-right:10px;">
+            <i class="fa-solid fa-magnifying-glass search-icon" style="left:14px;"></i>
+            <input type="text" id="search" class="search-input" placeholder="Search movies, TV, people..."
+              style="border:none; background:transparent; padding-left:40px;">
+            <button id="voice-search-btn" onclick="startVoiceSearch()" title="Voice Search"
+              style="background:none; border:none; color:var(--text-muted); cursor:pointer;">
+              <i class="fa-solid fa-microphone"></i>
+            </button>
+            <select id="search-type"
+              style="background:transparent; border:none; color:var(--text-secondary); font-size:0.8rem; cursor:pointer; outline:none;">
+              <option value="multi">All</option>
+              <option value="movie">Movies</option>
+              <option value="tv">TV</option>
+              <option value="person">People</option>
+              <option value="company">Studio</option>
+            </select>
+          </div>
+
+          <!-- Quick Stats/Actions (Optional Pro Touch) -->
+          <div style="margin-left:auto; display:flex; gap:15px; font-size:0.9rem; color:var(--text-secondary);">
+            <span onclick="window.switchTab('requests')" style="cursor:pointer;"><i class="fa-solid fa-list"></i>
+              Requests</span>
+            <span onclick="window.scrollToTop()" style="cursor:pointer;"><i class="fa-solid fa-arrow-up"></i> Top</span>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" style="color:var(--blue)" id="stat-pending">0</div>
-          <div class="stat-label">Pending</div>
+
+        <!-- Context Filters Row (Movies) -->
+        <div class="controls-bar" id="controls-movies"
+          style="padding:10px 20px; display:flex; gap:12px; align-items:center; overflow-x:auto;">
+          <div class="header-title" id="movie-header"
+            style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
+            Trending Movies</div>
+          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+
+          <select id="movie-genre" class="control-select">
+            <option value="">All Genres</option>
+            <option value="28">Action</option>
+            <option value="12">Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="18">Drama</option>
+            <option value="10751">Family</option>
+            <option value="14">Fantasy</option>
+            <option value="27">Horror</option>
+            <option value="9648">Mystery</option>
+            <option value="10749">Romance</option>
+            <option value="878">Sci-Fi</option>
+            <option value="53">Thriller</option>
+          </select>
+          <select id="movie-rating-filter" class="control-select">
+            <option value="all">Any Rating</option>
+            <option value="high">High (8+)</option>
+            <option value="mid">Mid (6-8)</option>
+            <option value="low">Low (<6)< /option>
+          </select>
+          <select id="movie-year-filter" class="control-select">
+            <option value="all">Any Year</option>
+            <option value="2024">2024</option>
+            <option value="2020">2020-2023</option>
+            <option value="2010">2010s</option>
+            <option value="2000">2000s</option>
+            <option value="classic">Classic</option>
+          </select>
+          <select id="movie-runtime-filter" class="control-select">
+            <option value="all">Any Length</option>
+            <option value="short">
+              < 90m</option>
+            <option value="medium">90-120m</option>
+            <option value="long">> 120m</option>
+          </select>
+          <select id="movie-votes-filter" class="control-select">
+            <option value="all">Any Votes</option>
+            <option value="popular">Popular</option>
+            <option value="niche">Niche</option>
+          </select>
+
+          <div style="flex-grow:1;"></div>
+          <select id="movie-sort" class="control-select">
+            <option value="trending">Trending</option>
+            <option value="rating">Top Rated</option>
+            <option value="year">Newest</option>
+            <option value="title">A-Z</option>
+          </select>
+          <button class="control-btn" onclick="clearMovieFilters()"><i class="fa-solid fa-filter-circle-xmark"></i>
+            Clear</button>
+          <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i></button>
         </div>
+
+        <!-- Context Filters Row (TV) -->
+        <div class="controls-bar" id="controls-tv"
+          style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
+          <div class="header-title" id="tv-header"
+            style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
+            Trending TV</div>
+          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+
+          <select id="tv-genre" class="control-select">
+            <option value="">All Genres</option>
+            <option value="10759">Action & Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="18">Drama</option>
+            <option value="9648">Mystery</option>
+            <option value="10765">Sci-Fi & Fantasy</option>
+          </select>
+
+          <div style="flex-grow:1;"></div>
+          <select id="tv-sort" class="control-select">
+            <option value="trending">Trending</option>
+            <option value="rating">Top Rated</option>
+            <option value="year">Newest</option>
+            <option value="title">A-Z</option>
+          </select>
+          <button class="control-btn" onclick="forceRefreshTV()"><i class="fa-solid fa-rotate"></i></button>
+        </div>
+
+        <!-- Context Filters Row (Coming Soon) -->
+        <div class="controls-bar" id="controls-coming"
+          style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
+          <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
+              class="fa-solid fa-calendar-days"></i> Coming Soon</div>
+          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+          <button class="control-btn" onclick="fetchComingSoon()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
+
+        <!-- Context Filters Row (Requests) -->
+        <div class="controls-bar" id="controls-requests"
+          style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
+          <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
+              class="fa-solid fa-list-check"></i> Requests</div>
+          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+
+          <div style="flex-grow:1;"></div>
+          <button class="control-btn" onclick="renderRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
+
+        <!-- Context Filters Row (Tracking) -->
+        <div class="controls-bar" id="controls-tracking"
+          style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
+          <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
+              class="fa-solid fa-eye"></i> Tracked Shows</div>
+          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+          <button class="control-btn" onclick="showAddShowModal()"><i class="fa-solid fa-plus"></i> Add Show</button>
+          <div style="flex-grow:1;"></div>
+          <button class="control-btn" onclick="checkForNewEpisodes()"><i class="fa-solid fa-rotate"></i> Check
+            Episodes</button>
+        </div>
+
       </div>
+      <!-- END STICKY HEADER -->
 
-      <!-- MOVIES TAB -->
-      <div id="view-movies" class="view-section active">
-        <div class="section-header" id="movie-header">
-          <i class="fa-solid fa-fire"></i> Trending Movies
+
+      <div class="container" style="margin-top: 170px;">
+
+        <!-- Stats Dashboard -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">Total Requests</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:var(--green-neon)" id="stat-avail">0</div>
+            <div class="stat-label">Available</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:var(--blue)" id="stat-pending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
         </div>
-        <div class="movie-grid" id="grid-movies">
-          <div class="loader" id="loader-movies"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+
+        <!-- MOVIES TAB -->
+        <div id="view-movies" class="view-section active">
+          <div class="section-header" id="movie-header">
+            <i class="fa-solid fa-fire"></i> Trending Movies
+          </div>
+          <div class="movie-grid" id="grid-movies">
+            <div class="loader" id="loader-movies"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+          </div>
+          <div style="text-align:center; margin:40px 0;">
+            <button class="control-btn" onclick="loadMoreMovies()"
+              style="display:inline-flex; width:auto; padding:15px 40px; font-size:1.1rem; background:var(--accent); color:white; border:none; box-shadow:0 4px 15px rgba(229,9,20,0.4);">
+              <i class="fa-solid fa-circle-plus"></i> Load More Movies
+            </button>
+          </div>
         </div>
-        <div style="text-align:center; margin:30px;">
-          <button class="control-btn" onclick="loadMoreMovies()"
-            style="display:inline-flex; width:auto; padding:12px 30px;">Load More</button>
+
+        <!-- TV SHOWS TAB -->
+        <div id="view-tvshows" class="view-section">
+          <div class="section-header" id="tv-header">
+            <i class="fa-solid fa-tv"></i> Trending TV Shows
+          </div>
+          <div class="movie-grid" id="grid-tvshows">
+            <div class="loader" id="loader-tv"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+          </div>
+          <div style="text-align:center; margin:40px 0;">
+            <button class="control-btn" onclick="loadMoreTV()"
+              style="display:inline-flex; width:auto; padding:15px 40px; font-size:1.1rem; background:var(--blue); color:white; border:none; box-shadow:0 4px 15px rgba(9,132,227,0.4);">
+              <i class="fa-solid fa-circle-plus"></i> Load More TV Shows
+            </button>
+          </div>
         </div>
+
+        <!-- COMING SOON TAB -->
+        <div id="view-coming" class="view-section">
+          <div class="section-header">
+            <i class="fa-solid fa-calendar-days"></i> Coming Soon (Theaters)
+          </div>
+          <div class="movie-grid" id="grid-coming">
+            <div class="loader" id="loader-coming"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+          </div>
+        </div>
+
+        <!-- REQUESTS TAB -->
+        <div id="view-requests" class="view-section">
+          <div class="section-header">
+            <i class="fa-solid fa-list-check"></i> All Requests
+          </div>
+
+          <!-- Torrent Search in Requests Tab -->
+          <div style="margin-bottom: 20px; display:flex; gap:10px;">
+            <input type="text" id="torrent-search-input" class="search-input"
+              placeholder="Search for torrents (Movies/TV)..." style="flex:1;">
+            <button class="torrent-btn" onclick="searchTorrentsManual()">
+              <i class="fa-solid fa-magnet"></i> Search
+            </button>
+          </div>
+          <div id="torrent-results-area" style="margin-bottom:30px;"></div>
+
+          <div class="movie-grid" id="grid-requests">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- TRACKING TAB -->
+        <div id="view-tracking" class="view-section">
+          <div class="section-header">
+            <i class="fa-solid fa-eye"></i> Tracked TV Shows
+            <button class="control-btn" onclick="showAddShowModal()" style="margin-left:auto; font-size:0.9rem;">
+              <i class="fa-solid fa-plus"></i> Add Show
+            </button>
+          </div>
+
+          <div id="no-tracking" style="text-align:center; padding:40px; display:none; color:var(--text-muted);">
+            <i class="fa-solid fa-tv fa-3x" style="margin-bottom:15px; opacity:0.3;"></i><br>
+            Not tracking any shows. Click "Add Show" to start.
+          </div>
+
+          <div class="movie-grid" id="grid-tracking" style="margin-bottom:40px;">
+            <!-- Tracked shows -->
+          </div>
+
+          <div class="section-header">
+            <i class="fa-solid fa-bell"></i> New Episodes Released Today
+            <button class="control-btn" onclick="checkForNewEpisodes()" style="margin-left:auto; font-size:0.9rem;">
+              <i class="fa-solid fa-rotate"></i> Check Now
+            </button>
+          </div>
+
+          <div id="no-episodes" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
+            No new episodes airing today for your tracked shows.
+          </div>
+
+          <div class="movie-grid" id="grid-episodes">
+            <!-- New episodes -->
+          </div>
+        </div>
+
       </div>
-
-      <!-- TV SHOWS TAB -->
-      <div id="view-tvshows" class="view-section">
-        <div class="section-header" id="tv-header">
-          <i class="fa-solid fa-tv"></i> Trending TV Shows
-        </div>
-        <div class="movie-grid" id="grid-tvshows">
-          <div class="loader" id="loader-tv"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
-        </div>
-        <div style="text-align:center; margin:30px;">
-          <button class="control-btn" onclick="loadMoreTV()"
-            style="display:inline-flex; width:auto; padding:12px 30px;">Load More</button>
-        </div>
-      </div>
-
-      <!-- COMING SOON TAB -->
-      <div id="view-coming" class="view-section">
-        <div class="section-header">
-          <i class="fa-solid fa-calendar-days"></i> Coming Soon (Theaters)
-        </div>
-        <div class="movie-grid" id="grid-coming">
-          <div class="loader" id="loader-coming"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
-        </div>
-      </div>
-
-      <!-- REQUESTS TAB -->
-      <div id="view-requests" class="view-section">
-        <div class="section-header">
-          <i class="fa-solid fa-list-check"></i> All Requests
-        </div>
-
-        <!-- Torrent Search in Requests Tab -->
-        <div style="margin-bottom: 20px; display:flex; gap:10px;">
-          <input type="text" id="torrent-search-input" class="search-input"
-            placeholder="Search for torrents (Movies/TV)..." style="flex:1;">
-          <button class="torrent-btn" onclick="searchTorrentsManual()">
-            <i class="fa-solid fa-magnet"></i> Search
-          </button>
-        </div>
-        <div id="torrent-results-area" style="margin-bottom:30px;"></div>
-
-        <div class="movie-grid" id="grid-requests">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-
-      <!-- TRACKING TAB -->
-      <div id="view-tracking" class="view-section">
-        <div class="section-header">
-          <i class="fa-solid fa-eye"></i> Tracked TV Shows
-          <button class="control-btn" onclick="showAddShowModal()" style="margin-left:auto; font-size:0.9rem;">
-            <i class="fa-solid fa-plus"></i> Add Show
-          </button>
-        </div>
-
-        <div id="no-tracking" style="text-align:center; padding:40px; display:none; color:var(--text-muted);">
-          <i class="fa-solid fa-tv fa-3x" style="margin-bottom:15px; opacity:0.3;"></i><br>
-          Not tracking any shows. Click "Add Show" to start.
-        </div>
-
-        <div class="movie-grid" id="grid-tracking" style="margin-bottom:40px;">
-          <!-- Tracked shows -->
-        </div>
-
-        <div class="section-header">
-          <i class="fa-solid fa-bell"></i> New Episodes Released Today
-          <button class="control-btn" onclick="checkForNewEpisodes()" style="margin-left:auto; font-size:0.9rem;">
-            <i class="fa-solid fa-rotate"></i> Check Now
-          </button>
-        </div>
-
-        <div id="no-episodes" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
-          No new episodes airing today for your tracked shows.
-        </div>
-
-        <div class="movie-grid" id="grid-episodes">
-          <!-- New episodes -->
-        </div>
-      </div>
-
-    </div>
   </main>
 
   <!-- DETAIL MODAL OVERLAY -->
@@ -687,9 +1083,9 @@ h1 {
   </button>
 
   <!-- Main Application Logic -->
-  
 
-<script type="module">
+
+  <script type="module">
     // FIREBASE CONFIGURATION
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot, setDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -712,6 +1108,31 @@ h1 {
     let currentMovies = []; // Stores current TMDB movie results
     let currentTVShows = []; // Stores current TMDB TV results
     let currentComingSoon = []; // Stores upcoming movies
+
+    // 1. INITIALIZE LISTENERS
+    // Request Listener
+    onSnapshot(collection(db, "requests"), (snapshot) => {
+      globalRequests = [];
+      snapshot.forEach((doc) => {
+        globalRequests.push(doc.data());
+      });
+      document.getElementById('stat-total').innerText = globalRequests.length;
+      document.getElementById('stat-avail').innerText = globalRequests.filter(r => r.status === 'added').length;
+      document.getElementById('stat-pending').innerText = globalRequests.filter(r => r.status === 'pending').length;
+
+      // Update Request Badge
+      const pendingCount = globalRequests.filter(r => r.status === 'pending').length;
+      const badges = document.querySelectorAll('#req-count');
+      badges.forEach(b => {
+        b.innerText = pendingCount;
+        b.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+      });
+
+      // Re-render current view to update buttons
+      if (currentTab === 'movies') renderGrid(currentMovies, 'grid-movies');
+      if (currentTab === 'tvshows') renderGrid(currentTVShows, 'grid-tvshows');
+      if (currentTab === 'requests') renderRequests();
+    });
     let trackedShows = []; // Stores tracked TV shows
     let newEpisodes = []; // Stores new episodes from tracked shows
     let currentTab = 'movies';
@@ -878,24 +1299,25 @@ h1 {
       fetchMovies(currentMoviePage + 1, true);
     };
 
-    // UNIFIED FETCH FUNCTION
+    // UNIFIED FETCH FUNCTION - ENHANCED FOR PILLAR 1
     async function fetchMovies(page = 1, append = false) {
       currentMoviePage = page;
       const genre = document.getElementById('movie-genre').value;
       const sort = document.getElementById('movie-sort').value;
       const rating = document.getElementById('movie-rating-filter').value;
       const year = document.getElementById('movie-year-filter').value;
+      const runtime = document.getElementById('movie-runtime-filter').value;
+      const votes = document.getElementById('movie-votes-filter').value;
 
       console.log(`=== FETCHING MOVIES (Page ${page}) ===`);
 
       // Determine if using default "Trending" view (no filters)
-      const isDefault = sort === 'trending' && !genre && rating === 'all' && year === 'all';
+      const isDefault = sort === 'trending' && !genre && rating === 'all' && year === 'all' && runtime === 'all' && votes === 'all';
 
       // Check cache ONLY if no filters are active and it's page 1
       if (page === 1 && !append && isDefault && !shouldRefresh('trending_movies', DAY_MS)) {
         const cached = getCached('trending_movies');
         if (cached) {
-          console.log('Using cached trending movies');
           currentMovies = cached;
           renderGrid(currentMovies, 'grid-movies');
           updateLastRefreshUI();
@@ -904,13 +1326,12 @@ h1 {
         }
       }
 
-      // Show loader if not appending
       if (!append) {
         document.getElementById('loader-movies').style.display = 'flex';
         document.getElementById('grid-movies').innerHTML = '';
       }
 
-      let apiUrl = `https://api.themoviedb.org/3/`;
+      let apiUrl = `https://api.themoviedb.org/3/discover/movie?`;
       const params = new URLSearchParams({
         api_key: TMDB_KEY,
         page: page,
@@ -918,37 +1339,37 @@ h1 {
         'vote_count.gte': 50
       });
 
-      // Construct API Call
-      if (sort === 'trending' && !genre && rating === 'all' && year === 'all') {
-        // Default Trending
-        apiUrl += `trending/movie/week?`;
-      } else {
-        // Discover endpoint for any filter/sort combo
-        apiUrl += 'discover/movie?';
+      // Sort
+      if (sort === 'trending') params.append('sort_by', 'popularity.desc');
+      else if (sort === 'rating') params.append('sort_by', 'vote_average.desc');
+      else if (sort === 'year') params.append('sort_by', 'primary_release_date.desc');
+      else if (sort === 'title') params.append('sort_by', 'original_title.asc');
+      else if (sort === 'popularity') params.append('sort_by', 'popularity.desc');
 
-        // Sort
-        if (sort === 'trending') params.append('sort_by', 'popularity.desc'); // Default for discover
-        else if (sort === 'rating') params.append('sort_by', 'vote_average.desc');
-        else if (sort === 'year') params.append('sort_by', 'primary_release_date.desc');
-        else if (sort === 'title') params.append('sort_by', 'original_title.asc');
-        else if (sort === 'popularity') params.append('sort_by', 'popularity.desc');
+      // Genre
+      if (genre) params.append('with_genres', genre);
 
-        // Genre
-        if (genre) params.append('with_genres', genre);
+      // Rating
+      if (rating === 'high') params.append('vote_average.gte', '8.0');
+      else if (rating === 'mid') { params.append('vote_average.gte', '6.0'); params.append('vote_average.lte', '7.9'); }
+      else if (rating === 'low') params.append('vote_average.lte', '5.9');
 
-        // Rating
-        if (rating === 'high') params.append('vote_average.gte', '8.0');
-        else if (rating === 'mid') { params.append('vote_average.gte', '6.0'); params.append('vote_average.lte', '7.9'); }
-        else if (rating === 'low') params.append('vote_average.lte', '5.9');
+      // Year
+      const currentYear = new Date().getFullYear();
+      if (year === '2024') { params.append('primary_release_date.gte', '2024-01-01'); params.append('primary_release_date.lte', `${currentYear}-12-31`); }
+      else if (year === '2020') { params.append('primary_release_date.gte', '2020-01-01'); params.append('primary_release_date.lte', '2023-12-31'); }
+      else if (year === '2010') { params.append('primary_release_date.gte', '2010-01-01'); params.append('primary_release_date.lte', '2019-12-31'); }
+      else if (year === '2000') { params.append('primary_release_date.gte', '2000-01-01'); params.append('primary_release_date.lte', '2009-12-31'); }
+      else if (year === 'classic') params.append('primary_release_date.lte', '1999-12-31');
 
-        // Year
-        const currentYear = new Date().getFullYear();
-        if (year === '2024') { params.append('primary_release_date.gte', '2024-01-01'); params.append('primary_release_date.lte', `${currentYear}-12-31`); }
-        else if (year === '2020') { params.append('primary_release_date.gte', '2020-01-01'); params.append('primary_release_date.lte', '2023-12-31'); }
-        else if (year === '2010') { params.append('primary_release_date.gte', '2010-01-01'); params.append('primary_release_date.lte', '2019-12-31'); }
-        else if (year === '2000') { params.append('primary_release_date.gte', '2000-01-01'); params.append('primary_release_date.lte', '2009-12-31'); }
-        else if (year === 'classic') params.append('primary_release_date.lte', '1999-12-31');
-      }
+      // Runtime
+      if (runtime === 'short') params.append('with_runtime.lte', '90');
+      else if (runtime === 'medium') { params.append('with_runtime.gte', '90'); params.append('with_runtime.lte', '120'); }
+      else if (runtime === 'long') params.append('with_runtime.gte', '120');
+
+      // Votes
+      if (votes === 'popular') params.set('vote_count.gte', '10000');
+      else if (votes === 'niche') { params.set('vote_count.lte', '1000'); params.set('vote_count.gte', '1'); }
 
       try {
         const res = await fetch(apiUrl + params.toString());
@@ -957,13 +1378,10 @@ h1 {
 
         if (append) {
           currentMovies = [...currentMovies, ...newMovies];
-          // Determine unique items to render
-          renderGrid(newMovies, 'grid-movies', true); // Add append mode to renderGrid if needed, or just append manually
+          renderGrid(newMovies, 'grid-movies', true);
         } else {
           currentMovies = newMovies;
           renderGrid(currentMovies, 'grid-movies');
-
-          // Cache if this is the default view
           if (page === 1 && isDefault) {
             cacheData('trending_movies', currentMovies);
             updateLastRefreshUI();
@@ -1217,28 +1635,71 @@ h1 {
       }
     };
 
-    // 4. SEARCH LOGIC
+    // 4. SMART SEARCH LOGIC (Voice, Person, Company) - ENHANCED
+    window.startVoiceSearch = () => {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert("Voice search not supported in this browser (try Chrome).");
+        return;
+      }
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.start();
+      const btn = document.getElementById('voice-search-btn');
+
+      recognition.onstart = () => { btn.style.color = 'var(--accent)'; };
+      recognition.onend = () => { btn.style.color = 'var(--text-muted)'; };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        const input = document.getElementById('search');
+        input.value = transcript;
+        input.dispatchEvent(new Event('input'));
+      };
+    };
+
     document.getElementById('search').addEventListener('input', async (e) => {
       const val = e.target.value;
+      const type = document.getElementById('search-type').value;
+
       if (val.length > 2) {
-        if (currentTab === 'movies') {
-          document.getElementById('movie-header').innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Search Results`;
-          const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`);
-          const data = await res.json();
-          currentMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
-          renderGrid(currentMovies, 'grid-movies');
-        } else if (currentTab === 'tvshows') {
-          document.getElementById('tv-header').innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Search Results`;
-          const res = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`);
-          const data = await res.json();
-          currentTVShows = data.results.map(tv => ({
-            ...tv,
-            mediaType: 'tv',
-            title: tv.name,
-            release_date: tv.first_air_date
-          }));
-          renderGrid(currentTVShows, 'grid-tvshows');
+        if (currentTab === 'movies') document.getElementById('movie-header').innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Search Results`;
+        else if (currentTab === 'tvshows') document.getElementById('tv-header').innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Search Results`;
+
+        let apiUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`; // Default
+
+        if (type === 'tv') apiUrl = `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
+        else if (type === 'person') apiUrl = `https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
+        else if (type === 'company') apiUrl = `https://api.themoviedb.org/3/search/company?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
+        else if (type === 'multi') apiUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
+
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+
+        // Handle Person/Company/Multi results
+        let results = [];
+        if (type === 'person') {
+          // Flatten known_for from people results
+          results = data.results.flatMap(p => p.known_for || []);
+        } else if (type === 'company') {
+          // Basic fallback for now
+          results = [];
+        } else {
+          results = data.results;
         }
+
+        // Filter and Format
+        const formatted = results.map(item => ({
+          ...item,
+          mediaType: item.media_type || (type === 'tv' ? 'tv' : 'movie')
+        })).filter(i => i.mediaType === 'movie' || i.mediaType === 'tv');
+
+        // Render to active tab
+        if (currentTab === 'movies' || currentTab === 'tvshows') {
+          renderGrid(formatted, currentTab === 'movies' ? 'grid-movies' : 'grid-tvshows');
+        } else if (currentTab === 'coming') {
+          renderGrid(formatted, 'grid-coming');
+        }
+
       } else if (val.length === 0) {
         if (currentTab === 'movies') {
           document.getElementById('movie-header').innerHTML = `<i class="fa-solid fa-fire"></i> Trending Movies`;
@@ -1250,9 +1711,16 @@ h1 {
       }
     });
 
-    // 5. GENRE/SORT FILTERS - UNIFIED LISTENER
-    ['movie-sort', 'movie-genre', 'movie-rating-filter', 'movie-year-filter'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => fetchMovies(1, false));
+    // Listener for Search Type change to re-trigger search
+    document.getElementById('search-type').addEventListener('change', () => {
+      const input = document.getElementById('search');
+      if (input.value.length > 2) input.dispatchEvent(new Event('input'));
+    });
+
+    // 5. GENRE/SORT FILTERS - UNIFIED LISTENER WITH NEW FILTERS
+    ['movie-sort', 'movie-genre', 'movie-rating-filter', 'movie-year-filter', 'movie-runtime-filter', 'movie-votes-filter'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', () => fetchMovies(1, false));
     });
 
     document.getElementById('tv-sort').addEventListener('change', async (e) => {
@@ -1436,61 +1904,61 @@ h1 {
         if (!silent) alert("Error saving request. See console for details.");
       }
     };
-// 9. BULK DELETE & ACTIONS
-window.toggleSelectMode = () => {
-    const btn = document.getElementById('select-mode-btn');
-    const isActive = btn.classList.toggle('active');
+    // 9. BULK DELETE & ACTIONS
+    window.toggleSelectMode = () => {
+      const btn = document.getElementById('select-mode-btn');
+      const isActive = btn.classList.toggle('active');
 
-    if (isActive) {
+      if (isActive) {
         btn.innerHTML = '<i class="fa-solid fa-check-square"></i> Cancel Selection';
         btn.style.background = 'var(--accent)';
         btn.style.color = 'white';
         document.body.classList.add('select-mode');
         // Show bulk actions bar if needed
-    } else {
+      } else {
         btn.innerHTML = '<i class="fa-solid fa-check-square"></i> Select';
         btn.style.background = 'var(--bg-secondary)';
         btn.style.color = 'var(--text-primary)';
         document.body.classList.remove('select-mode');
         // Uncheck all
         document.querySelectorAll('.request-checkbox').forEach(cb => cb.checked = false);
-    }
-};
+      }
+    };
 
-window.toggleSelectAll = () => {
-    const isChecked = document.getElementById('select-all-checkbox').checked;
-    document.querySelectorAll('.request-checkbox').forEach(cb => cb.checked = isChecked);
-};
+    window.toggleSelectAll = () => {
+      const isChecked = document.getElementById('select-all-checkbox').checked;
+      document.querySelectorAll('.request-checkbox').forEach(cb => cb.checked = isChecked);
+    };
 
-window.bulkRequest = async () => {
-    const selected = Array.from(document.querySelectorAll('.request-checkbox:checked')).map(cb => JSON.parse(decodeURIComponent(cb.dataset.item)));
-    if (selected.length === 0) return alert("No items selected!");
+    window.bulkRequest = async () => {
+      const selected = Array.from(document.querySelectorAll('.request-checkbox:checked')).map(cb => JSON.parse(decodeURIComponent(cb.dataset.item)));
+      if (selected.length === 0) return alert("No items selected!");
 
-    if (!confirm(`Request ${selected.length} items?`)) return;
+      if (!confirm(`Request ${selected.length} items?`)) return;
 
-    for (const item of selected) {
+      for (const item of selected) {
         await saveItemFromObject(item, 'pending', 'Bulk Request', 'User', 'normal', true);
-    }
-    alert("Bulk request submitted!");
-    toggleSelectMode(); // Exit mode
-};
+      }
+      alert("Bulk request submitted!");
+      toggleSelectMode(); // Exit mode
+    };
 
-window.bulkDelete = async () => {
-    const selected = Array.from(document.querySelectorAll('.request-checkbox:checked')).map(cb => JSON.parse(decodeURIComponent(cb.dataset.item)));
-    if (selected.length === 0) return alert("No items selected!");
+    window.bulkDelete = async () => {
+      const selected = Array.from(document.querySelectorAll('.request-checkbox:checked')).map(cb => JSON.parse(decodeURIComponent(cb.dataset.item)));
+      if (selected.length === 0) return alert("No items selected!");
 
-    if (!confirm(`Delete ${selected.length} requests? This cannot be undone.`)) return;
+      if (!confirm(`Delete ${selected.length} requests? This cannot be undone.`)) return;
 
-    for (const item of selected) {
+      for (const item of selected) {
         // Construct docId properly
         const docId = `${item.mediaType || 'movie'}_${item.id}`;
         try {
-            await deleteDoc(doc(db, "requests", docId));
-        } catch(e) { console.error(e); }
-    }
-    alert("Selected items deleted.");
-    toggleSelectMode();
-};
+          await deleteDoc(doc(db, "requests", docId));
+        } catch (e) { console.error(e); }
+      }
+      alert("Selected items deleted.");
+      toggleSelectMode();
+    };
 
     // 10. UI HELPERS (Tabs, Modals, Sidebar)
     window.switchTab = (tabId) => {
@@ -1506,51 +1974,165 @@ window.bulkDelete = async () => {
       document.getElementById(`view-${tabId}`).classList.add('active');
 
       // Toggle Controls Bars
-      if (tabId === 'movies') {
-        document.getElementById('controls-movies').style.display = 'flex';
-        document.getElementById('controls-tv').style.display = 'none';
-      } else if (tabId === 'tvshows') {
-        document.getElementById('controls-movies').style.display = 'none';
-        document.getElementById('controls-tv').style.display = 'flex';
-      } else {
-        document.getElementById('controls-movies').style.display = 'none';
-        document.getElementById('controls-tv').style.display = 'none';
-      }
+      const bars = ['controls-movies', 'controls-tv', 'controls-coming', 'controls-requests', 'controls-tracking'];
+      bars.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+
+      if (tabId === 'movies') document.getElementById('controls-movies').style.display = 'flex';
+      else if (tabId === 'tvshows') document.getElementById('controls-tv').style.display = 'flex';
+      else if (tabId === 'coming') document.getElementById('controls-coming').style.display = 'flex';
+      else if (tabId === 'requests') document.getElementById('controls-requests').style.display = 'flex';
+      else if (tabId === 'tracking') document.getElementById('controls-tracking').style.display = 'flex';
 
       // Initial Fetch if needed
       if (tabId === 'tvshows' && currentTVShows.length === 0) fetchTrendingTV();
       if (tabId === 'coming' && currentComingSoon.length === 0) fetchComingSoon();
+      if (tabId === 'requests') renderRequests();
+    };
+
+    window.renderRequests = () => {
+      const grid = document.getElementById('grid-requests');
+      grid.innerHTML = '';
+
+      const sorted = [...globalRequests].sort((a, b) => b.timestamp - a.timestamp);
+
+      if (sorted.length === 0) {
+        grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted); grid-column:1/-1;">No requests yet.</div>';
+        return;
+      }
+
+      sorted.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        let poster = item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : (item.poster || '');
+        let statusBadge = item.status === 'added'
+          ? '<div class="priority-badge" style="background:var(--green); right:10px; left:auto;"><i class="fa-solid fa-check"></i> DONE</div>'
+          : '<div class="priority-badge" style="background:var(--blue); right:10px; left:auto;"><i class="fa-solid fa-clock"></i> PENDING</div>';
+
+        card.innerHTML = `
+                <div class="poster-wrapper">
+                    <label style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.7); padding:8px; border-radius:8px; cursor:pointer;" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="request-checkbox" data-item="${encodeURIComponent(JSON.stringify(item)).replace(/"/g, '&quot;')}" style="width:20px; height:20px; cursor:pointer;">
+                    </label>
+                    <img src="${poster}" class="poster-img" loading="lazy">
+                    ${statusBadge}
+                </div>
+                <div class="card-content">
+                    <div class="movie-title">${item.title}</div>
+                    <div class="movie-year">Requested by: ${item.requester || 'User'}</div>
+                    <div class="movie-note" style="color:var(--text-muted); font-size:0.85rem; margin-top:5px;">"${item.note || 'No notes'}"</div>
+                    <div class="btn-wrapper">
+                        <button class="btn-card" onclick="deleteRequest('${item.mediaType}_${item.id}')" style="background:var(--red); color:white; border:none;">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                        ${item.status !== 'added' ?
+            `<button class="btn-card" onclick="saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'added')" style="background:var(--green); color:white; border:none;">
+                            <i class="fa-solid fa-check"></i> Mark Done
+                        </button>` : ''}
+                    </div>
+                </div>
+            `;
+        card.onclick = () => openDetail(item);
+        grid.appendChild(card);
+      });
+    };
+
+    window.deleteRequest = async (docId) => {
+      if (confirm("Delete this request?")) {
+        await deleteDoc(doc(db, "requests", docId));
+      }
     };
 
     window.openDetail = (item) => {
-        // Simple detail view for now, effectively just logs or could open modal
-        // For this app, clicking usually toggles selection in select mode or does nothing special
-        // But let's keep it harmless
-        if (document.body.classList.contains('select-mode')) {
-            // Toggle checkbox
-            const checkbox = document.querySelector(`.request-checkbox[data-item*="${item.id}"]`);
-            if(checkbox) checkbox.checked = !checkbox.checked;
-            return;
+      if (document.body.classList.contains('select-mode')) {
+        const checkbox = document.querySelector(`.request-checkbox[data-item*="${item.id}"]`);
+        if (checkbox) checkbox.checked = !checkbox.checked;
+        return;
+      }
+
+      const overlay = document.getElementById('detail-overlay');
+      let poster = item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : (item.poster || '');
+      let backdrop = item.backdrop_path ? 'https://image.tmdb.org/t/p/w1280' + item.backdrop_path : poster;
+
+      const magnetUrl = `https://www.google.com/search?q=${encodeURIComponent(item.title || item.name + ' torrent magnet')}`;
+
+      overlay.innerHTML = `
+            <div class="modal">
+                <div style="height:350px; overflow:hidden; position:relative;">
+                    <img src="${backdrop}" style="width:100%; height:100%; object-fit:cover; opacity:0.5;">
+                    <div style="position:absolute; inset:0; background:linear-gradient(to top, var(--bg-card), transparent);"></div>
+                    <button onclick="document.getElementById('detail-overlay').classList.remove('open')" 
+                        style="position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.6); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; z-index:10;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <div style="position:absolute; bottom:30px; left:30px; right:30px;">
+                         <h2 style="font-size:2.5rem; font-weight:800; text-shadow:0 2px 20px rgba(0,0,0,0.9); line-height:1.1; margin-bottom:10px;">${item.title || item.name}</h2>
+                         <div style="display:flex; gap:15px; font-size:1rem; color:var(--text-secondary); align-items:center;">
+                            <span>${(item.release_date || item.first_air_date || '').split('-')[0]}</span>
+                            <span><i class="fa-solid fa-star" style="color:var(--green);"></i> ${item.vote_average?.toFixed(1) || 'NR'}</span>
+                            <span style="border:1px solid var(--border); padding:2px 8px; border-radius:4px; font-size:0.8rem;">${item.mediaType === 'tv' ? 'TV Series' : 'Movie'}</span>
+                         </div>
+                    </div>
+                </div>
+                <div style="padding:30px;">
+                    <div style="display:flex; gap:15px; margin-bottom:30px;">
+                        <button class="torrent-btn" style="flex:1; padding:15px;" onclick="window.openRequestModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                            <i class="fa-solid fa-plus"></i> Request on Plex
+                        </button>
+                        <a href="${magnetUrl}" target="_blank" class="torrent-btn" style="flex:1; background:var(--bg-secondary); border:1px solid var(--border); color:var(--text-primary); text-decoration:none;">
+                            <i class="fa-solid fa-magnet" style="color:#d32f2f;"></i> Find Torrents
+                        </a>
+                    </div>
+                    <h3 style="margin-bottom:10px; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:1px;">Overview</h3>
+                    <p style="line-height:1.7; color:var(--text-primary); font-size:1.05rem; margin-bottom:40px;">${item.overview || 'No description available.'}</p>
+
+                    <h3 style="margin-bottom:15px; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:1px;">You Might Also Like</h3>
+                    <div id="rec-container" class="rec-scroll">
+                        <div style="padding:20px; color:var(--text-muted);">Loading recommendations...</div>
+                    </div>
+                </div>
+            </div>
+        `;
+      overlay.classList.add('open');
+      fetchRecommendations(item.id, item.mediaType || 'movie');
+    };
+
+    window.fetchRecommendations = async (id, type) => {
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}/recommendations?api_key=${TMDB_KEY}`);
+        const data = await res.json();
+        const container = document.getElementById('rec-container');
+        if (!data.results || data.results.length === 0) {
+          container.innerHTML = '<div style="padding:10px; color:var(--text-muted);">No recommendations found.</div>';
+          return;
         }
-        // Expand to Show Details if needed (already mostly shown in card)
+        container.innerHTML = data.results.map(rec => `
+                <div class="rec-card" onclick="openDetail(${JSON.stringify(rec).replace(/"/g, '&quot;')})">
+                    <img src="${rec.poster_path ? 'https://image.tmdb.org/t/p/w200' + rec.poster_path : 'https://via.placeholder.com/200x300'}" class="rec-img">
+                    <div class="rec-title">${rec.title || rec.name}</div>
+                </div>
+            `).join('');
+      } catch (e) { console.error("Recs error", e); }
     };
 
     // Sidebar Toggle
     document.addEventListener('DOMContentLoaded', () => {
-        const toggleBtn = document.getElementById('sidebar-toggle');
-        if(toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                document.body.classList.toggle('sidebar-open');
-            });
-        }
+      const toggleBtn = document.getElementById('sidebar-toggle');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          document.body.classList.toggle('sidebar-open');
+        });
+      }
     });
 
     // Close Modals on click outside
     window.onclick = (event) => {
-        const modal = document.getElementById('detail-overlay');
-        if (event.target === modal) {
-            modal.classList.remove('open');
-        }
+      const modal = document.getElementById('detail-overlay');
+      if (event.target === modal) {
+        modal.classList.remove('open');
+      }
     };
 
     // 11. CONTEXT MENU LOGIC
@@ -1558,48 +2140,46 @@ window.bulkDelete = async () => {
     let contextItem = null;
 
     document.addEventListener('contextmenu', (e) => {
-        const card = e.target.closest('.movie-card');
-        if (card) {
-            e.preventDefault();
-            const checkbox = card.querySelector('.request-checkbox');
-            if (checkbox) {
-                try {
-                   const itemData = JSON.parse(decodeURIComponent(checkbox.dataset.item));
-                   contextItem = itemData;
-                   
-                   // Position Menu
-                   contextMenu.style.top = `${e.pageY}px`;
-                   contextMenu.style.left = `${e.pageX}px`;
-                   contextMenu.classList.add('active');
-                } catch(err) { console.error(err); }
-            }
-        } else {
-            contextMenu.classList.remove('active');
+      const card = e.target.closest('.movie-card');
+      if (card) {
+        e.preventDefault();
+        const checkbox = card.querySelector('.request-checkbox');
+        if (checkbox) {
+          try {
+            const itemData = JSON.parse(decodeURIComponent(checkbox.dataset.item));
+            contextItem = itemData;
+
+            // Position Menu
+            contextMenu.style.top = `${e.pageY}px`;
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.classList.add('active');
+          } catch (err) { console.error(err); }
         }
+      } else {
+        contextMenu.classList.remove('active');
+      }
     });
 
     document.addEventListener('click', () => {
-        if(contextMenu) contextMenu.classList.remove('active');
+      if (contextMenu) contextMenu.classList.remove('active');
     });
 
     document.getElementById('ctx-request').addEventListener('click', () => {
-        if(contextItem) window.openRequestModal(contextItem);
+      if (contextItem) window.openRequestModal(contextItem);
     });
 
     document.getElementById('ctx-mark').addEventListener('click', () => {
-        if(contextItem) window.saveItemFromObject(contextItem, 'added');
+      if (contextItem) window.saveItemFromObject(contextItem, 'added');
     });
 
     document.getElementById('ctx-copy').addEventListener('click', () => {
-        if(contextItem) {
-            navigator.clipboard.writeText(contextItem.title || contextItem.name);
-            alert('Title copied!');
-        }
+      if (contextItem) {
+        navigator.clipboard.writeText(contextItem.title || contextItem.name);
+        alert('Title copied!');
+      }
     });
 
-</script>
+  </script>
 </body>
+
 </html>
-
-
-
