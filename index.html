@@ -750,312 +750,320 @@
   <!-- MAIN CONTENT AREA -->
   <main style="margin-left: 300px; padding: 20px; transition: margin 0.3s ease;">
 
-    <!-- CONTROLS BAR (Sticky Top) -->
-    <div class="controls-bar" id="controls-movies">
-      <button class="sidebar-toggle-btn" id="sidebar-toggle" title="Toggle Sidebar">
-        <i class="fa-solid fa-bars"></i>
-      </button>
+    <!-- UNIFIED STICKY HEADER -->
+    <div class="sticky-header"
+      style="position:sticky; top:0; z-index:900; background:rgba(10, 10, 15, 0.95); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
 
-      <label id="select-mode-wrapper"
-        style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-right:10px;">
-        <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll()" style="width:18px; height:18px;">
-        <span style="font-size:0.9rem; color:var(--text-secondary);">Select All</span>
-      </label>
+      <!-- SITE TITLE ROW (With Sidebar Toggle & Select Actions) -->
+      <div
+        style="padding:10px 20px; text-align:center; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.98); display:flex; align-items:center; justify-content:space-between;">
 
-      <button class="control-btn" id="select-mode-btn" onclick="toggleSelectMode()">
-        <i class="fa-solid fa-check-square"></i> Select
-      </button>
+        <!-- Left: Sidebar Toggle (Mobile) -->
+        <button class="sidebar-toggle-btn" id="sidebar-toggle" onclick="document.body.classList.toggle('sidebar-open')"
+          title="Toggle Sidebar" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">
+          <i class="fa-solid fa-bars"></i>
+        </button>
 
-      <!-- Bulk Actions (Hidden by default) -->
-      <!-- UNIFIED STICKY HEADER -->
-      <div class="sticky-header"
-        style="position:sticky; top:0; z-index:900; background:rgba(10, 10, 15, 0.95); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
-
-        <!-- SITE TITLE ROW (Restored) -->
-        <div
-          style="padding:10px 20px; text-align:center; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.98);">
+        <!-- Center: Title -->
+        <div style="flex-grow:1; text-align:center;">
           <h2 style="font-size:1.2rem; margin:0; color:white; font-weight:700; letter-spacing:1px;">Request Movies For
             Cory's Plex</h2>
           <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;"><i class="fa-solid fa-clock"></i> Last
             Updated: <span id="update-time">Today</span></div>
         </div>
 
-        <!-- Shared Search Bar Row -->
-
-        <!-- Shared Search Bar Row -->
-        <div
-          style="padding:15px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:20px;">
-          <div class="search-container" id="search-box"
-            style="flex:1; max-width:600px; display:flex; align-items:center; gap:10px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:10px; padding-right:10px;">
-            <i class="fa-solid fa-magnifying-glass search-icon" style="left:14px;"></i>
-            <input type="text" id="search" class="search-input" placeholder="Search movies, TV, people..."
-              style="border:none; background:transparent; padding-left:40px;">
-            <button id="voice-search-btn" onclick="startVoiceSearch()" title="Voice Search"
-              style="background:none; border:none; color:var(--text-muted); cursor:pointer;">
-              <i class="fa-solid fa-microphone"></i>
-            </button>
-            <select id="search-type"
-              style="background:transparent; border:none; color:var(--text-secondary); font-size:0.8rem; cursor:pointer; outline:none;">
-              <option value="multi">All</option>
-              <option value="movie">Movies</option>
-              <option value="tv">TV</option>
-              <option value="person">People</option>
-              <option value="company">Studio</option>
-            </select>
-          </div>
-
-          <!-- Quick Stats/Actions (Optional Pro Touch) -->
-          <div style="margin-left:auto; display:flex; gap:15px; font-size:0.9rem; color:var(--text-secondary);">
-            <span onclick="window.switchTab('requests')" style="cursor:pointer;"><i class="fa-solid fa-list"></i>
-              Requests</span>
-            <span onclick="window.scrollToTop()" style="cursor:pointer;"><i class="fa-solid fa-arrow-up"></i> Top</span>
-          </div>
+        <!-- Right: Select Mode Actions -->
+        <div style="display:flex; align-items:center; gap:10px;">
+          <label id="select-mode-wrapper"
+            style="display:flex; align-items:center; gap:8px; cursor:pointer; display:none;">
+            <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll()"
+              style="width:18px; height:18px;">
+            <span
+              style="font-size:0.9rem; color:var(--text-secondary); display:none; @media(min-width:768px){display:inline;}">All</span>
+          </label>
+          <button class="control-btn" id="select-mode-btn" onclick="toggleSelectMode()"
+            style="padding:6px 12px; font-size:0.85rem;">
+            <i class="fa-solid fa-check-square"></i> Select
+          </button>
         </div>
-
-        <!-- Context Filters Row (Movies) -->
-        <div class="controls-bar" id="controls-movies"
-          style="padding:10px 20px; display:flex; gap:12px; align-items:center; overflow-x:auto;">
-          <div class="header-title" id="movie-header"
-            style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
-            Trending Movies</div>
-          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-
-          <select id="movie-genre" class="control-select">
-            <option value="">All Genres</option>
-            <option value="28">Action</option>
-            <option value="12">Adventure</option>
-            <option value="16">Animation</option>
-            <option value="35">Comedy</option>
-            <option value="80">Crime</option>
-            <option value="18">Drama</option>
-            <option value="10751">Family</option>
-            <option value="14">Fantasy</option>
-            <option value="27">Horror</option>
-            <option value="9648">Mystery</option>
-            <option value="10749">Romance</option>
-            <option value="878">Sci-Fi</option>
-            <option value="53">Thriller</option>
-          </select>
-          <select id="movie-rating-filter" class="control-select">
-            <option value="all">Any Rating</option>
-            <option value="high">High (8+)</option>
-            <option value="mid">Mid (6-8)</option>
-            <option value="low">Low (<6)< /option>
-          </select>
-          <select id="movie-year-filter" class="control-select">
-            <option value="all">Any Year</option>
-            <option value="2024">2024</option>
-            <option value="2020">2020-2023</option>
-            <option value="2010">2010s</option>
-            <option value="2000">2000s</option>
-            <option value="classic">Classic</option>
-          </select>
-          <select id="movie-runtime-filter" class="control-select">
-            <option value="all">Any Length</option>
-            <option value="short">
-              < 90m</option>
-            <option value="medium">90-120m</option>
-            <option value="long">> 120m</option>
-          </select>
-          <select id="movie-votes-filter" class="control-select">
-            <option value="all">Any Votes</option>
-            <option value="popular">Popular</option>
-            <option value="niche">Niche</option>
-          </select>
-
-          <div style="flex-grow:1;"></div>
-          <select id="movie-sort" class="control-select">
-            <option value="trending">Trending</option>
-            <option value="rating">Top Rated</option>
-            <option value="year">Newest</option>
-            <option value="title">A-Z</option>
-          </select>
-          <button class="control-btn" onclick="clearMovieFilters()"><i class="fa-solid fa-filter-circle-xmark"></i>
-            Clear</button>
-          <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i></button>
-        </div>
-
-        <!-- Context Filters Row (TV) -->
-        <div class="controls-bar" id="controls-tv"
-          style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
-          <div class="header-title" id="tv-header"
-            style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
-            Trending TV</div>
-          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-
-          <select id="tv-genre" class="control-select">
-            <option value="">All Genres</option>
-            <option value="10759">Action & Adventure</option>
-            <option value="16">Animation</option>
-            <option value="35">Comedy</option>
-            <option value="80">Crime</option>
-            <option value="18">Drama</option>
-            <option value="9648">Mystery</option>
-            <option value="10765">Sci-Fi & Fantasy</option>
-          </select>
-
-          <div style="flex-grow:1;"></div>
-          <select id="tv-sort" class="control-select">
-            <option value="trending">Trending</option>
-            <option value="rating">Top Rated</option>
-            <option value="year">Newest</option>
-            <option value="title">A-Z</option>
-          </select>
-          <button class="control-btn" onclick="forceRefreshTV()"><i class="fa-solid fa-rotate"></i></button>
-        </div>
-
-        <!-- Context Filters Row (Coming Soon) -->
-        <div class="controls-bar" id="controls-coming"
-          style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
-          <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
-              class="fa-solid fa-calendar-days"></i> Coming Soon</div>
-          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-          <button class="control-btn" onclick="fetchComingSoon()"><i class="fa-solid fa-rotate"></i> Refresh</button>
-        </div>
-
-        <!-- Context Filters Row (Requests) -->
-        <div class="controls-bar" id="controls-requests"
-          style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
-          <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
-              class="fa-solid fa-list-check"></i> Requests</div>
-          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-
-          <div style="flex-grow:1;"></div>
-          <button class="control-btn" onclick="renderRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button>
-        </div>
-
-        <!-- Context Filters Row (Tracking) -->
-        <div class="controls-bar" id="controls-tracking"
-          style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
-          <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
-              class="fa-solid fa-eye"></i> Tracked Shows</div>
-          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-          <button class="control-btn" onclick="showAddShowModal()"><i class="fa-solid fa-plus"></i> Add Show</button>
-          <div style="flex-grow:1;"></div>
-          <button class="control-btn" onclick="checkForNewEpisodes()"><i class="fa-solid fa-rotate"></i> Check
-            Episodes</button>
-        </div>
-
       </div>
-      <!-- END STICKY HEADER -->
 
+      <!-- Shared Search Bar Row -->
 
-      <div class="container" style="margin-top: 170px;">
-
-        <!-- Stats Dashboard -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-value" id="stat-total">0</div>
-            <div class="stat-label">Total Requests</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" style="color:var(--green-neon)" id="stat-avail">0</div>
-            <div class="stat-label">Available</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" style="color:var(--blue)" id="stat-pending">0</div>
-            <div class="stat-label">Pending</div>
-          </div>
+      <!-- Shared Search Bar Row -->
+      <div
+        style="padding:15px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:20px;">
+        <div class="search-container" id="search-box"
+          style="flex:1; max-width:600px; display:flex; align-items:center; gap:10px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:10px; padding-right:10px;">
+          <i class="fa-solid fa-magnifying-glass search-icon" style="left:14px;"></i>
+          <input type="text" id="search" class="search-input" placeholder="Search movies, TV, people..."
+            style="border:none; background:transparent; padding-left:40px;">
+          <button id="voice-search-btn" onclick="startVoiceSearch()" title="Voice Search"
+            style="background:none; border:none; color:var(--text-muted); cursor:pointer;">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+          <select id="search-type"
+            style="background:transparent; border:none; color:var(--text-secondary); font-size:0.8rem; cursor:pointer; outline:none;">
+            <option value="multi">All</option>
+            <option value="movie">Movies</option>
+            <option value="tv">TV</option>
+            <option value="person">People</option>
+            <option value="company">Studio</option>
+          </select>
         </div>
 
-        <!-- MOVIES TAB -->
-        <div id="view-movies" class="view-section active">
-          <div class="section-header" id="movie-header">
-            <i class="fa-solid fa-fire"></i> Trending Movies
-          </div>
-          <div class="movie-grid" id="grid-movies">
-            <div class="loader" id="loader-movies"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
-          </div>
-          <div style="text-align:center; margin:40px 0;">
-            <button class="control-btn" onclick="loadMoreMovies()"
-              style="display:inline-flex; width:auto; padding:15px 40px; font-size:1.1rem; background:var(--accent); color:white; border:none; box-shadow:0 4px 15px rgba(229,9,20,0.4);">
-              <i class="fa-solid fa-circle-plus"></i> Load More Movies
-            </button>
-          </div>
+        <!-- Quick Stats/Actions (Optional Pro Touch) -->
+        <div style="margin-left:auto; display:flex; gap:15px; font-size:0.9rem; color:var(--text-secondary);">
+          <span onclick="window.switchTab('requests')" style="cursor:pointer;"><i class="fa-solid fa-list"></i>
+            Requests</span>
+          <span onclick="window.scrollToTop()" style="cursor:pointer;"><i class="fa-solid fa-arrow-up"></i> Top</span>
         </div>
-
-        <!-- TV SHOWS TAB -->
-        <div id="view-tvshows" class="view-section">
-          <div class="section-header" id="tv-header">
-            <i class="fa-solid fa-tv"></i> Trending TV Shows
-          </div>
-          <div class="movie-grid" id="grid-tvshows">
-            <div class="loader" id="loader-tv"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
-          </div>
-          <div style="text-align:center; margin:40px 0;">
-            <button class="control-btn" onclick="loadMoreTV()"
-              style="display:inline-flex; width:auto; padding:15px 40px; font-size:1.1rem; background:var(--blue); color:white; border:none; box-shadow:0 4px 15px rgba(9,132,227,0.4);">
-              <i class="fa-solid fa-circle-plus"></i> Load More TV Shows
-            </button>
-          </div>
-        </div>
-
-        <!-- COMING SOON TAB -->
-        <div id="view-coming" class="view-section">
-          <div class="section-header">
-            <i class="fa-solid fa-calendar-days"></i> Coming Soon (Theaters)
-          </div>
-          <div class="movie-grid" id="grid-coming">
-            <div class="loader" id="loader-coming"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
-          </div>
-        </div>
-
-        <!-- REQUESTS TAB -->
-        <div id="view-requests" class="view-section">
-          <div class="section-header">
-            <i class="fa-solid fa-list-check"></i> All Requests
-          </div>
-
-          <!-- Torrent Search in Requests Tab -->
-          <div style="margin-bottom: 20px; display:flex; gap:10px;">
-            <input type="text" id="torrent-search-input" class="search-input"
-              placeholder="Search for torrents (Movies/TV)..." style="flex:1;">
-            <button class="torrent-btn" onclick="searchTorrentsManual()">
-              <i class="fa-solid fa-magnet"></i> Search
-            </button>
-          </div>
-          <div id="torrent-results-area" style="margin-bottom:30px;"></div>
-
-          <div class="movie-grid" id="grid-requests">
-            <!-- Populated by JS -->
-          </div>
-        </div>
-
-        <!-- TRACKING TAB -->
-        <div id="view-tracking" class="view-section">
-          <div class="section-header">
-            <i class="fa-solid fa-eye"></i> Tracked TV Shows
-            <button class="control-btn" onclick="showAddShowModal()" style="margin-left:auto; font-size:0.9rem;">
-              <i class="fa-solid fa-plus"></i> Add Show
-            </button>
-          </div>
-
-          <div id="no-tracking" style="text-align:center; padding:40px; display:none; color:var(--text-muted);">
-            <i class="fa-solid fa-tv fa-3x" style="margin-bottom:15px; opacity:0.3;"></i><br>
-            Not tracking any shows. Click "Add Show" to start.
-          </div>
-
-          <div class="movie-grid" id="grid-tracking" style="margin-bottom:40px;">
-            <!-- Tracked shows -->
-          </div>
-
-          <div class="section-header">
-            <i class="fa-solid fa-bell"></i> New Episodes Released Today
-            <button class="control-btn" onclick="checkForNewEpisodes()" style="margin-left:auto; font-size:0.9rem;">
-              <i class="fa-solid fa-rotate"></i> Check Now
-            </button>
-          </div>
-
-          <div id="no-episodes" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
-            No new episodes airing today for your tracked shows.
-          </div>
-
-          <div class="movie-grid" id="grid-episodes">
-            <!-- New episodes -->
-          </div>
-        </div>
-
       </div>
+
+      <!-- Context Filters Row (Movies) -->
+      <div class="controls-bar" id="controls-movies"
+        style="padding:10px 20px; display:flex; gap:12px; align-items:center; overflow-x:auto;">
+        <div class="header-title" id="movie-header"
+          style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
+          Trending Movies</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+
+        <select id="movie-genre" class="control-select">
+          <option value="">All Genres</option>
+          <option value="28">Action</option>
+          <option value="12">Adventure</option>
+          <option value="16">Animation</option>
+          <option value="35">Comedy</option>
+          <option value="80">Crime</option>
+          <option value="18">Drama</option>
+          <option value="10751">Family</option>
+          <option value="14">Fantasy</option>
+          <option value="27">Horror</option>
+          <option value="9648">Mystery</option>
+          <option value="10749">Romance</option>
+          <option value="878">Sci-Fi</option>
+          <option value="53">Thriller</option>
+        </select>
+        <select id="movie-rating-filter" class="control-select">
+          <option value="all">Any Rating</option>
+          <option value="high">High (8+)</option>
+          <option value="mid">Mid (6-8)</option>
+          <option value="low">Low (<6)< /option>
+        </select>
+        <select id="movie-year-filter" class="control-select">
+          <option value="all">Any Year</option>
+          <option value="2024">2024</option>
+          <option value="2020">2020-2023</option>
+          <option value="2010">2010s</option>
+          <option value="2000">2000s</option>
+          <option value="classic">Classic</option>
+        </select>
+        <select id="movie-runtime-filter" class="control-select">
+          <option value="all">Any Length</option>
+          <option value="short">
+            < 90m</option>
+          <option value="medium">90-120m</option>
+          <option value="long">> 120m</option>
+        </select>
+        <select id="movie-votes-filter" class="control-select">
+          <option value="all">Any Votes</option>
+          <option value="popular">Popular</option>
+          <option value="niche">Niche</option>
+        </select>
+
+        <div style="flex-grow:1;"></div>
+        <select id="movie-sort" class="control-select">
+          <option value="trending">Trending</option>
+          <option value="rating">Top Rated</option>
+          <option value="year">Newest</option>
+          <option value="title">A-Z</option>
+        </select>
+        <button class="control-btn" onclick="clearMovieFilters()"><i class="fa-solid fa-filter-circle-xmark"></i>
+          Clear</button>
+        <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i></button>
+      </div>
+
+      <!-- Context Filters Row (TV) -->
+      <div class="controls-bar" id="controls-tv"
+        style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
+        <div class="header-title" id="tv-header"
+          style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
+          Trending TV</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+
+        <select id="tv-genre" class="control-select">
+          <option value="">All Genres</option>
+          <option value="10759">Action & Adventure</option>
+          <option value="16">Animation</option>
+          <option value="35">Comedy</option>
+          <option value="80">Crime</option>
+          <option value="18">Drama</option>
+          <option value="9648">Mystery</option>
+          <option value="10765">Sci-Fi & Fantasy</option>
+        </select>
+
+        <div style="flex-grow:1;"></div>
+        <select id="tv-sort" class="control-select">
+          <option value="trending">Trending</option>
+          <option value="rating">Top Rated</option>
+          <option value="year">Newest</option>
+          <option value="title">A-Z</option>
+        </select>
+        <button class="control-btn" onclick="forceRefreshTV()"><i class="fa-solid fa-rotate"></i></button>
+      </div>
+
+      <!-- Context Filters Row (Coming Soon) -->
+      <div class="controls-bar" id="controls-coming"
+        style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
+        <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
+            class="fa-solid fa-calendar-days"></i> Coming Soon</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+        <button class="control-btn" onclick="fetchComingSoon()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
+
+      <!-- Context Filters Row (Requests) -->
+      <div class="controls-bar" id="controls-requests"
+        style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
+        <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
+            class="fa-solid fa-list-check"></i> Requests</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+
+        <div style="flex-grow:1;"></div>
+        <button class="control-btn" onclick="renderRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
+
+      <!-- Context Filters Row (Tracking) -->
+      <div class="controls-bar" id="controls-tracking"
+        style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
+        <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
+            class="fa-solid fa-eye"></i> Tracked Shows</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+        <button class="control-btn" onclick="showAddShowModal()"><i class="fa-solid fa-plus"></i> Add Show</button>
+        <div style="flex-grow:1;"></div>
+        <button class="control-btn" onclick="checkForNewEpisodes()"><i class="fa-solid fa-rotate"></i> Check
+          Episodes</button>
+      </div>
+
+    </div>
+    <!-- END STICKY HEADER -->
+
+
+    <div class="container" style="margin-top: 170px;">
+
+      <!-- Stats Dashboard -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">Total Requests</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--green-neon)" id="stat-avail">0</div>
+          <div class="stat-label">Available</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--blue)" id="stat-pending">0</div>
+          <div class="stat-label">Pending</div>
+        </div>
+      </div>
+
+      <!-- MOVIES TAB -->
+      <div id="view-movies" class="view-section active">
+        <div class="section-header" id="movie-header">
+          <i class="fa-solid fa-fire"></i> Trending Movies
+        </div>
+        <div class="movie-grid" id="grid-movies">
+          <div class="loader" id="loader-movies"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+        </div>
+        <div style="text-align:center; margin:40px 0;">
+          <button class="control-btn" onclick="loadMoreMovies()"
+            style="display:inline-flex; width:auto; padding:15px 40px; font-size:1.1rem; background:var(--accent); color:white; border:none; box-shadow:0 4px 15px rgba(229,9,20,0.4);">
+            <i class="fa-solid fa-circle-plus"></i> Load More Movies
+          </button>
+        </div>
+      </div>
+
+      <!-- TV SHOWS TAB -->
+      <div id="view-tvshows" class="view-section">
+        <div class="section-header" id="tv-header">
+          <i class="fa-solid fa-tv"></i> Trending TV Shows
+        </div>
+        <div class="movie-grid" id="grid-tvshows">
+          <div class="loader" id="loader-tv"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+        </div>
+        <div style="text-align:center; margin:40px 0;">
+          <button class="control-btn" onclick="loadMoreTV()"
+            style="display:inline-flex; width:auto; padding:15px 40px; font-size:1.1rem; background:var(--blue); color:white; border:none; box-shadow:0 4px 15px rgba(9,132,227,0.4);">
+            <i class="fa-solid fa-circle-plus"></i> Load More TV Shows
+          </button>
+        </div>
+      </div>
+
+      <!-- COMING SOON TAB -->
+      <div id="view-coming" class="view-section">
+        <div class="section-header">
+          <i class="fa-solid fa-calendar-days"></i> Coming Soon (Theaters)
+        </div>
+        <div class="movie-grid" id="grid-coming">
+          <div class="loader" id="loader-coming"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+        </div>
+      </div>
+
+      <!-- REQUESTS TAB -->
+      <div id="view-requests" class="view-section">
+        <div class="section-header">
+          <i class="fa-solid fa-list-check"></i> All Requests
+        </div>
+
+        <!-- Torrent Search in Requests Tab -->
+        <div style="margin-bottom: 20px; display:flex; gap:10px;">
+          <input type="text" id="torrent-search-input" class="search-input"
+            placeholder="Search for torrents (Movies/TV)..." style="flex:1;">
+          <button class="torrent-btn" onclick="searchTorrentsManual()">
+            <i class="fa-solid fa-magnet"></i> Search
+          </button>
+        </div>
+        <div id="torrent-results-area" style="margin-bottom:30px;"></div>
+
+        <div class="movie-grid" id="grid-requests">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- TRACKING TAB -->
+      <div id="view-tracking" class="view-section">
+        <div class="section-header">
+          <i class="fa-solid fa-eye"></i> Tracked TV Shows
+          <button class="control-btn" onclick="showAddShowModal()" style="margin-left:auto; font-size:0.9rem;">
+            <i class="fa-solid fa-plus"></i> Add Show
+          </button>
+        </div>
+
+        <div id="no-tracking" style="text-align:center; padding:40px; display:none; color:var(--text-muted);">
+          <i class="fa-solid fa-tv fa-3x" style="margin-bottom:15px; opacity:0.3;"></i><br>
+          Not tracking any shows. Click "Add Show" to start.
+        </div>
+
+        <div class="movie-grid" id="grid-tracking" style="margin-bottom:40px;">
+          <!-- Tracked shows -->
+        </div>
+
+        <div class="section-header">
+          <i class="fa-solid fa-bell"></i> New Episodes Released Today
+          <button class="control-btn" onclick="checkForNewEpisodes()" style="margin-left:auto; font-size:0.9rem;">
+            <i class="fa-solid fa-rotate"></i> Check Now
+          </button>
+        </div>
+
+        <div id="no-episodes" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
+          No new episodes airing today for your tracked shows.
+        </div>
+
+        <div class="movie-grid" id="grid-episodes">
+          <!-- New episodes -->
+        </div>
+      </div>
+
+    </div>
   </main>
 
   <!-- DETAIL MODAL OVERLAY -->
@@ -1190,12 +1198,13 @@
     });
 
     // INITIALIZATION - Call on page load
+    // INITIALIZATION - Call on page load
     async function initApp() {
       try {
-        // Hide all loaders initially
-        document.getElementById('loader-movies').style.display = 'none';
-        document.getElementById('loader-tv').style.display = 'none';
-        document.getElementById('loader-coming').style.display = 'none';
+        // Hide all loaders initially (with safety checks)
+        const lM = document.getElementById('loader-movies'); if (lM) lM.style.display = 'none';
+        const lT = document.getElementById('loader-tv'); if (lT) lT.style.display = 'none';
+        const lC = document.getElementById('loader-coming'); if (lC) lC.style.display = 'none';
 
         // Load trending movies
         await fetchMovies(1, false);
@@ -1203,10 +1212,10 @@
         updateLastRefreshUI();
       } catch (e) {
         console.error('Init error:', e);
-        // Hide loaders even on error
-        document.getElementById('loader-movies').style.display = 'none';
-        document.getElementById('loader-tv').style.display = 'none';
-        document.getElementById('loader-coming').style.display = 'none';
+        // Hide loaders on error (safety checked)
+        const lM = document.getElementById('loader-movies'); if (lM) lM.style.display = 'none';
+        const lT = document.getElementById('loader-tv'); if (lT) lT.style.display = 'none';
+        const lC = document.getElementById('loader-coming'); if (lC) lC.style.display = 'none';
       }
     }
 
@@ -1225,7 +1234,8 @@
         }
       }
 
-      document.getElementById('loader-tv').style.display = 'flex';
+      const loader = document.getElementById('loader-tv');
+      if (loader) loader.style.display = 'flex';
       try {
         const res = await fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_KEY}&page=${page}`);
         const data = await res.json();
@@ -1245,8 +1255,12 @@
         if (page === 1) cacheData('trending_tv', currentTVShows);
         renderGrid(currentTVShows, 'grid-tvshows');
         updateLastRefreshUI();
-      } catch (e) { console.error("TMDB TV Fetch Error", e); }
-      document.getElementById('loader-tv').style.display = 'none';
+      } catch (e) {
+        console.error("TMDB TV Fetch Error", e);
+      } finally {
+        const loader = document.getElementById('loader-tv');
+        if (loader) loader.style.display = 'none';
+      }
     }
 
     // 3B. FETCH COMING SOON MOVIES (with auto-refresh every 2 weeks)
@@ -1264,7 +1278,8 @@
         }
       }
 
-      document.getElementById('loader-coming').style.display = 'flex';
+      const loader = document.getElementById('loader-coming');
+      if (loader) loader.style.display = 'flex';
       try {
         const today = new Date().toISOString().split('T')[0];
         const futureDate = new Date();
@@ -1277,13 +1292,21 @@
         cacheData('coming_soon', currentComingSoon);
         renderGrid(currentComingSoon, 'grid-coming');
         updateLastRefreshUI();
-      } catch (e) { console.error("TMDB Coming Soon Error", e); }
-      document.getElementById('loader-coming').style.display = 'none';
+      } catch (e) {
+        console.error("TMDB Coming Soon Error", e);
+      } finally {
+        const loader = document.getElementById('loader-coming');
+        if (loader) loader.style.display = 'none';
+      }
     }
 
     // 3C. TOOLBAR ACTIONS
     window.forceRefreshMovies = () => {
       localStorage.removeItem('trending_movies');
+      document.getElementById('movie-genre').value = '';
+      document.getElementById('movie-sort').value = 'trending';
+      document.getElementById('movie-rating-filter').value = 'all';
+      document.getElementById('movie-year-filter').value = 'all';
       fetchMovies(1, false);
     };
 
@@ -1327,8 +1350,10 @@
       }
 
       if (!append) {
-        document.getElementById('loader-movies').style.display = 'flex';
-        document.getElementById('grid-movies').innerHTML = '';
+        const loader = document.getElementById('loader-movies');
+        if (loader) loader.style.display = 'flex';
+        const grid = document.getElementById('grid-movies');
+        if (grid) grid.innerHTML = '';
       }
 
       let apiUrl = `https://api.themoviedb.org/3/discover/movie?`;
@@ -1390,7 +1415,8 @@
       } catch (e) {
         console.error('Fetch movies error:', e);
       } finally {
-        document.getElementById('loader-movies').style.display = 'none';
+        const loader = document.getElementById('loader-movies');
+        if (loader) loader.style.display = 'none';
       }
     }
 
