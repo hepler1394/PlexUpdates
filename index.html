@@ -246,7 +246,8 @@
 
     .movie-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      /* User requested grid of 4 */
       gap: 25px;
       margin-top: 10px;
     }
@@ -575,8 +576,8 @@
     }
 
     .movie-grid {
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      /* Smaller cards */
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      /* Larger mobile cards */
       gap: 15px;
     }
 
@@ -594,7 +595,8 @@
     /* --- DESKTOP SIDEBAR OVERRIDES --- */
     @media (min-width: 769px) {
       header {
-        transform: translateX(0) !important;
+        transform: translateX(0);
+        /* Default Open */
         position: fixed;
         left: 0;
         top: 0;
@@ -605,6 +607,16 @@
         z-index: 1000;
         padding-top: 0;
         display: block !important;
+        transition: transform 0.3s ease;
+      }
+
+      /* Desktop Sidebar Closed State */
+      body.sidebar-closed header {
+        transform: translateX(-100%);
+      }
+
+      body.sidebar-closed main {
+        margin-left: 0;
       }
 
       header .container {
@@ -616,12 +628,14 @@
 
       main {
         margin-left: 260px;
-        /* Push content */
+        transition: margin-left 0.3s ease;
         width: auto;
       }
 
+      /* Allow toggle on desktop too */
       .brand-area .sidebar-toggle-btn {
-        display: none !important;
+        display: block !important;
+        margin-right: 10px;
       }
     }
 
@@ -1127,6 +1141,18 @@
         <button class="control-btn" onclick="clearMovieFilters()"><i class="fa-solid fa-filter-circle-xmark"></i>
           Clear</button>
         <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i></button>
+
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+        <button class="control-btn"
+          onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
+          title="Search Pirate Bay">
+          <i class="fa-solid fa-magnet"></i> <span class="desktop-only">TPB</span>
+        </button>
+        <button class="control-btn"
+          onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
+          title="Search 1337x">
+          <i class="fa-solid fa-download"></i> <span class="desktop-only">1337x</span>
+        </button>
       </div>
 
       <!-- Context Filters Row (TV) -->
@@ -1156,6 +1182,18 @@
           <option value="title">A-Z</option>
         </select>
         <button class="control-btn" onclick="forceRefreshTV()"><i class="fa-solid fa-rotate"></i></button>
+
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+        <button class="control-btn"
+          onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
+          title="Search Pirate Bay">
+          <i class="fa-solid fa-magnet"></i> <span class="desktop-only">TPB</span>
+        </button>
+        <button class="control-btn"
+          onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
+          title="Search 1337x">
+          <i class="fa-solid fa-download"></i> <span class="desktop-only">1337x</span>
+        </button>
       </div>
 
       <!-- Context Filters Row (Coming Soon) -->
@@ -1174,7 +1212,7 @@
             class="fa-solid fa-list-check"></i> Requests</div>
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
 
-        <button class="control-btn desktop-only" onclick="toggleSelectMode()">
+        <button class="control-btn" onclick="toggleSelectMode()">
           <i class="fa-solid fa-check-square"></i> Select Mode
         </button>
 
@@ -2263,17 +2301,26 @@
       const btn = document.getElementById('select-mode-btn');
       const isActive = btn.classList.toggle('active');
 
+      const bulkActions = document.getElementById('bulk-actions');
+
       if (isActive) {
         btn.innerHTML = '<i class="fa-solid fa-check-square"></i> Cancel Selection';
         btn.style.background = 'var(--accent)';
         btn.style.color = 'white';
         document.body.classList.add('select-mode');
-        // Show bulk actions bar if needed
+
+        // Show bulk actions bar
+        if (bulkActions) bulkActions.style.display = 'flex';
+
       } else {
         btn.innerHTML = '<i class="fa-solid fa-check-square"></i> Select';
         btn.style.background = 'var(--bg-secondary)';
         btn.style.color = 'var(--text-primary)';
         document.body.classList.remove('select-mode');
+
+        // Hide bulk actions bar
+        if (bulkActions) bulkActions.style.display = 'none';
+
         // Uncheck all
         document.querySelectorAll('.request-checkbox').forEach(cb => cb.checked = false);
       }
@@ -2520,11 +2567,16 @@
     };
 
     // Sidebar Toggle
+    // Sidebar Toggle (Mobile & Desktop)
     document.addEventListener('DOMContentLoaded', () => {
       const toggleBtn = document.getElementById('sidebar-toggle');
       if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
-          document.body.classList.toggle('sidebar-open');
+          if (window.innerWidth > 768) {
+            document.body.classList.toggle('sidebar-closed');
+          } else {
+            document.body.classList.toggle('sidebar-open');
+          }
         });
       }
     });
