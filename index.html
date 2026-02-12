@@ -49,11 +49,21 @@
       margin: 0;
       padding: 0;
       margin-left: 300px;
-      /* Space for sidebar */
       padding-top: 80px;
-      /* Space for fixed controls bar */
       padding-bottom: 80px;
       overflow-x: hidden;
+      font-size: 16px;
+      /* Explicit base size */
+      -webkit-text-size-adjust: 100%;
+      /* Prevent font scaling in landscape */
+    }
+
+    /* Force 16px on inputs to prevent iOS zoom */
+    input,
+    select,
+    textarea,
+    button {
+      font-size: 16px !important;
     }
 
     /* --- SIDEBAR (was header) --- */
@@ -94,20 +104,19 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* Sidebar Collapsed State */
+    /* Sidebar Collapsed State - FULLY CLOSED */
     body.sidebar-collapsed header {
-      width: 70px;
-      padding: 20px 10px;
+      width: 0;
+      padding: 0;
+      overflow: hidden;
     }
 
     body.sidebar-collapsed main {
-      margin-left: 70px;
+      margin-left: 0;
     }
 
-    body.sidebar-collapsed .header-content h1,
-    body.sidebar-collapsed .header-content p,
-    body.sidebar-collapsed .tab-btn i+text,
-    body.sidebar-collapsed .tab-btn span:not(.tab-badge),
+    body.sidebar-collapsed .header-content,
+    body.sidebar-collapsed .tab-btn,
     body.sidebar-collapsed #search-box {
       display: none;
     }
@@ -154,8 +163,17 @@
 
     /* Adjust controls bar padding when sidebar is collapsed */
     body.sidebar-collapsed .controls-bar {
-      padding-left: 90px;
-      /* 70px sidebar + 20px */
+      padding-left: 15px;
+      /* Reset padding when sidebar is gone */
+    }
+
+    /* Rotate Icon when Collapsed */
+    .sidebar-toggle-btn i {
+      transition: transform 0.3s ease;
+    }
+
+    body.sidebar-collapsed .sidebar-toggle-btn i {
+      transform: rotate(90deg);
     }
 
     @media (max-width: 768px) {
@@ -174,21 +192,107 @@
       text-align: center;
     }
 
+
+    /* --- MOBILE OVERLAY & COMPACT CONTROLS --- */
+    .mobile-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .mobile-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
     @media (max-width: 768px) {
-      body.sidebar-collapsed header {
-        width: 100%;
-        height: 60px;
-        padding: 0 15px;
-      }
-
-      body.sidebar-collapsed main {
+      body {
         margin-left: 0;
-        margin-top: 60px;
+        /* No push on mobile */
+        padding-top: 130px;
+        /* More space for stacked controls */
       }
 
+      header {
+        transform: translateX(0);
+        transition: transform 0.3s ease;
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+      }
+
+      /* When collapsed on mobile, shift it off-screen (or width 0) */
+
+      body.sidebar-collapsed header {
+        width: 0;
+        padding: 0;
+        transform: translateX(0);
+        /* Reset transform, just use width */
+      }
+
+      body:not(.sidebar-collapsed) header {
+        width: 300px;
+      }
+
+      main {
+        margin-left: 0 !important;
+        /* Never push main on mobile */
+      }
+
+      /* Compact Controls Bar */
+      .controls-bar {
+        padding-left: 15px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        height: auto;
+        padding-bottom: 15px;
+      }
+
+      .controls-bar>* {
+        margin: 0;
+        width: 100%;
+      }
+
+      /* Make the toggle button and Select All compact */
       .sidebar-toggle-btn {
+        grid-column: span 1;
+        justify-content: flex-start;
+        border: none;
+        padding: 0;
+      }
+
+      /* Select All Checkbox Container */
+      .controls-bar label {
+        grid-column: span 1;
+        justify-content: center;
+        font-size: 0.8rem;
+        padding: 8px;
+      }
+
+      /* Request Button - Full Width */
+      .controls-bar button.control-btn:nth-of-type(1) {
+        /* This targets "Request Selected" usually */
+        grid-column: span 2;
+        justify-content: center;
+      }
+
+      /* Filters - 2 per row */
+      .control-select {
+        grid-column: span 1;
+        font-size: 0.85rem;
+        padding: 8px;
+      }
+
+      /* Hide "Last Updated" on super small screens if needed */
+      #last-updated {
         display: none;
-        /* Hide on mobile for now as logic differs */
       }
     }
 
@@ -416,9 +520,16 @@
       cursor: pointer;
     }
 
-    .movie-card:hover {
-      transform: translateY(-8px);
-      border-color: var(--border-hover);
+    .movie-card:active {
+      transform: scale(0.98);
+    }
+
+    @media (hover: hover) {
+      .movie-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--border-hover);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      }
     }
 
     /* PERSISTENT NEON GLOW for Added items */
@@ -539,8 +650,10 @@
       transition: all 0.3s ease;
     }
 
-    .season-card:hover {
-      border-color: var(--red);
+    @media (hover: hover) {
+      .season-card:hover {
+        border-color: var(--red);
+      }
     }
 
     .season-header {
@@ -620,9 +733,11 @@
       transition: all 0.2s;
     }
 
-    .episode-card:hover {
-      border-color: var(--red);
-      background: rgba(229, 9, 20, 0.1);
+    @media (hover: hover) {
+      .episode-card:hover {
+        border-color: var(--red);
+        background: rgba(229, 9, 20, 0.1);
+      }
     }
 
     .episode-thumb {
@@ -1051,7 +1166,84 @@
       }
     }
 
-    /* Extra small devices */
+    /* --- MOBILE NATIVE POLISH --- */
+    @media (max-width: 768px) {
+
+      /* Touch Targets - Min 44px */
+      .control-btn,
+      .control-select,
+      .sidebar-toggle-btn,
+      .tab-btn,
+      #search {
+        min-height: 48px;
+        /* Generous 48px */
+        font-size: 16px;
+      }
+
+      /* Adjust padding for larger height */
+      .control-btn,
+      .control-select {
+        padding-top: 0;
+        padding-bottom: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      /* Fix grid on very small screens */
+      .movie-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        /* Slightly smaller min-width for mobile grid */
+        gap: 15px;
+      }
+
+      /* Optimize spacing */
+      .container {
+        padding: 0 15px;
+        /* Less side padding */
+      }
+
+      /* Header/Sidebar */
+      .header-content {
+        margin-bottom: 10px;
+        margin-top: 10px;
+        /* Safe area top */
+      }
+
+      /* Make sure inputs don't zoom */
+      input[type="text"],
+      input[type="number"],
+      select {
+        font-size: 16px !important;
+      }
+
+      /* Modal Refinements for Mobile */
+      .modal-content {
+        flex-direction: column;
+        padding: 20px;
+        margin-top: -60px;
+        /* Pull up closer to backdrop */
+      }
+
+      .modal-poster {
+        width: 140px;
+        /* Smaller poster */
+        margin: 0 auto 20px auto;
+        /* Center it */
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-info {
+        padding-top: 0;
+        text-align: center;
+        /* Center text for mobile feels better */
+      }
+
+      .modal-info h2 {
+        font-size: 1.8rem;
+        /* Slightly smaller title */
+      }
+    }
+
     @media (max-width: 480px) {
       .movie-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -2940,14 +3132,46 @@
 
     // Start the app
     fetchMovies(1, false);
-    // 10. SIDEBAR TOGGLE
+    // 10. SIDEBAR TOGGLE & OVERLAY
     window.toggleSidebar = () => {
       document.body.classList.toggle('sidebar-collapsed');
       const isCollapsed = document.body.classList.contains('sidebar-collapsed');
       localStorage.setItem('sidebar_collapsed', isCollapsed);
+
+      // Handle Overlay
+      const overlay = document.querySelector('.mobile-overlay');
+      if (overlay) {
+        if (!isCollapsed && window.innerWidth <= 768) {
+          overlay.classList.add('active');
+        } else {
+          overlay.classList.remove('active');
+        }
+      }
     };
 
-    // 11. MOBILE SWIPE
+    // 11. MOBILE SWIPE & OVERLAY INIT
+    document.addEventListener('DOMContentLoaded', () => {
+      // Create Overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'mobile-overlay';
+      document.body.appendChild(overlay);
+
+      overlay.addEventListener('click', () => {
+        // Close sidebar when clicking overlay
+        if (!document.body.classList.contains('sidebar-collapsed')) {
+          toggleSidebar();
+        }
+      });
+
+      // Auto-collapse on mobile if fresh load
+      if (window.innerWidth <= 768) {
+        if (!localStorage.getItem('sidebar_collapsed')) {
+          document.body.classList.add('sidebar-collapsed');
+          localStorage.setItem('sidebar_collapsed', 'true');
+        }
+      }
+    });
+
     let touchStartX = 0;
     const swipeThreshold = 50;
     document.addEventListener('touchstart', e => {
