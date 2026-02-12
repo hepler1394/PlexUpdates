@@ -50,7 +50,7 @@ body {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  margin-left: 300px; /* Default desktop sidebar width */
+  /* margin-left removed */
   padding-top: 80px;
   overflow-x: hidden;
   font-size: 16px; 
@@ -267,6 +267,74 @@ h1 {
 .context-menu-item:hover { background: var(--bg-card-hover); color: var(--accent); }
 .context-menu-separator { height: 1px; background: var(--border); margin: 5px 0; }
 
+
+/* --- MISSING STYLES RESTORED --- */
+.overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(5px);
+  z-index: 2000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  color: var(--text-primary);
+  animation: modalUp 0.3s ease;
+}
+@keyframes modalUp { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+
+.modal-content { padding: 30px; display: flex; gap: 30px; }
+
+.torrent-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.torrent-btn:hover { background: #f00; transform: translateY(-2px); }
+
+.modal-note-input {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-family: inherit;
+}
+.modal-note-input:focus { border-color: var(--accent); }
+
+.loader {
+  display: none;
+  width: 100%;
+  padding: 40px;
+  justify-content: center;
+  align-items: center;
+  color: var(--accent);
+}
+
 </style>
 </head>
 
@@ -311,6 +379,74 @@ h1 {
     </div>
   </header>
 <style>
+
+/* --- MISSING STYLES RESTORED --- */
+.overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(5px);
+  z-index: 2000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  color: var(--text-primary);
+  animation: modalUp 0.3s ease;
+}
+@keyframes modalUp { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+
+.modal-content { padding: 30px; display: flex; gap: 30px; }
+
+.torrent-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.torrent-btn:hover { background: #f00; transform: translateY(-2px); }
+
+.modal-note-input {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-family: inherit;
+}
+.modal-note-input:focus { border-color: var(--accent); }
+
+.loader {
+  display: none;
+  width: 100%;
+  padding: 40px;
+  justify-content: center;
+  align-items: center;
+  color: var(--accent);
+}
+
 </style>
   <!-- MAIN CONTENT AREA -->
   <main style="margin-left: 300px; padding: 20px; transition: margin 0.3s ease;">
@@ -552,8 +688,7 @@ h1 {
 
   <!-- Main Application Logic -->
   
-<script type="module">
-</script>
+
 <script type="module">
     // FIREBASE CONFIGURATION
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -1465,4 +1600,6 @@ window.bulkDelete = async () => {
 </script>
 </body>
 </html>
+
+
 
