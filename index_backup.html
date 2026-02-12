@@ -928,20 +928,6 @@
             class="fa-solid fa-list-check"></i> Requests</div>
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
 
-        <button class="control-btn" onclick="toggleSelectMode()">
-          <i class="fa-solid fa-check-square"></i> Select Mode
-        </button>
-
-        <div id="bulk-actions" style="display:none; gap:10px;">
-          <button class="control-btn" onclick="toggleSelectAll()" style="font-size:0.9rem;">
-            <i class="fa-solid fa-check-double"></i> Select All
-          </button>
-          <button class="control-btn" onclick="bulkDelete()"
-            style="background:var(--red); border-color:var(--red); color:white;">
-            <i class="fa-solid fa-trash"></i> Delete Selected
-          </button>
-        </div>
-
         <div style="flex-grow:1;"></div>
         <button class="control-btn" onclick="renderRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button>
       </div>
@@ -1096,10 +1082,6 @@
     <div class="context-menu-separator"></div>
     <div class="context-menu-item" id="ctx-copy">
       <i class="fa-solid fa-copy"></i> Copy Title
-    </div>
-    <div class="context-menu-separator"></div>
-    <div class="context-menu-item" id="ctx-delete" style="color:var(--red); display:none;">
-      <i class="fa-solid fa-trash"></i> Delete Request
     </div>
   </div>
 
@@ -2083,22 +2065,10 @@
       });
     };
 
-    window.toggleSelectMode = () => {
-      document.body.classList.toggle('select-mode');
-      const isSelectMode = document.body.classList.contains('select-mode');
-
-      const bulkActions = document.getElementById('bulk-actions');
-      if (bulkActions) bulkActions.style.display = isSelectMode ? 'flex' : 'none';
-
-      // Update button text
-      const btn = document.getElementById('select-mode-btn');
-      if (btn) btn.innerHTML = isSelectMode ? '<i class="fa-solid fa-times"></i> Cancel' : '<i class="fa-solid fa-check-square"></i> Select';
-    };
-
-    window.toggleSelectAll = () => {
-      const checkboxes = document.querySelectorAll('.request-checkbox');
-      const allChecked = Array.from(checkboxes).every(c => c.checked);
-      checkboxes.forEach(c => c.checked = !allChecked);
+    window.deleteRequest = async (docId) => {
+      if (confirm("Delete this request?")) {
+        await deleteDoc(doc(db, "requests", docId));
+      }
     };
 
     window.openDetail = (item) => {
@@ -2191,56 +2161,37 @@
       }
     };
 
-    // 9. CONTEXT MENU LOGIC - Enhanced
-    let contextItem = null;
+    // 11. CONTEXT MENU LOGIC
     const contextMenu = document.getElementById('context-menu');
-    const ctxDelete = document.getElementById('ctx-delete');
+    let contextItem = null;
 
     document.addEventListener('contextmenu', (e) => {
       const card = e.target.closest('.movie-card');
       if (card) {
         e.preventDefault();
-
-        // Find the item data
-        // Try requests first
         const checkbox = card.querySelector('.request-checkbox');
-        let itemData = null;
+        if (checkbox) {
+          try {
+            const itemData = JSON.parse(decodeURIComponent(checkbox.dataset.item));
+            contextItem = itemData;
 
-        if (checkbox && checkbox.dataset.item) {
-          itemData = JSON.parse(decodeURIComponent(checkbox.dataset.item));
+            // Position Menu
+            contextMenu.style.top = `${e.pageY}px`;
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.classList.add('active');
+          } catch (err) { console.error(err); }
         }
-
-        if (!itemData) {
-          // Fallback: try finding in current data arrays
-          // This part depends on if we store data on the card or index
-          // Since we render from arrays, we might need a lookup
-          // But for now let's rely on what we have.
-          // Best to attach data-id to card
-        }
-
-        // Simpler approach: Re-attach updated logic to cards or utilize what we have
-        // Let's assume we have the item data from the click handler or similar
-        // Actually, we can just grab the title text
-
-        contextItem = itemData; // If available
-
-        // Position Menu
-        const x = e.clientX;
-        const y = e.clientY;
-        contextMenu.style.top = `${y}px`;
-        contextMenu.style.left = `${x}px`;
-        contextMenu.classList.add('active');
-
-        // Toggle Delete Option based on if it's a request (has status)
-        if (itemData && (itemData.status === 'pending' || itemData.status === 'added')) {
-          ctxDelete.style.display = 'flex';
-        } else {
-          ctxDelete.style.display = 'none';
-        }
-
       } else {
         contextMenu.classList.remove('active');
       }
+    });
+
+    document.addEventListener('click', () => {
+      if (contextMenu) contextMenu.classList.remove('active');
+    });
+
+    document.getElementById('ctx-request').addEventListener('click', () => {
+      if (contextItem) window.openRequestModal(contextItem);
     });
 
     document.getElementById('ctx-mark').addEventListener('click', () => {
