@@ -433,125 +433,134 @@
         display: none !important;
       }
 
-      /* 2. Layout Adjustments */
-      main {
-        margin-left: 0 !important;
-        padding-top: 0;
+      .menu-btn-mobile {
+        display: flex !important;
       }
+    }
 
-      .sticky-header {
-        top: 0;
-      }
+    /* Desktop defaults */
+    .menu-btn-mobile {
+      display: none;
+    }
 
-      .container {
-        margin-top: 180px !important;
-        /* Mobile needs more height due to stacking */
-      }
+    /* 2. Layout Adjustments */
+    main {
+      margin-left: 0 !important;
+      padding-top: 0;
+    }
 
-      /* 2. Controls & Filters (Horizontal Scroll) */
-      .controls-bar {
-        padding: 10px 15px;
-        flex-wrap: nowrap;
-        gap: 10px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        /* Smooth scroll */
-        scrollbar-width: none;
-        /* Firefox */
-      }
+    .sticky-header {
+      top: 0;
+    }
 
-      .controls-bar::-webkit-scrollbar {
-        display: none;
-        /* Chrome/Safari */
-      }
+    .container {
+      margin-top: 180px !important;
+      /* Mobile needs more height due to stacking */
+    }
 
-      /* 3. Touch Targets (Min 44px) */
-      .control-btn,
-      .control-select,
-      .sidebar-toggle-btn,
-      .tab-btn,
-      #voice-search-btn {
-        min-height: 44px;
-        min-width: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    /* 2. Controls & Filters (Horizontal Scroll) */
+    .controls-bar {
+      padding: 10px 15px;
+      flex-wrap: nowrap;
+      gap: 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      /* Smooth scroll */
+      scrollbar-width: none;
+      /* Firefox */
+    }
 
-      .sidebar-toggle-btn {
-        display: block;
-      }
+    .controls-bar::-webkit-scrollbar {
+      display: none;
+      /* Chrome/Safari */
+    }
 
-      /* 4. Stats Dashboard (Compact/Scrollable) */
-      .stats-grid {
-        display: flex;
-        overflow-x: auto;
-        gap: 10px;
-        padding-bottom: 5px;
-        margin: 10px 0;
-      }
+    /* 3. Touch Targets (Min 44px) */
+    .control-btn,
+    .control-select,
+    .sidebar-toggle-btn,
+    .tab-btn,
+    #voice-search-btn {
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-      .stat-card {
-        min-width: 120px;
-        padding: 10px;
-        flex: 1;
-      }
+    .sidebar-toggle-btn {
+      display: block;
+    }
 
-      .stat-value {
-        font-size: 1.4rem;
-      }
+    /* 4. Stats Dashboard (Compact/Scrollable) */
+    .stats-grid {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      padding-bottom: 5px;
+      margin: 10px 0;
+    }
 
-      /* 5. Sidebar & Menus */
-      header {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        z-index: 2000;
-        /* Above overlay */
-      }
+    .stat-card {
+      min-width: 120px;
+      padding: 10px;
+      flex: 1;
+    }
 
-      body.sidebar-open header {
-        transform: translateX(0);
-        box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
-      }
+    .stat-value {
+      font-size: 1.4rem;
+    }
 
-      /* Backdrop for sidebar */
-      body.sidebar-open::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 1500;
-        backdrop-filter: blur(2px);
-      }
+    /* 5. Sidebar & Menus */
+    header {
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 2000;
+      /* Above overlay */
+    }
 
-      /* 6. Modals & Grids */
-      .modal {
-        width: 100%;
-        height: 100%;
-        max-height: 100%;
-        border-radius: 0;
-      }
+    body.sidebar-open header {
+      transform: translateX(0);
+      box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+    }
 
-      .modal-content {
-        flex-direction: column;
-        padding: 20px;
-        margin-top: 0;
-        /* Reset */
-      }
+    /* Backdrop for sidebar */
+    body.sidebar-open::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1500;
+      backdrop-filter: blur(2px);
+    }
 
-      .movie-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        /* Smaller cards */
-        gap: 15px;
-      }
+    /* 6. Modals & Grids */
+    .modal {
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+      border-radius: 0;
+    }
 
-      /* Ensure Load More is click-safe */
-      .container {
-        margin-top: 220px !important;
-        /* Adjust for taller mobile header stack if needed */
-        padding-bottom: 80px;
-        /* Space for scroll-to-top */
-      }
+    .modal-content {
+      flex-direction: column;
+      padding: 20px;
+      margin-top: 0;
+      /* Reset */
+    }
+
+    .movie-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      /* Smaller cards */
+      gap: 15px;
+    }
+
+    /* Ensure Load More is click-safe */
+    .container {
+      margin-top: 220px !important;
+      /* Adjust for taller mobile header stack if needed */
+      padding-bottom: 80px;
+      /* Space for scroll-to-top */
     }
 
     /* --- CONTEXT MENU --- */
@@ -970,7 +979,7 @@
           <!-- Select Mode Toggle -->
           <button class="control-btn" id="select-mode-btn" onclick="toggleSelectMode()"
             style="padding:8px 15px; font-size:0.85rem;">
-            <i class="fa-solid fa-check-square"></i> Select
+            <i class="fa-solid fa-check-square"></i> <span class="desktop-only">Select</span>
           </button>
 
           <span class="desktop-only" onclick="window.switchTab('requests')" style="cursor:pointer; display:none;">
@@ -1090,17 +1099,21 @@
             class="fa-solid fa-list-check"></i> Requests</div>
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
 
-        <button class="control-btn" onclick="toggleSelectMode()">
+        <button class="control-btn desktop-only" onclick="toggleSelectMode()">
           <i class="fa-solid fa-check-square"></i> Select Mode
         </button>
 
         <div id="bulk-actions" style="display:none; gap:10px;">
           <button class="control-btn" onclick="toggleSelectAll()" style="font-size:0.9rem;">
-            <i class="fa-solid fa-check-double"></i> Select All
+            <i class="fa-solid fa-check-double"></i> All
           </button>
-          <button class="control-btn" onclick="bulkDelete()"
-            style="background:var(--red); border-color:var(--red); color:white;">
-            <i class="fa-solid fa-trash"></i> Delete Selected
+          <button id="btn-bulk-delete" class="control-btn" onclick="bulkDelete()"
+            style="background:var(--red); border-color:var(--red); color:white; display:none;">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+          <button id="btn-bulk-request" class="control-btn" onclick="bulkRequest()"
+            style="background:var(--green); border-color:var(--green); color:white; display:none;">
+            <i class="fa-solid fa-plus"></i> Request
           </button>
         </div>
 
@@ -1944,6 +1957,44 @@
       if (input.value.length > 2) input.dispatchEvent(new Event('input'));
     });
 
+    // OPEN CONTEXT MENU MANUALLY (3-DOT BUTTON)
+    window.openContextMenu = (e, btn, item) => {
+      e.preventDefault();
+      contextItem = item;
+
+      const rect = btn.getBoundingClientRect();
+      const menuWidth = 180;
+      const menuHeight = 150;
+      const winWidth = window.innerWidth;
+      const winHeight = window.innerHeight;
+
+      // Position near the button, but keep safe
+      let x = rect.left;
+      let y = rect.bottom + 5;
+
+      if (x + menuWidth > winWidth) x = winWidth - menuWidth - 10;
+      if (y + menuHeight > winHeight) y = rect.top - menuHeight - 5;
+
+      contextMenu.style.left = `${x}px`;
+      contextMenu.style.top = `${y}px`;
+
+      // Reset Menu Options
+      document.getElementById('ctx-delete').style.display = 'none';
+
+      // Logic for delete option
+      // Logic: if it has firestoreId OR status is pending/added
+      if (item && (item.status === 'pending' || item.status === 'added' || item.firestoreId)) {
+        document.getElementById('ctx-delete').style.display = 'flex';
+      }
+
+      contextMenu.classList.add('active');
+    };
+
+    document.getElementById('ctx-mark').addEventListener('click', () => {
+      const input = document.getElementById('search');
+      if (input.value.length > 2) input.dispatchEvent(new Event('input'));
+    });
+
     // 5. GENRE/SORT FILTERS - UNIFIED LISTENER WITH NEW FILTERS
     ['movie-sort', 'movie-genre', 'movie-rating-filter', 'movie-year-filter', 'movie-runtime-filter', 'movie-votes-filter'].forEach(id => {
       const el = document.getElementById(id);
@@ -2028,10 +2079,13 @@
         }
 
         card.innerHTML = `
-        <div class="poster-wrapper">
+          <div class="poster-wrapper">
           <label style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.7); padding:8px; border-radius:8px; cursor:pointer;" onclick="event.stopPropagation()">
             <input type="checkbox" class="request-checkbox" data-item="${encodeURIComponent(JSON.stringify(item)).replace(/"/g, '&quot;')}" style="width:20px; height:20px; cursor:pointer;">
           </label>
+                    <div class="menu-btn-mobile" onclick="event.stopPropagation(); openContextMenu(event, this, ${JSON.stringify(item).replace(/"/g, '&quot;')})" style="position:absolute; top:5px; right:5px; z-index:50; background:rgba(0,0,0,0.8); color:white; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.4rem; border:1px solid rgba(255,255,255,0.2);">
+                         <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </div>
           <img src="${poster}" class="poster-img" loading="lazy">
           <div class="rating-badge"><i class="fa-solid fa-star"></i> ${item.vote_average?.toFixed(1) || 'NR'}</div>
           ${dbEntry?.priority === 'high' ? '<div class="priority-badge"><i class="fa-solid fa-fire"></i> HIGH</div>' : ''}
@@ -2154,7 +2208,7 @@
 
     window.toggleSelectAll = () => {
       const isChecked = document.getElementById('select-all-checkbox').checked;
-      document.querySelectorAll('.request-checkbox').forEach(cb => cb.checked = isChecked);
+      document.querySelectorAll('.request-checkbox').forEach(cb => cb.checked = !allChecked);
     };
 
     window.bulkRequest = async () => {
@@ -2163,11 +2217,17 @@
 
       if (!confirm(`Request ${selected.length} items?`)) return;
 
+      let count = 0;
       for (const item of selected) {
+        // Use existing save function (it handles duplicates/updates)
         await saveItemFromObject(item, 'pending', 'Bulk Request', 'User', 'normal', true);
+        count++;
       }
-      alert("Bulk request submitted!");
+      alert(`Successfully requested ${count} items!`);
       toggleSelectMode(); // Exit mode
+
+      // Refresh requests if on requests tab, though usually we are on movies/tv
+      if (currentTab === 'requests') renderRequests();
     };
 
     window.bulkDelete = async () => {
@@ -2243,6 +2303,9 @@
                     <label style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.7); padding:8px; border-radius:8px; cursor:pointer;" onclick="event.stopPropagation()">
                         <input type="checkbox" class="request-checkbox" data-item="${encodeURIComponent(JSON.stringify(item)).replace(/"/g, '&quot;')}" style="width:20px; height:20px; cursor:pointer;">
                     </label>
+                    <div class="menu-btn-mobile" onclick="event.stopPropagation(); openContextMenu(event, this, ${JSON.stringify(item).replace(/"/g, '&quot;')})" style="position:absolute; top:10px; right:10px; z-index:20; background:rgba(0,0,0,0.7); color:white; width:35px; height:35px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.2rem;">
+                         <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </div>
                     <img src="${poster}" class="poster-img" loading="lazy">
                     ${statusBadge}
                 </div>
@@ -2271,11 +2334,25 @@
       const isSelectMode = document.body.classList.contains('select-mode');
 
       const bulkActions = document.getElementById('bulk-actions');
-      if (bulkActions) bulkActions.style.display = isSelectMode ? 'flex' : 'none';
+      if (bulkActions) {
+        bulkActions.style.display = isSelectMode ? 'flex' : 'none';
+
+        // Toggle buttons based on tab
+        const btnDelete = document.getElementById('btn-bulk-delete');
+        const btnRequest = document.getElementById('btn-bulk-request');
+
+        if (currentTab === 'requests') {
+          if (btnDelete) btnDelete.style.display = 'inline-flex';
+          if (btnRequest) btnRequest.style.display = 'none';
+        } else {
+          if (btnDelete) btnDelete.style.display = 'none';
+          if (btnRequest) btnRequest.style.display = 'inline-flex';
+        }
+      }
 
       // Update button text
       const btn = document.getElementById('select-mode-btn');
-      if (btn) btn.innerHTML = isSelectMode ? '<i class="fa-solid fa-times"></i> Cancel' : '<i class="fa-solid fa-check-square"></i> Select';
+      if (btn) btn.innerHTML = isSelectMode ? '<i class="fa-solid fa-times"></i> Cancel' : '<i class="fa-solid fa-check-square"></i> <span class="desktop-only">Select</span>';
     };
 
     window.toggleSelectAll = () => {
@@ -2369,8 +2446,17 @@
     // Close Modals on click outside
     window.onclick = (event) => {
       const modal = document.getElementById('detail-overlay');
-      if (event.target === modal) {
+      if (modal && event.target === modal) {
         modal.classList.remove('open');
+      }
+
+      // Close Context Menu
+      const ctx = document.getElementById('context-menu');
+      if (ctx && !ctx.contains(event.target)) {
+        ctx.classList.remove('active');
+        // Reset delete option visibility for next time
+        const del = document.getElementById('ctx-delete');
+        if (del) del.style.display = 'none';
       }
     };
 
@@ -2391,19 +2477,24 @@
         // Find item data
         let itemData = null;
 
-        // 1. Try checkbox data (Requests)
-        const checkbox = card.querySelector('.request-checkbox');
-        if (checkbox && checkbox.dataset.item) {
-          try { itemData = JSON.parse(decodeURIComponent(checkbox.dataset.item)); } catch (e) { }
+        // 1. Try card dataset (Universal - Best Method)
+        if (card.dataset.item) {
+          try { itemData = JSON.parse(decodeURIComponent(card.dataset.item)); } catch (e) { console.error("Parse error", e); }
         }
 
-        // 2. Try click handler (Movies/TV) - fallback extraction
+        // 2. Try checkbox data (Legacy/Fallback)
         if (!itemData) {
-          // Attempt to reconstruct from DOM if direct data missing (fallback)
+          const checkbox = card.querySelector('.request-checkbox');
+          if (checkbox && checkbox.dataset.item) {
+            try { itemData = JSON.parse(decodeURIComponent(checkbox.dataset.item)); } catch (e) { }
+          }
+        }
+
+        // 3. Last Resort Fallback (Scraping DOM)
+        if (!itemData) {
           const title = card.querySelector('.movie-title')?.innerText;
           const date = card.querySelector('.movie-year')?.innerText;
           if (title) itemData = { title: title, release_date: date, id: 'unknown' };
-          // Note: ideally we bind data to the card element itself in renderGrid
         }
 
         contextItem = itemData;
@@ -2418,38 +2509,71 @@
         const winWidth = window.innerWidth;
         const winHeight = window.innerHeight;
 
-        contextMenu.style.left = (x + menuWidth > winWidth) ? `${x - menuWidth}px` : `${x}px`;
-        contextMenu.style.top = (y + menuHeight > winHeight) ? `${y - menuHeight}px` : `${y}px`;
+        const finalX = (x + menuWidth > winWidth) ? x - menuWidth : x;
+        const finalY = (y + menuHeight > winHeight) ? y - menuHeight : y;
 
+        contextMenu.style.left = `${finalX}px`;
+        contextMenu.style.top = `${finalY}px`;
         contextMenu.classList.add('active');
 
         // Toggle Delete Option
-        if (itemData && (itemData.status === 'pending' || itemData.status === 'added')) {
+        // logic: if it has a firestore ID or status is pending/added, allow delete
+        if (itemData && (itemData.status === 'pending' || itemData.status === 'added' || itemData.firestoreId)) {
           document.getElementById('ctx-delete').style.display = 'flex';
         }
       } else {
         contextMenu.classList.remove('active');
-        // Allow native right click on background
       }
     });
 
-    document.getElementById('ctx-mark').addEventListener('click', () => {
-      if (contextItem) window.saveItemFromObject(contextItem, 'added');
-    });
+    // --- CONTEXT MENU ACTIONS ---
 
-    document.getElementById('ctx-delete').onclick = async () => {
-      if (contextItem && confirm('Delete this request?')) {
-        const docId = contextItem.firestoreId || `${contextItem.mediaType}_${contextItem.id}`;
-        await deleteDoc(doc(db, "requests", docId));
-        renderRequests(); // Force refresh fallback
-      }
+    // 1. REQUEST
+    const btnRequest = document.getElementById('ctx-request');
+    if (btnRequest) {
+      btnRequest.addEventListener('click', () => {
+        if (contextItem) {
+          window.openRequestModal(contextItem);
+          contextMenu.classList.remove('active');
+        }
+      });
     }
-    document.getElementById('ctx-copy').addEventListener('click', () => {
-      if (contextItem) {
-        navigator.clipboard.writeText(contextItem.title || contextItem.name);
-        alert('Title copied!');
-      }
-    });
+
+    // 2. MARK AVAILABLE
+    const btnMark = document.getElementById('ctx-mark');
+    if (btnMark) {
+      btnMark.addEventListener('click', () => {
+        if (contextItem) {
+          window.saveItemFromObject(contextItem, 'added');
+          contextMenu.classList.remove('active');
+        }
+      });
+    }
+
+    // 3. DELETE
+    const btnDelete = document.getElementById('ctx-delete');
+    if (btnDelete) {
+      btnDelete.onclick = async () => {
+        if (contextItem && confirm('Delete this request?')) {
+          const docId = contextItem.firestoreId || `${contextItem.mediaType || 'movie'}_${contextItem.id}`;
+          await deleteDoc(doc(db, "requests", docId));
+          renderRequests();
+          contextMenu.classList.remove('active');
+        }
+      };
+    }
+
+    // 4. COPY TITLE
+    const btnCopy = document.getElementById('ctx-copy');
+    if (btnCopy) {
+      btnCopy.addEventListener('click', () => {
+        if (contextItem) {
+          navigator.clipboard.writeText(contextItem.title || contextItem.name);
+          alert('Title copied!');
+          contextMenu.classList.remove('active');
+        }
+      });
+    }
 
   </script>
 </body>
