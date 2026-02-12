@@ -786,3 +786,505 @@
         if (!silent) alert("Error saving request. See console for details.");
       }
     };
+// 9. BULK DELETE & ACTIONS
+window.toggleSelectMode = () => {
+    const btn = document.getElementById('select-mode-btn');
+    const isActive = btn.classList.toggle('active');
+
+    if (isActive) {
+        btn.innerHTML = '<i class="fa-solid fa-check-square"></i> Cancel Selection';
+        btn.style.background = 'var(--accent)';
+        btn.style.color = 'white';
+        document.body.classList.add('select-mode');
+        // Show bulk actions bar if needed
+    } else {
+        btn.innerHTML = '<i class="fa-solid fa-check-square"></i> Select';
+        btn.style.background = '';
+        btn.style.color = '';
+        document.body.classList.remove('select-mode');
+        // Clear selections
+        document.querySelectorAll('.request-checkbox').forEach(cb => cb.checked = false);
+        updateBulkActionButtons();
+    }
+};
+
+window.toggleSelectAll = () => {
+    const isChecked = document.getElementById('select-all-checkbox').checked;
+    document.querySelectorAll('.request-checkbox').forEach(cb => cb.checked = isChecked);
+    updateBulkActionButtons();
+};
+
+// Listen for checkbox changes
+document.addEventListener('change', (e) => {
+    if (e.target.classList.contains('request-checkbox')) {
+        updateBulkActionButtons();
+    }
+});
+
+function updateBulkActionButtons() {
+    const selected = document.querySelectorAll('.request-checkbox:checked');
+    const count = selected.length;
+    const deleteBtn = document.getElementById('bulk-delete-btn');
+    const requestBtn = document.getElementById('bulk-request-btn');
+
+    if (count > 0) {
+        if (deleteBtn) {
+            deleteBtn.style.display = 'flex';
+            deleteBtn.innerHTML = `<i class="fa-solid fa-trash"></i> Delete (${count})`;
+        }
+        if (requestBtn) {
+            requestBtn.style.display = 'flex';
+            requestBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Request (${count})`;
+        }
+    } else {
+        if (deleteBtn) deleteBtn.style.display = 'none';
+        if (requestBtn) requestBtn.style.display = 'none';
+    }
+}
+
+window.bulkDelete = async () => {
+    const selected = document.querySelectorAll('.request-checkbox:checked');
+    if (selected.length === 0) return;
+
+    if (confirm(`Delete ${selected.length} items? This cannot be undone.`)) {
+        let deletedCount = 0;
+        for (const cb of selected) {
+            const item = JSON.parse(decodeURIComponent(cb.dataset.item));
+            // Find Firestore ID
+            const dbItem = globalRequests.find(r => r.id === item.id && r.mediaType === item.mediaType);
+            if (dbItem && dbItem.firestoreId) {
+                try {
+                    await deleteDoc(doc(db, "requests", dbItem.firestoreId));
+                    deletedCount++;
+                } catch (e) { console.error("Error deleting:", e); }
+            }
+        }
+        alert(`Deleted ${deletedCount} items.`);
+        window.toggleSelectMode(); // Exit mode
+        // Refresh grids
+        fetchMovies(currentMoviePage, false);
+    }
+};
+
+window.bulkRequest = async () => {
+    const selected = document.querySelectorAll('.request-checkbox:checked');
+    if (selected.length === 0) return;
+
+    const priority = prompt("Priority for these requests? (normal/high)", "normal") || "normal";
+
+    let requestedCount = 0;
+    for (const cb of selected) {
+        const item = JSON.parse(decodeURIComponent(cb.dataset.item));
+        try {
+            // Check if already requested
+            const existing = globalRequests.find(r => r.id === item.id && r.mediaType === item.mediaType);
+            if (!existing) {
+                await saveItemFromObject(item, 'pending', 'Bulk Request', 'User', priority, true); // Silent save
+                requestedCount++;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    alert(`Requested ${requestedCount} items.`);
+    window.toggleSelectMode();
+    // Refresh
+    fetchMovies(currentMoviePage, false);
+};
+
+// 10. UI HELPERS (Tabs, Modals, Sidebar)
+window.switchTab = (tab) => {
+    currentTab = tab;
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+    if (tab === 'movies') {
+        document.getElementById('view-movies').classList.add('active');
+        document.getElementById('tab-movies').classList.add('active');
+        document.getElementById('controls-movies').style.display = 'flex'; // Show controls
+        document.getElementById('controls-tv').style.display = 'none';
+        fetchMovies(1, false);
+    } else if (tab === 'tvshows') {
+        document.getElementById('view-tvshows').classList.add('active');
+        document.getElementById('tab-tvshows').classList.add('active');
+        document.getElementById('controls-movies').style.display = 'none';
+        document.getElementById('controls-tv').style.display = 'flex'; // Show controls
+        fetchTrendingTV();
+    } else if (tab === 'coming') {
+        document.getElementById('view-coming').classList.add('active');
+        document.getElementById('tab-coming').classList.add('active');
+        document.getElementById('controls-movies').style.display = 'none';
+        document.getElementById('controls-tv').style.display = 'none';
+        fetchComingSoon();
+    } else if (tab === 'requests') {
+        document.getElementById('view-requests').classList.add('active');
+        document.getElementById('tab-downloads').classList.add('active');
+        document.getElementById('controls-movies').style.display = 'none';
+        document.getElementById('controls-tv').style.display = 'none';
+        updateUI(); // Render standard requests table
+    } else if (tab === 'tracking') {
+        document.getElementById('view-tracking').classList.add('active');
+        document.getElementById('tab-tracking').classList.add('active');
+        document.getElementById('controls-movies').style.display = 'none';
+        document.getElementById('controls-tv').style.display = 'none';
+        renderTrackedShows();
+        checkForNewEpisodesAuto(); // Auto-check on tab load
+    }
+};
+
+// Correct Sidebar Toggle Logic
+const toggleBtn = document.getElementById('sidebar-toggle');
+const body = document.body;
+const mobileOverlay = document.querySelector('.mobile-overlay');
+
+// Load state
+if (localStorage.getItem('sidebarCollapsed') === 'true') {
+    body.classList.add('sidebar-collapsed');
+}
+
+if (toggleBtn) {
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent document click
+        body.classList.toggle('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', body.classList.contains('sidebar-collapsed'));
+
+        // Mobile specific: Toggle overlay
+        if (window.innerWidth <= 768) {
+            if (!body.classList.contains('sidebar-collapsed')) {
+                mobileOverlay.classList.add('active');
+                // document.querySelector('header').style.width = '300px'; // Ensure width
+            } else {
+                mobileOverlay.classList.remove('active');
+            }
+        }
+    });
+}
+
+// Close sidebar when clicking overlay (Mobile)
+if (mobileOverlay) {
+    mobileOverlay.addEventListener('click', () => {
+        body.classList.add('sidebar-collapsed');
+        mobileOverlay.classList.remove('active');
+        localStorage.setItem('sidebarCollapsed', 'true');
+    });
+}
+
+
+/* Detail Modal Logic */
+window.openDetail = async (item) => {
+    // If it's a TV show, we might want to show seasons
+    if (item.mediaType === 'tv') {
+        openTVDetail(item);
+        return;
+    }
+    // Otherwise standard movie detail
+    const overlay = document.getElementById('detail-overlay');
+
+    // Get higher res image
+    const backdrop = item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : '';
+    const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Poster';
+
+    const dbEntry = globalRequests.find(r => r.id === item.id && r.mediaType === 'movie');
+    const isAdded = dbEntry?.status === 'added';
+    const isPending = dbEntry?.status === 'pending';
+
+    overlay.innerHTML = `
+      <div class="modal">
+        <div class="modal-backdrop" style="background-image: url('${backdrop}')">
+          <button style="position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.5); border:none; color:white; font-size:1.5rem; cursor:pointer; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;" onclick="document.getElementById('detail-overlay').classList.remove('open')">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-content">
+          <img src="${poster}" class="modal-poster">
+          <div class="modal-info">
+            <h2>${item.title} <span style="font-size:1rem; color:#aaa; font-weight:400;">(${item.release_date?.split('-')[0] || 'N/A'})</span></h2>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+              <span style="background:var(--accent); padding:2px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">MOVIE</span>
+              <span style="border:1px solid #aaa; padding:2px 8px; border-radius:4px; font-size:0.8rem;"><i class="fa-solid fa-star" style="color:gold;"></i> ${item.vote_average?.toFixed(1) || 'NR'}</span>
+            </div>
+            <p>${item.overview || 'No overview available.'}</p>
+            
+            ${dbEntry ?
+            `<div style="background:var(--bg-secondary); padding:15px; border-radius:10px; margin-bottom:20px; border:1px solid var(--border);">
+                 <div style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:5px;">Check Status:</div>
+                 <div style="font-size:1.1rem; font-weight:bold; color: ${isAdded ? 'var(--green-neon)' : 'var(--accent)'}">
+                   ${isAdded ? '<i class="fa-solid fa-circle-check"></i> Available on Plex' : '<i class="fa-solid fa-hourglass"></i> Requested'}
+                 </div>
+                 ${dbEntry.note ? `<div style="margin-top:5px; font-style:italic; color:#888;">Note: "${dbEntry.note}"</div>` : ''}
+              </div>`
+            : ''}
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+               ${!isAdded ?
+            `<button class="torrent-btn" onclick="window.saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'added')">
+                    <i class="fa-solid fa-check"></i> Mark Available
+                  </button>
+                  ${!isPending ?
+                `<button class="torrent-btn" style="background:var(--accent);" onclick="window.openRequestModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                       <i class="fa-solid fa-plus"></i> Request Movie
+                     </button>`
+                : ''}`
+            : '<button class="torrent-btn" style="background:var(--green-neon); color:black; cursor:default;">In Library</button>'}
+               
+               <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(item.title + ' trailer')}" target="_blank" class="torrent-btn" style="background:#333;">
+                 <i class="fa-brands fa-youtube"></i> Trailer
+               </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      `;
+    overlay.classList.add('open');
+}
+
+async function openTVDetail(item) {
+    const overlay = document.getElementById('detail-overlay');
+    const backdrop = item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : '';
+    const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Poster';
+
+    // Fetch details including seasons
+    let details = item;
+    try {
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${item.id}?api_key=${TMDB_KEY}`);
+        details = await res.json();
+    } catch (e) { console.error(e); }
+
+    overlay.innerHTML = `
+        <div class="modal">
+        <div class="modal-backdrop" style="background-image: url('${backdrop}')">
+          <button style="position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.5); border:none; color:white; font-size:1.5rem; cursor:pointer; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;" onclick="document.getElementById('detail-overlay').classList.remove('open')">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-content">
+          <img src="${poster}" class="modal-poster">
+          <div class="modal-info">
+            <h2>${item.name} <span style="font-size:1rem; color:#aaa; font-weight:400;">(${item.first_air_date?.split('-')[0] || 'N/A'})</span></h2>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+              <span style="background:var(--blue); padding:2px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">TV SHOW</span>
+              <span style="border:1px solid #aaa; padding:2px 8px; border-radius:4px; font-size:0.8rem;"><i class="fa-solid fa-star" style="color:gold;"></i> ${item.vote_average?.toFixed(1) || 'NR'}</span>
+              <span style="color:#aaa; font-size:0.9rem;">${details.number_of_seasons} Seasons</span>
+            </div>
+            <p>${item.overview || 'No overview available.'}</p>
+            
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+              <button class="torrent-btn" onclick="addShowToTracking(${JSON.stringify(details).replace(/"/g, '&quot;')})">
+                <i class="fa-solid fa-heart"></i> Track Show
+              </button>
+            </div>
+
+            <div class="seasons-container" id="seasons-list-${item.id}">
+               <!-- Seasons rendered here -->
+               <div style="text-align:center; padding:20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading Seasons...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+       `;
+    overlay.classList.add('open');
+
+    renderSeasons(details, `seasons-list-${item.id}`);
+}
+
+async function renderSeasons(show, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+
+    for (const season of show.seasons) {
+        if (season.season_number === 0) continue; // Skip specials usually
+
+        const seasonCard = document.createElement('div');
+        seasonCard.className = 'season-card collapsed';
+        seasonCard.innerHTML = `
+          <div class="season-header" onclick="toggleSeason(this, ${show.id}, ${season.season_number})">
+            <i class="fa-solid fa-chevron-down season-toggle"></i>
+            <h3 class="season-title">${season.name} <span class="episode-count">(${season.episode_count} eps)</span></h3>
+            <button class="request-season-btn" onclick="event.stopPropagation(); requestEntireSeason(${show.id}, ${season.season_number}, '${show.name.replace(/'/g, "\\'")}')">
+              <i class="fa-solid fa-plus"></i> Request Season
+            </button>
+          </div>
+          <div class="episodes-list" id="season-${show.id}-${season.season_number}">
+            <!-- Episodes loaded on expand -->
+          </div>
+        `;
+        container.appendChild(seasonCard);
+    }
+}
+
+window.toggleSeason = async (header, showId, seasonNum) => {
+    const card = header.parentElement;
+    const list = card.querySelector('.episodes-list');
+    const isCollapsed = card.classList.contains('collapsed');
+
+    if (isCollapsed) {
+        card.classList.remove('collapsed');
+        // Load episodes if empty
+        if (list.children.length === 0) {
+            list.innerHTML = '<div class="episodes-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading episodes...</div>';
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNum}?api_key=${TMDB_KEY}`);
+                const data = await res.json();
+
+                // Get show basic info for pass-through
+                const showRes = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=${TMDB_KEY}`);
+                const showData = await showRes.json();
+
+                list.innerHTML = '';
+                data.episodes.forEach(ep => {
+                    const epCard = document.createElement('div');
+                    epCard.className = 'episode-card';
+                    const epImg = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : 'https://via.placeholder.com/140x80?text=No+Img';
+
+                    // Check if requested
+                    const reqId = `tv_${showId}_${ep.id}`;
+                    const dbReq = globalRequests.find(r => r.firestoreId === reqId);
+
+                    epCard.innerHTML = `
+                 <img src="${epImg}" class="episode-thumb" loading="lazy">
+                 <div class="episode-info">
+                   <h4 class="episode-title">${ep.episode_number}. ${ep.name}</h4>
+                   <p class="episode-overview">${ep.overview || 'No overview.'}</p>
+                   <div class="episode-date"><i class="fa-regular fa-calendar"></i> ${ep.air_date || 'TBA'}</div>
+                 </div>
+                 ${dbReq ?
+                            `<button class="request-episode-btn" style="background:transparent; color:var(--accent); border:1px solid var(--accent); cursor:default;">
+                      Requested
+                    </button>`
+                            :
+                            `<button class="request-episode-btn" onclick="requestEpisode(${JSON.stringify(showData).replace(/"/g, '&quot;')}, ${JSON.stringify(ep).replace(/"/g, '&quot;')})">
+                      <i class="fa-solid fa-plus"></i>
+                    </button>`
+                        }
+               `;
+                    list.appendChild(epCard);
+                });
+
+            } catch (e) {
+                list.innerHTML = '<div class="episodes-loading">Error loading episodes.</div>';
+            }
+        }
+    } else {
+        card.classList.add('collapsed');
+    }
+};
+
+window.requestEntireSeason = async (showId, seasonNum, showName) => {
+    if (confirm(`Request all episodes for ${showName} - Season ${seasonNum}?`)) {
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNum}?api_key=${TMDB_KEY}`);
+            const data = await res.json();
+            const showRes = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=${TMDB_KEY}`);
+            const showData = await showRes.json();
+
+            let count = 0;
+            for (const ep of data.episodes) {
+                const reqId = `tv_${showId}_${ep.id}`;
+                const exists = globalRequests.find(r => r.firestoreId === reqId);
+                if (!exists) {
+                    await requestEpisode(showData, ep); // Re-use single request logic but maybe silence alerts?
+                    count++;
+                }
+            }
+            alert(`Requested ${count} new episodes for Season ${seasonNum}.`);
+        } catch (e) {
+            console.error(e);
+            alert("Error requesting season.");
+        }
+    }
+};
+
+/* CONTEXT MENU logic omitted for brevity but should be included if desired */
+// The previous context menu code can be pasted here if needed.
+
+// --- MOBILE UI LOGIC ---
+window.openMobileFilters = () => {
+  const modal = document.getElementById('mobile-filter-modal');
+  const container = document.getElementById('mobile-filter-content');
+  
+  if(!container) return;
+  container.innerHTML = '';
+  
+  // Clone appropriate controls based on active tab
+  let sourceId = currentTab === 'movies' ? 'controls-movies' : 'controls-tv';
+  if (currentTab !== 'movies' && currentTab !== 'tvshows') {
+     container.innerHTML = '<p style="text-align:center; color:gray;">No filters available for this view.</p>';
+  } else {
+     const source = document.getElementById(sourceId);
+     if(source) {
+       const selects = source.querySelectorAll('select');
+       selects.forEach(s => {
+          const wrapper = document.createElement('div');
+          wrapper.style.display = 'flex';
+          wrapper.style.flexDirection = 'column';
+          wrapper.style.gap = '8px';
+          
+          const label = document.createElement('label');
+          label.innerText = s.id.includes('genre') ? 'Genre' : s.id.includes('sort') ? 'Sort By' : s.id.includes('year') ? 'Year' : 'Rating';
+          label.style.fontSize = '0.9rem';
+          label.style.color = 'var(--text-secondary)';
+          
+          // Clone the select
+          const clone = s.cloneNode(true);
+          clone.id = 'mobile-' + s.id; // Unique ID
+          clone.style.width = '100%';
+          clone.style.padding = '12px';
+          clone.value = s.value; // Sync value
+          
+          // Link change back to original
+          clone.addEventListener('change', (e) => {
+             const original = document.getElementById(s.id);
+             if(original) {
+                original.value = e.target.value;
+                original.dispatchEvent(new Event('change'));
+             }
+          });
+
+          wrapper.appendChild(label);
+          wrapper.appendChild(clone);
+          container.appendChild(wrapper);
+       });
+     }
+  }
+  
+  modal.classList.add('active');
+};
+
+window.closeMobileFilters = () => {
+  const modal = document.getElementById('mobile-filter-modal');
+  if(modal) modal.classList.remove('active');
+};
+
+window.applyMobileFilters = () => {
+  closeMobileFilters();
+};
+
+// Hook into switchTab to update Bottom Nav
+const originalSwitchTab = window.switchTab;
+window.switchTab = (tab) => {
+   if(typeof originalSwitchTab === 'function') originalSwitchTab(tab);
+   
+   // Updates for Mobile Nav
+   document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
+   const navId = 'nav-' + (tab === 'requests' ? 'requests' : tab);
+   const navEl = document.getElementById(navId);
+   if(navEl) navEl.classList.add('active');
+   
+   // Toggle Filter Button Visibility
+   const filterBtn = document.querySelector('.mobile-filter-btn');
+   if(filterBtn) {
+     filterBtn.style.display = (tab === 'movies' || tab === 'tvshows') ? 'flex' : 'none';
+   }
+};
+
+// Sync Badge Count
+setInterval(() => {
+   const countEl = document.getElementById('req-count');
+   const mobileCountEl = document.getElementById('mobile-req-count');
+   if(countEl && mobileCountEl) {
+      mobileCountEl.innerText = countEl.innerText;
+      mobileCountEl.style.display = countEl.innerText === '0' ? 'none' : 'block';
+   }
+}, 2000);
+

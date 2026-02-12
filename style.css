@@ -1,1253 +1,576 @@
-    :root {
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #12121a;
-      --bg-card: #16161f;
-      --bg-card-hover: #1c1c28;
-      --border: #2a2a3a;
-      --border-hover: #3a3a5a;
-      --text-primary: #eeeef0;
-      --text-secondary: #9898a8;
-      --text-muted: #68687a;
-      --accent: #e50914;
-      /* Netflix/Plex Red */
-      --accent-glow: rgba(229, 9, 20, 0.4);
-      --green: #00d26a;
-      --green-neon: #39ff14;
-      /* Neon Green for Added items */
-      --blue: #0984e3;
-      --purple: #a29bfe;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      outline: none;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      margin-left: 300px;
-      padding-top: 80px;
-      padding-bottom: 80px;
-      overflow-x: hidden;
-      font-size: 16px;
-      /* Explicit base size */
-      -webkit-text-size-adjust: 100%;
-      /* Prevent font scaling in landscape */
-    }
-
-    /* Force 16px on inputs to prevent iOS zoom */
-    input,
-    select,
-    textarea,
-    button {
-      font-size: 16px !important;
-    }
-
-    /* --- SIDEBAR (was header) --- */
-    header {
-      background: rgba(10, 10, 15, 0.98);
-      padding: 30px 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 300px;
-      height: 100vh;
-      z-index: 1000;
-      backdrop-filter: blur(10px);
-      border-right: 1px solid var(--border);
-      overflow-y: auto;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    .header-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff 0%, #888 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* Sidebar Collapsed State - FULLY CLOSED */
-    body.sidebar-collapsed header {
-      width: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-
-    body.sidebar-collapsed main {
-      margin-left: 0;
-    }
-
-    body.sidebar-collapsed .header-content,
-    body.sidebar-collapsed .tab-btn,
-    body.sidebar-collapsed #search-box {
-      display: none;
-    }
-
-    body.sidebar-collapsed .tab-btn {
-      justify-content: center;
-      padding: 15px 10px;
-    }
-
-    body.sidebar-collapsed .tab-btn i {
-      font-size: 1.5rem;
-      margin: 0;
-    }
-
-    body.sidebar-collapsed .tab-badge {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      font-size: 0.7rem;
-      padding: 2px 5px;
-    }
-
-    /* Toggle Button */
-    /* Toggle Button - Toolbar Style */
-    .sidebar-toggle-btn {
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 1.4rem;
-      cursor: pointer;
-      padding: 0 15px 0 0;
-      margin-right: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.3s;
-      border-right: 1px solid var(--border);
-      height: 100%;
-    }
-
-    .sidebar-toggle-btn:hover {
-      color: var(--accent);
-    }
-
-    /* Adjust controls bar padding when sidebar is collapsed */
-    body.sidebar-collapsed .controls-bar {
-      padding-left: 15px;
-      /* Reset padding when sidebar is gone */
-    }
-
-    /* Rotate Icon when Collapsed */
-    .sidebar-toggle-btn i {
-      transition: transform 0.3s ease;
-    }
-
-    body.sidebar-collapsed .sidebar-toggle-btn i {
-      transform: rotate(90deg);
-    }
-
-    @media (max-width: 768px) {
-      .sidebar-toggle-btn {
-        display: flex;
-        /* Visible on mobile */
-        border-right: none;
-      }
-    }
-
-    .sidebar-toggle-btn:hover {
-      color: var(--accent);
-    }
-
-    body.sidebar-collapsed .sidebar-toggle-btn {
-      text-align: center;
-    }
-
-
-    /* --- MOBILE OVERLAY & COMPACT CONTROLS --- */
-    .mobile-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      z-index: 999;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .mobile-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    @media (max-width: 768px) {
-      body {
-        margin-left: 0;
-        /* No push on mobile */
-        padding-top: 130px;
-        /* More space for stacked controls */
-      }
-
-      header {
-        transform: translateX(0);
-        transition: transform 0.3s ease;
-        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-      }
-
-      /* When collapsed on mobile, shift it off-screen (or width 0) */
-
-      body.sidebar-collapsed header {
-        width: 0;
-        padding: 0;
-        transform: translateX(0);
-        /* Reset transform, just use width */
-      }
-
-      body:not(.sidebar-collapsed) header {
-        width: 300px;
-      }
-
-      main {
-        margin-left: 0 !important;
-        /* Never push main on mobile */
-      }
-
-      /* Compact Controls Bar */
-      .controls-bar {
-        padding-left: 15px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        height: auto;
-        padding-bottom: 15px;
-      }
-
-      .controls-bar>* {
-        margin: 0;
-        width: 100%;
-      }
-
-      /* Make the toggle button and Select All compact */
-      .sidebar-toggle-btn {
-        grid-column: span 1;
-        justify-content: flex-start;
-        border: none;
-        padding: 0;
-      }
-
-      /* Select All Checkbox Container */
-      .controls-bar label {
-        grid-column: span 1;
-        justify-content: center;
-        font-size: 0.8rem;
-        padding: 8px;
-      }
-
-      /* Request Button - Full Width */
-      .controls-bar button.control-btn:nth-of-type(1) {
-        /* This targets "Request Selected" usually */
-        grid-column: span 2;
-        justify-content: center;
-      }
-
-      /* Filters - 2 per row */
-      .control-select {
-        grid-column: span 1;
-        font-size: 0.85rem;
-        padding: 8px;
-      }
-
-      /* Hide "Last Updated" on super small screens if needed */
-      #last-updated {
-        display: none;
-      }
-    }
-
-
-
-    .tabs {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      width: 100%;
-    }
-
-    #search {
-      padding: 12px 20px;
-      border-radius: 25px;
-      border: 2px solid var(--red);
-      background: var(--bg-card);
-      color: var(--text-primary);
-      font-size: 0.95rem;
-      width: 100%;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
-    }
-
-    #search:focus {
-      outline: none;
-      border-color: var(--red);
-      box-shadow: 0 0 20px rgba(229, 9, 20, 0.8), 0 0 40px rgba(229, 9, 20, 0.4);
-      transform: scale(1.02);
-    }
-
-    .tabs button {
-      padding: 12px 20px;
-      background: transparent;
-      color: var(--text-secondary);
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      border-radius: 10px;
-      position: relative;
-      width: 100%;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .tab-btn.active {
-      background: var(--accent);
-      color: white;
-      box-shadow: 0 4px 15px var(--accent-glow);
-    }
-
-    .tab-badge {
-      background: white;
-      color: var(--accent);
-      font-size: 0.75rem;
-      padding: 2px 6px;
-      border-radius: 6px;
-      font-weight: 900;
-    }
-
-    .search-container {
-      width: 100%;
-      max-width: 600px;
-      position: relative;
-      margin-bottom: 15px;
-    }
-
-    .search-container.hidden {
-      display: none;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 16px 24px;
-      padding-left: 50px;
-      border-radius: 14px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 1rem;
-      transition: border 0.3s;
-    }
-
-    .search-input:focus {
-      border-color: var(--accent);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      font-size: 1.1rem;
-    }
-
-    /* --- CONTROLS --- */
-    .controls-bar {
-      display: flex;
-      gap: 12px;
-      margin: 0;
-      padding: 15px;
-      padding-left: 320px;
-      /* Account for sidebar */
-      background: var(--bg-card);
-      border-radius: 0;
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-      align-items: center;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 900;
-      backdrop-filter: blur(10px);
-    }
-
-    .control-select {
-      padding: 10px 15px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      border-radius: 10px;
-      font-family: inherit;
-      cursor: pointer;
-    }
-
-    .control-btn {
-      padding: 10px 20px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      border-radius: 10px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .control-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    /* --- STATS DASHBOARD --- */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin: 20px 0;
-    }
-
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--accent);
-      margin-bottom: 5px;
-    }
-
-    .stat-label {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-
-    /* --- GRID SYSTEM --- */
-    .view-section {
-      display: none;
-      animation: fadeIn 0.4s ease;
-    }
-
-    .view-section.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    .section-header {
-      margin: 30px 0 20px 0;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .movie-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 25px;
-      margin-top: 10px;
-    }
-
-    .movie-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      transition: transform 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      cursor: pointer;
-    }
-
-    .movie-card:active {
-      transform: scale(0.98);
-    }
-
-    @media (hover: hover) {
-      .movie-card:hover {
-        transform: translateY(-8px);
-        border-color: var(--border-hover);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-      }
-    }
-
-    /* PERSISTENT NEON GLOW for Added items */
-    .movie-card.library-item {
-      border: 2px solid var(--green-neon);
-      box-shadow: 0 0 20px rgba(57, 255, 20, 0.25);
-    }
-
-    .poster-wrapper {
-      position: relative;
-      aspect-ratio: 2/3;
-      background: #000;
-      overflow: hidden;
-    }
-
-    .poster-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-    }
-
-    .movie-card:hover .poster-img {
-      transform: scale(1.05);
-    }
-
-    .rating-badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.85);
-      color: var(--green);
-      padding: 5px 8px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .priority-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(229, 9, 20, 0.95);
-      color: white;
-      padding: 5px 8px;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      font-weight: 800;
-    }
-
-    .card-content {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-    }
-
-    .movie-title {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 5px;
-      color: var(--text-primary);
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .movie-year {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      margin-bottom: 8px;
-    }
-
-    .movie-note {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      font-style: italic;
-      margin-bottom: 10px;
-      line-height: 1.3;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    /* --- RESPONSIVE --- */
-    @media (max-width: 768px) {
-      .tabs {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .tab-btn {
-        width: 100%;
-      }
-    }
-
-    /* --- TV SHOW SEASON/EPISODE BROWSER --- */
-    .seasons-container {
-      margin-top: 20px;
-      max-height: 600px;
-      overflow-y: auto;
-      padding-right: 10px;
-    }
-
-    .season-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 15px;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    @media (hover: hover) {
-      .season-card:hover {
-        border-color: var(--red);
-      }
-    }
-
-    .season-header {
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      cursor: pointer;
-      background: rgba(255, 255, 255, 0.02);
-      transition: background 0.2s;
-    }
-
-    .season-header:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .season-toggle {
-      font-size: 14px;
-      transition: transform 0.3s ease;
-      color: var(--red);
-      min-width: 20px;
-    }
-
-    .season-card.collapsed .season-toggle {
-      transform: rotate(-90deg);
-    }
-
-    .season-title {
-      flex: 1;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .episode-count {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .request-season-btn {
-      padding: 8px 16px;
-      background: var(--red);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
-
-    .request-season-btn:hover {
-      background: #c4070f;
-      transform: scale(1.05);
-    }
-
-    .episodes-list {
-      padding: 0 15px 15px;
-      display: grid;
-      gap: 10px;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-    }
-
-    .season-card:not(.collapsed) .episodes-list {
-      max-height: 2000px;
-    }
-
-    .episode-card {
-      display: flex;
-      gap: 15px;
-      padding: 12px;
-      background: var(--bg-card);
-      border-radius: 8px;
-      align-items: center;
-      border: 1px solid transparent;
-      transition: all 0.2s;
-    }
-
-    @media (hover: hover) {
-      .episode-card:hover {
-        border-color: var(--red);
-        background: rgba(229, 9, 20, 0.1);
-      }
-    }
-
-    .episode-thumb {
-      width: 140px;
-      height: 79px;
-      object-fit: cover;
-      border-radius: 6px;
-      flex-shrink: 0;
-      background: var(--bg-secondary);
-    }
-
-    .episode-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .episode-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0 0 8px 0;
-      color: var(--text-primary);
-    }
-
-    .episode-overview {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin: 0 0 6px 0;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .episode-date {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-
-    .request-episode-btn {
-      padding: 10px 20px;
-      background: var(--red);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-
-    .request-episode-btn:hover {
-      background: #c4070f;
-      transform: scale(1.05);
-    }
-
-    .episodes-loading {
-      padding: 20px;
-      text-align: center;
-      color: var(--text-muted);
-    }
-
-    /* --- CONTEXT MENU --- */
-    .context-menu {
-      position: fixed;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 0;
-      z-index: 10000;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-      min-width: 200px;
-      display: none;
-    }
-
-    .context-menu.active {
-      display: block;
-    }
-
-    .context-menu-item {
-      padding: 12px 20px;
-      cursor: pointer;
-      transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--text-primary);
-      font-size: 0.95rem;
-    }
-
-    .context-menu-item:hover {
-      background: rgba(229, 9, 20, 0.1);
-    }
-
-    .context-menu-item i {
-      width: 18px;
-      text-align: center;
-    }
-
-    .context-menu-separator {
-      height: 1px;
-      background: var(--border);
-      margin: 8px 0;
-    }
-
-    /* --- BUTTONS --- */
-    .btn-wrapper {
-      margin-top: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .btn-card {
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
-    }
-
-    .btn-mark-added {
-      background: transparent;
-      border: 1px dashed var(--text-muted);
-      font-size: 0.8rem;
-    }
-
-    .btn-mark-added:hover {
-      color: var(--green-neon);
-      border-color: var(--green-neon);
-      background: rgba(57, 255, 20, 0.05);
-    }
-
-    .btn-request:hover {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-
-    .btn-status-requested {
-      background: rgba(229, 9, 20, 0.1);
-      border-color: var(--accent);
-      color: var(--accent);
-      cursor: default;
-    }
-
-    .btn-status-available {
-      background: var(--green-neon);
-      color: black;
-      border-color: var(--green-neon);
-      cursor: default;
-    }
-
-    /* --- MODALS --- */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.92);
-      backdrop-filter: blur(10px);
-      z-index: 1000;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .overlay.open {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--bg-card);
-      width: 100%;
-      max-width: 800px;
-      border-radius: 28px;
-      border: 1px solid var(--border);
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
-    }
-
-    .modal-backdrop {
-      height: 280px;
-      background-size: cover;
-      background-position: center;
-      position: relative;
-    }
-
-    .modal-backdrop::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, transparent 20%, var(--bg-card) 100%);
-    }
-
-    .modal-content {
-      padding: 0 40px 40px 40px;
-      display: flex;
-      gap: 40px;
-      margin-top: -120px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .modal-poster {
-      width: 200px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-      flex-shrink: 0;
-    }
-
-    .modal-info {
-      flex: 1;
-      padding-top: 60px;
-    }
-
-    .modal-info h2 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      margin-bottom: 10px;
-    }
-
-    .modal-info p {
-      color: var(--text-secondary);
-      line-height: 1.6;
-      font-size: 1rem;
-      margin-bottom: 20px;
-    }
-
-    .modal-note-input {
-      width: 100%;
-      padding: 12px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text-primary);
-      font-family: inherit;
-      margin-bottom: 15px;
-      resize: vertical;
-    }
-
-    .torrent-btn {
-      display: inline-flex;
-      padding: 14px 28px;
-      border-radius: 12px;
-      text-decoration: none;
-      font-weight: 700;
-      background: var(--blue);
-      color: white;
-      align-items: center;
-      gap: 10px;
-      transition: transform 0.2s;
-      border: none;
-      cursor: pointer;
-    }
-
-    .torrent-btn:hover {
-      transform: scale(1.03);
-    }
-
-    .torrent-hub-modal {
-      max-width: 500px;
-      padding: 30px;
-    }
-
-    .hub-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .hub-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      text-decoration: none;
-      color: white;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .hub-item:hover {
-      border-color: var(--text-secondary);
-      background: var(--bg-card-hover);
-    }
-
-    .loader {
-      display: flex;
-      justify-content: center;
-      padding: 100px;
-      color: var(--accent);
-    }
-
-    /* Scroll to Top Button */
-    #scroll-to-top {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 50px;
-      height: 50px;
-      background: var(--red);
-      border: none;
-      border-radius: 50%;
-      color: white;
-      font-size: 1.5rem;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(229, 9, 20, 0.6);
-      transition: all 0.3s ease;
-      opacity: 0;
-      visibility: hidden;
-      z-index: 999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #scroll-to-top.visible {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    #scroll-to-top:hover {
-      background: #ff0a16;
-      transform: translateY(-5px);
-      box-shadow: 0 6px 25px rgba(229, 9, 20, 0.8);
-    }
-
-    @media (max-width: 768px) {
-      .movie-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-      }
-
-      .modal-content {
-        flex-direction: column;
-        align-items: center;
-        margin-top: -60px;
-        text-align: center;
-        padding: 20px;
-      }
-
-      .modal-info {
-        padding-top: 0;
-      }
-
-      .modal-poster {
-        width: 150px;
-      }
-
-      h1 {
-        font-size: 1.8rem;
-      }
-
-      .controls-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .control-select,
-      .control-btn {
-        width: 100%;
-      }
-
-      .tabs {
-        justify-content: center;
-        gap: 6px;
-      }
-
-      .tab-btn {
-        padding: 10px 16px;
-        font-size: 0.9rem;
-      }
-
-      .btn-card {
-        min-height: 44px;
-        /* Minimum touch target size */
-        font-size: 0.9rem;
-      }
-
-      .rating-badge,
-      .priority-badge {
-        font-size: 0.75rem;
-        padding: 4px 6px;
-      }
-
-      .torrent-btn {
-        padding: 12px 20px;
-        font-size: 0.9rem;
-        width: 100%;
-        /* Full width on mobile */
-        justify-content: center;
-      }
-
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .header-content {
-        gap: 10px;
-      }
-
-      #last-updated {
-        font-size: 0.75rem !important;
-      }
-
-      body {
-        padding-bottom: 40px;
-      }
-    }
-
-    /* --- MOBILE NATIVE POLISH --- */
-    @media (max-width: 768px) {
-
-      /* Touch Targets - Min 44px */
-      .control-btn,
-      .control-select,
-      .sidebar-toggle-btn,
-      .tab-btn,
-      #search {
-        min-height: 48px;
-        /* Generous 48px */
-        font-size: 16px;
-      }
-
-      /* Adjust padding for larger height */
-      .control-btn,
-      .control-select {
-        padding-top: 0;
-        padding-bottom: 0;
-        display: flex;
-        align-items: center;
-      }
-
-      /* Fix grid on very small screens */
-      .movie-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        /* Slightly smaller min-width for mobile grid */
-        gap: 15px;
-      }
-
-      /* Optimize spacing */
-      .container {
-        padding: 0 15px;
-        /* Less side padding */
-      }
-
-      /* Header/Sidebar */
-      .header-content {
-        margin-bottom: 10px;
-        margin-top: 10px;
-        /* Safe area top */
-      }
-
-      /* Make sure inputs don't zoom */
-      input[type="text"],
-      input[type="number"],
-      select {
-        font-size: 16px !important;
-      }
-
-      /* Modal Refinements for Mobile */
-      .modal-content {
-        flex-direction: column;
-        padding: 20px;
-        margin-top: -60px;
-        /* Pull up closer to backdrop */
-      }
-
-      .modal-poster {
-        width: 140px;
-        /* Smaller poster */
-        margin: 0 auto 20px auto;
-        /* Center it */
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-      }
-
-      .modal-info {
-        padding-top: 0;
-        text-align: center;
-        /* Center text for mobile feels better */
-      }
-
-      .modal-info h2 {
-        font-size: 1.8rem;
-        /* Slightly smaller title */
-      }
-    }
-
-    @media (max-width: 480px) {
-      .movie-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-
-      .movie-card {
-        border-radius: 12px;
-      }
-
-      h1 {
-        font-size: 1.5rem;
-      }
-
-      .tab-btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
-      }
-
-      .tab-badge {
-        font-size: 0.7rem;
-      }
-    }
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-card: #16161f;
+  --bg-card-hover: #1c1c28;
+  --border: #2a2a3a;
+  --border-hover: #3a3a5a;
+  --text-primary: #eeeef0;
+  --text-secondary: #9898a8;
+  --text-muted: #68687a;
+  --accent: #e50914;
+  /* Netflix/Plex Red */
+  --accent-glow: rgba(229, 9, 20, 0.4);
+  --green: #00d26a;
+  --green-neon: #39ff14;
+  --blue: #0984e3;
+  --purple: #a29bfe;
+
+  --nav-height: 65px;
+  /* Height of bottom nav */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  margin-left: 300px;
+  /* Default desktop sidebar width */
+  padding-top: 80px;
+  overflow-x: hidden;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+input,
+select,
+textarea,
+button {
+  font-size: 16px !important;
+}
+
+/* --- DESKTOP SIDEBAR --- */
+header {
+  background: rgba(10, 10, 15, 0.98);
+  padding: 30px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 100vh;
+  z-index: 1000;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 0%, #888 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Tabs & Links */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border-radius: 10px;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tab-btn.active {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.tab-badge {
+  background: white;
+  color: var(--accent);
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 900;
+}
+
+/* Sidebar Toggle */
+.sidebar-toggle-btn {
+  display: none;
+}
+
+/* Hidden on desktop default */
+
+/* --- SEARCH --- */
+.search-container {
+  width: 100%;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 14px 12px 40px;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+
+/* --- DESKTOP CONTROLS BAR (STICKY) --- */
+.controls-bar {
+  display: flex;
+  gap: 12px;
+  padding: 15px;
+  padding-left: 320px;
+  /* +20px buffer */
+  background: rgba(10, 10, 15, 0.95);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  backdrop-filter: blur(10px);
+}
+
+.control-select,
+.control-btn {
+  padding: 10px 15px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* --- MOBILE BOTTOM NAV (Hidden desktop) --- */
+.bottom-nav {
+  display: none;
+}
+
+.mobile-filter-modal {
+  display: none;
+}
+
+.mobile-filter-btn {
+  display: none;
+}
+
+/* --- GRID & CARDS --- */
+.view-section {
+  display: none;
+  animation: fadeIn 0.4s ease;
+}
+
+.view-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 25px;
+  margin-top: 10px;
+}
+
+.movie-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.poster-wrapper {
+  position: relative;
+  aspect-ratio: 2/3;
+  background: #000;
+  overflow: hidden;
+}
+
+.poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.movie-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.movie-year {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+/* Badges */
+.rating-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--green);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  backdrop-filter: blur(4px);
+}
+
+.priority-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(229, 9, 20, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.library-item {
+  border: 2px solid var(--green-neon);
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+}
+
+/* Buttons inside cards */
+.btn-wrapper {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-card {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-request:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+
+/* =========================================
+   MOBILE OVERHAUL (Max-width: 768px)
+   ========================================= */
+@media (max-width: 768px) {
+
+  /* 1. RESET LAYOUT */
+  body {
+    margin-left: 0;
+    padding-top: 60px;
+    /* Space for minimal header */
+    padding-bottom: calc(var(--nav-height) + 20px);
+    /* Space for bottom nav */
+  }
+
+  /* 2. HIDE DESKTOP SIDEBAR COMPLETELY */
+  header {
+    height: 60px;
+    width: 100%;
+    padding: 0 15px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(10, 10, 15, 0.95);
+    z-index: 2000;
+    /* Topmost */
+  }
+
+  /* Hide all header content except logo */
+  .header-content {
+    flex-direction: row;
+    width: 100%;
+    gap: 0;
+    justify-content: space-between;
+  }
+
+  /* Show only Logo */
+  .header-content h1 {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  /* Hide Desktop Nav in Header */
+  .tabs,
+  #update-time,
+  .search-container {
+    display: none !important;
+  }
+
+  /* 3. SIMPLIFIED CONTROLS BAR (Hidden, replaced by Modal) */
+  .controls-bar {
+    display: none !important;
+    /* Force hide the desktop controls bar */
+  }
+
+  /* Show Mobile Filter Button (We'll put this in the TOP HEADER via JS or CSS hacks if needed, 
+     but for now let's use the .mobile-filter-btn inserted in index.html if possible) 
+     Actually, better to have a dedicated header button. */
+
+  /* 4. BOTTOM NAVIGATION */
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--nav-height);
+    background: rgba(18, 18, 26, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    justify-content: space-around;
+    align-items: center;
+    z-index: 5000;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    gap: 4px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .nav-item i {
+    font-size: 1.3rem;
+    margin-bottom: 2px;
+    transition: transform 0.2s;
+  }
+
+  .nav-item.active {
+    color: var(--accent);
+  }
+
+  .nav-item.active i {
+    transform: translateY(-2px);
+  }
+
+  /* 5. MOBILE FILTER MODAL */
+  .mobile-filter-btn {
+    display: flex;
+    /* Visible */
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    align-items: center;
+    gap: 6px;
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    z-index: 2001;
+  }
+
+  .mobile-filter-modal {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-primary);
+    z-index: 6000;
+    flex-direction: column;
+  }
+
+  .mobile-filter-modal.active {
+    display: flex;
+  }
+
+  .filter-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-secondary);
+  }
+
+  .filter-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .filter-footer {
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-secondary);
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+
+  /* Mobile Grid Tweak */
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 cols fixed for mobile */
+    gap: 12px;
+  }
+
+  .container {
+    padding: 0 15px;
+  }
+
+  /* Stats on Mobile */
+  .stats-grid {
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 10px;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  }
+
+  /* Adjust Modal for Mobile */
+  .modal-content {
+    flex-direction: column;
+    padding: 20px;
+    text-align: center;
+    margin-top: -50px;
+  }
+
+  .modal-poster {
+    width: 140px;
+    margin: 0 auto 15px auto;
+  }
+
+  .modal-info {
+    padding-top: 0;
+  }
+
+  .modal-info h2 {
+    font-size: 1.6rem;
+  }
+}
+
+/* SEARCH OVERLAY (Top) */
+.mobile-search-bar {
+  display: flex !important;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
