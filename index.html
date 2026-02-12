@@ -104,6 +104,16 @@
       z-index: 1000;
       border-right: 1px solid var(--border);
       overflow-y: auto;
+      transition: transform 0.3s ease;
+    }
+
+    /* Collapsed state */
+    body.sidebar-closed header {
+      transform: translateX(-300px);
+    }
+
+    body.sidebar-closed main {
+      margin-left: 0 !important;
     }
 
     .header-content {
@@ -166,53 +176,92 @@
       display: none;
     }
 
+    /* Desktop: show toggle button for collapsing */
+    @media (min-width: 769px) {
+      .sidebar-toggle-desktop {
+        position: fixed;
+        top: 20px;
+        left: 310px;
+        z-index: 1001;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .sidebar-toggle-desktop:hover {
+        background: var(--accent);
+        transform: scale(1.1);
+      }
+
+      body.sidebar-closed .sidebar-toggle-desktop {
+        left: 20px;
+      }
+    }
+
     @media (max-width: 768px) {
       .sidebar-toggle-btn {
         display: block;
+      }
+
+      .sidebar-toggle-desktop {
+        display: none !important;
       }
     }
 
     /* Hidden on desktop default */
 
-    /* --- SEARCH (Gemini Rainbow Ring) --- */
+    /* --- SEARCH (Gemini Rainbow Ring - Always Visible) --- */
     .search-container {
       width: 100%;
       position: relative;
-      background: var(--bg-secondary);
       border-radius: 12px;
-      padding: 2px;
-      /* Space for border */
-      z-index: 1;
-      overflow: hidden;
+      padding: 3px;
+      /* Slightly thicker for visibility */
+      background: transparent;
+      isolation: isolate;
+      /* Create stacking context */
     }
 
-    /* The Animated Rainbow Border */
+    /* The Animated Rainbow Border (Always visible) */
     .search-container::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: conic-gradient(transparent 0deg,
-          transparent 60deg,
-          #4285f4 90deg,
-          #9b72cb 135deg,
-          #ea4335 180deg,
-          #fbbc05 225deg,
-          #4285f4 270deg,
-          transparent 315deg);
-      animation: rotate-border 4s linear infinite;
-      z-index: -1;
+      inset: 0;
+      border-radius: 12px;
+      padding: 2px;
+      /* Border thickness */
+      background: conic-gradient(from 0deg,
+          #4285f4,
+          #9b72cb,
+          #ea4335,
+          #fbbc05,
+          #34a853,
+          #4285f4);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      animation: rotate-border 3s linear infinite;
+      z-index: 0;
     }
 
+    /* Inner background */
     .search-container::after {
       content: '';
       position: absolute;
       inset: 2px;
       background: var(--bg-secondary);
       border-radius: 10px;
-      z-index: -1;
+      z-index: 1;
     }
 
     @keyframes rotate-border {
@@ -226,12 +275,14 @@
     }
 
     .search-input {
+      position: relative;
       width: 100%;
       padding: 0 14px 0 40px;
       height: 40px;
       border: none;
-      background: transparent;
+      background: var(--bg-secondary);
       color: var(--text-primary);
+      border-radius: 10px;
       z-index: 2;
     }
 
@@ -241,7 +292,7 @@
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-muted);
-      z-index: 2;
+      z-index: 3;
     }
 
     #voice-search-btn i {
@@ -1132,8 +1183,9 @@
       #hero-overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to top, var(--bg-primary), transparent 80%),
-          linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, transparent 60%);
+        background:
+          linear-gradient(to top, rgba(10, 10, 15, 0.95) 0%, rgba(10, 10, 15, 0.7) 40%, transparent 70%),
+          linear-gradient(to right, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.4) 50%, transparent 70%);
       }
 
       .hero-content {
@@ -1290,6 +1342,13 @@
         }
       }
   </style>
+
+  <!-- Desktop Sidebar Toggle Button -->
+  <button class="sidebar-toggle-desktop" onclick="document.body.classList.toggle('sidebar-closed')"
+    title="Toggle Sidebar">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
   <!-- MAIN CONTENT AREA -->
   <main style="margin-left: 300px; padding: 20px; transition: margin 0.3s ease;">
 
@@ -1305,7 +1364,7 @@
         <div class="brand-area" style="display:flex; align-items:center; gap:15px; flex-basis:auto;">
           <button class="sidebar-toggle-btn" id="sidebar-toggle"
             onclick="document.body.classList.toggle('sidebar-open')" title="Toggle Sidebar"
-            style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; display:none;">
+            style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">
             <i class="fa-solid fa-bars"></i>
           </button>
           <div style="text-align:left;">
@@ -1487,9 +1546,9 @@
         <button class="control-btn" onclick="fetchComingSoon()"><i class="fa-solid fa-rotate"></i> Refresh</button>
       </div>
 
-      <!-- Context Filters Row (Requests) -->
+      <!-- Context Filters Row (Requests) - ALWAYS VISIBLE ON REQUESTS TAB -->
       <div class="controls-bar" id="controls-requests"
-        style="padding:10px 20px; display:none; gap:12px; align-items:center; overflow-x:auto;">
+        style="padding:10px 20px; display:flex; gap:12px; align-items:center; overflow-x:auto; flex-wrap:wrap;">
         <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
             class="fa-solid fa-list-check"></i> Requests</div>
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
@@ -1503,11 +1562,11 @@
             <i class="fa-solid fa-check-double"></i> All
           </button>
           <button id="btn-bulk-delete" class="control-btn" onclick="bulkDelete()"
-            style="background:var(--red); border-color:var(--red); color:white; display:none;">
+            style="background:var(--accent); color:white; display:none;">
             <i class="fa-solid fa-trash"></i> Delete
           </button>
           <button id="btn-bulk-request" class="control-btn" onclick="bulkRequest()"
-            style="background:var(--green); border-color:var(--green); color:white; display:none;">
+            style="background:var(--green); color:white; display:none;">
             <i class="fa-solid fa-plus"></i> Request
           </button>
         </div>
@@ -3222,6 +3281,17 @@
         }
       }
     })();
+
+    // --- MOBILE SIDEBAR BACKDROP CLOSER ---
+    document.addEventListener('click', (e) => {
+      if (document.body.classList.contains('sidebar-open')) {
+        // Close sidebar if clicking outside of it (on the backdrop)
+        const header = document.querySelector('header');
+        if (header && !header.contains(e.target) && !e.target.closest('.sidebar-toggle-btn')) {
+          document.body.classList.remove('sidebar-open');
+        }
+      }
+    });
 
 
   </script>
