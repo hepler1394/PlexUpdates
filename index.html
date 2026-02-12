@@ -372,70 +372,141 @@
     }
 
     /* Mobile Tweaks (Original Simple Version) */
+    /* Mobile Tweaks (Optimized) */
     @media (max-width: 768px) {
-      .controls-bar {
-        padding-left: 0;
-        flex-wrap: nowrap;
-        /* Keep horizontal scroll */
-        gap: 8px;
-        overflow-x: auto;
-        padding-bottom: 10px;
-        /* Space for scrollbar */
+
+      /* 1. Header & Layout */
+      main {
+        margin-left: 0 !important;
+        padding-top: 0;
       }
 
-      /* Hide scrollbar visually but keep function */
+      .sticky-header {
+        top: 0;
+      }
+
+      /* Compact Title Row */
+      .sticky-header>div:first-child {
+        padding: 5px 15px !important;
+      }
+
+      .sticky-header h2 {
+        font-size: 1rem !important;
+      }
+
+      /* Search Bar Compact */
+      .search-container {
+        padding-right: 5px !important;
+      }
+
+      #search {
+        font-size: 16px !important;
+        /* Prevents iOS zoom */
+      }
+
+      /* 2. Controls & Filters (Horizontal Scroll) */
+      .controls-bar {
+        padding: 10px 15px;
+        flex-wrap: nowrap;
+        gap: 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scroll */
+        scrollbar-width: none;
+        /* Firefox */
+      }
+
       .controls-bar::-webkit-scrollbar {
         display: none;
+        /* Chrome/Safari */
+      }
+
+      /* 3. Touch Targets (Min 44px) */
+      .control-btn,
+      .control-select,
+      .sidebar-toggle-btn,
+      .tab-btn,
+      #voice-search-btn {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .sidebar-toggle-btn {
         display: block;
       }
 
-      main {
-        margin-left: 0 !important;
-        padding-top: 0;
-        /* Remove top padding since header is sticky inside main */
+      /* 4. Stats Dashboard (Compact/Scrollable) */
+      .stats-grid {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding-bottom: 5px;
+        margin: 10px 0;
       }
 
-      /* Adjust sticky header position on mobile if needed */
-      .sticky-header {
-        top: 0;
+      .stat-card {
+        min-width: 120px;
+        padding: 10px;
+        flex: 1;
       }
 
+      .stat-value {
+        font-size: 1.4rem;
+      }
+
+      /* 5. Sidebar & Menus */
       header {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
+        z-index: 2000;
+        /* Above overlay */
       }
 
       body.sidebar-open header {
         transform: translateX(0);
+        box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
       }
 
-      /* Touch Targets - Min 44px */
-      .control-btn,
-      .control-select,
-      .sidebar-toggle-btn,
-      .tab-btn,
-      #search {
-        min-height: 48px;
-        font-size: 16px;
+      /* Backdrop for sidebar */
+      body.sidebar-open::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1500;
+        backdrop-filter: blur(2px);
+      }
+
+      /* 6. Modals & Grids */
+      .modal {
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
       }
 
       .modal-content {
         flex-direction: column;
         padding: 20px;
-        margin-top: -60px;
+        margin-top: 0;
+        /* Reset */
       }
 
-      .modal-poster {
-        width: 140px;
-        margin: 0 auto 20px auto;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      .movie-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        /* Smaller cards */
+        gap: 15px;
       }
 
-      .modal-info {
-        text-align: center;
+      /* Ensure Load More is click-safe */
+      .container {
+        margin-top: 220px !important;
+        /* Adjust for taller mobile header stack if needed */
+        padding-bottom: 80px;
+        /* Space for scroll-to-top */
       }
     }
 
@@ -1212,7 +1283,7 @@
     onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snapshot) => {
       globalRequests = [];
       snapshot.forEach(doc => globalRequests.push({ ...doc.data(), firestoreId: doc.id }));
-      updateUI();
+      renderRequests();
     });
 
     // INITIALIZATION - Call on page load
@@ -1362,7 +1433,8 @@
           currentMovies = cached;
           renderGrid(currentMovies, 'grid-movies');
           updateLastRefreshUI();
-          document.getElementById('loader-movies').style.display = 'none';
+          const loader = document.getElementById('loader-movies');
+          if (loader) loader.style.display = 'none';
           return;
         }
       }
@@ -2247,6 +2319,13 @@
       if (contextItem) window.saveItemFromObject(contextItem, 'added');
     });
 
+    document.getElementById('ctx-delete').onclick = async () => {
+      if (contextItem && confirm('Delete this request?')) {
+        const docId = contextItem.firestoreId || `${contextItem.mediaType}_${contextItem.id}`;
+        await deleteDoc(doc(db, "requests", docId));
+        renderRequests(); // Force refresh fallback
+      }
+    }
     document.getElementById('ctx-copy').addEventListener('click', () => {
       if (contextItem) {
         navigator.clipboard.writeText(contextItem.title || contextItem.name);
