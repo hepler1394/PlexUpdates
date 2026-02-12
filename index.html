@@ -90,10 +90,87 @@
       font-weight: 800;
       background: linear-gradient(135deg, #fff 0%, #888 100%);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: -1px;
+    }
+
+    /* Sidebar Collapsed State */
+    body.sidebar-collapsed header {
+      width: 70px;
+      padding: 20px 10px;
+    }
+
+    body.sidebar-collapsed main {
+      margin-left: 70px;
+    }
+
+    body.sidebar-collapsed .header-content h1,
+    body.sidebar-collapsed .header-content p,
+    body.sidebar-collapsed .tab-btn i+text,
+    body.sidebar-collapsed .tab-btn span:not(.tab-badge),
+    body.sidebar-collapsed #search-box {
+      display: none;
+    }
+
+    body.sidebar-collapsed .tab-btn {
+      justify-content: center;
+      padding: 15px 10px;
+    }
+
+    body.sidebar-collapsed .tab-btn i {
+      font-size: 1.5rem;
       margin: 0;
     }
+
+    body.sidebar-collapsed .tab-badge {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size: 0.7rem;
+      padding: 2px 5px;
+    }
+
+    /* Toggle Button */
+    .sidebar-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 10px;
+      width: 100%;
+      text-align: right;
+      transition: color 0.3s;
+      margin-bottom: 10px;
+    }
+
+    .sidebar-toggle-btn:hover {
+      color: var(--accent);
+    }
+
+    body.sidebar-collapsed .sidebar-toggle-btn {
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      body.sidebar-collapsed header {
+        width: 100%;
+        height: 60px;
+        padding: 0 15px;
+      }
+
+      body.sidebar-collapsed main {
+        margin-left: 0;
+        margin-top: 60px;
+      }
+
+      .sidebar-toggle-btn {
+        display: none;
+        /* Hide on mobile for now as logic differs */
+      }
+    }
+
+
 
     .tabs {
       display: flex;
@@ -387,6 +464,7 @@
       line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -405,6 +483,7 @@
       line-height: 1.3;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -551,6 +630,7 @@
       margin: 0 0 6px 0;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -992,6 +1072,9 @@
 
   <header>
     <div class="container header-content">
+      <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+        <i class="fa-solid fa-bars"></i>
+      </button>
       <h1><i class="fa-solid fa-clapperboard"></i> Plex Hub</h1>
       <p style="color: var(--text-secondary); font-size: 1.1rem; margin-top: -10px;">Request Movies For Corys Plex</p>
       <p id="last-updated" style="color: var(--text-muted); font-size: 0.85rem; margin-top: -5px;">
@@ -1072,6 +1155,8 @@
           <option value="classic">Before 2000</option>
         </select>
         <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        <button class="control-btn" onclick="clearMovieFilters()" style="background:var(--red);"><i
+            class="fa-solid fa-filter-circle-xmark"></i> Clear</button>
         <button class="control-btn" onclick="loadMoreMovies()"><i class="fa-solid fa-plus-circle"></i> Load
           More</button>
       </div>
@@ -1299,7 +1384,8 @@
         document.getElementById('loader-coming').style.display = 'none';
 
         // Load trending movies
-        await fetchTrending();
+        // Load trending movies
+        await fetchMovies(1, false);
 
         updateLastRefreshUI();
       } catch (e) {
@@ -1315,40 +1401,9 @@
     initApp();
 
     // 2. FETCH TRENDING MOVIES (with auto-refresh - DAILY)
-    async function fetchTrending(page = 1, append = false) {
-      try {
-        // Check cache first only on first page - NOW DAILY
-        if (page === 1 && !append && !shouldRefresh('trending_movies', DAY_MS)) {
-          const cached = getCached('trending_movies');
-          if (cached) {
-            currentMovies = cached;
-            renderGrid(currentMovies, 'grid-movies');
-            updateLastRefreshUI();
-            document.getElementById('loader-movies').style.display = 'none';
-            return;
-          }
-        }
+    // 2. FETCH TRENDING MOVIES (with auto-refresh - DAILY) - REPLACED BY UNIFIED FETCH
+    // fetchTrending removed
 
-        document.getElementById('loader-movies').style.display = 'flex';
-        const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_KEY}&page=${page}`);
-        const data = await res.json();
-        const newMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
-
-        if (append) {
-          currentMovies = [...currentMovies, ...newMovies];
-        } else {
-          currentMovies = newMovies;
-        }
-
-        if (page === 1) cacheData('trending_movies', currentMovies);
-        renderGrid(currentMovies, 'grid-movies');
-        updateLastRefreshUI();
-      } catch (e) {
-        console.error("TMDB Fetch Error", e);
-      } finally {
-        document.getElementById('loader-movies').style.display = 'none';
-      }
-    }
 
     // 3. FETCH TRENDING TV SHOWS (with auto-refresh - DAILY)
     async function fetchTrendingTV(page = 1, append = false) {
@@ -1422,88 +1477,119 @@
     // 3C. TOOLBAR ACTIONS
     window.forceRefreshMovies = () => {
       localStorage.removeItem('trending_movies');
-      currentMoviePage = 1;
-      currentMovies = []; // Clear existing
-      fetchTrending(1, false);
+      fetchMovies(1, false);
     };
 
-    window.loadMoreMovies = async () => {
-      currentMoviePage++;
-      console.log('=== LOAD MORE MOVIES ===');
-      console.log('Current page:', currentMoviePage);
-      console.log('Current movie count:', currentMovies.length);
+    window.clearMovieFilters = () => {
+      document.getElementById('movie-genre').value = '';
+      document.getElementById('movie-sort').value = 'trending';
+      document.getElementById('movie-rating-filter').value = 'all';
+      document.getElementById('movie-year-filter').value = 'all';
+      fetchMovies(1, false);
+    };
 
-      // Get current filter values
-      const ratingFilter = document.getElementById('movie-rating-filter').value;
-      const yearFilter = document.getElementById('movie-year-filter').value;
-      const genreFilter = document.getElementById('movie-genre').value;
+    window.loadMoreMovies = () => {
+      fetchMovies(currentMoviePage + 1, true);
+    };
 
-      console.log('Filters:', { rating: ratingFilter, year: yearFilter, genre: genreFilter });
+    // UNIFIED FETCH FUNCTION
+    async function fetchMovies(page = 1, append = false) {
+      currentMoviePage = page;
+      const genre = document.getElementById('movie-genre').value;
+      const sort = document.getElementById('movie-sort').value;
+      const rating = document.getElementById('movie-rating-filter').value;
+      const year = document.getElementById('movie-year-filter').value;
 
-      // Build API URL based on filters
+      console.log(`=== FETCHING MOVIES (Page ${page}) ===`);
+      console.log('Filters:', { genre, sort, rating, year });
+
+      // Determine if using default "Trending" view (no filters)
+      const isDefault = sort === 'trending' && !genre && rating === 'all' && year === 'all';
+
+      // Check cache ONLY if no filters are active and it's page 1
+      if (page === 1 && !append && isDefault && !shouldRefresh('trending_movies', DAY_MS)) {
+        const cached = getCached('trending_movies');
+        if (cached) {
+          console.log('Using cached trending movies');
+          currentMovies = cached;
+          renderGrid(currentMovies, 'grid-movies');
+          updateLastRefreshUI();
+          document.getElementById('loader-movies').style.display = 'none';
+          return;
+        }
+      }
+
+      // Show loader if not appending
+      if (!append) {
+        document.getElementById('loader-movies').style.display = 'flex';
+        document.getElementById('grid-movies').innerHTML = '';
+      }
+
       let apiUrl = `https://api.themoviedb.org/3/`;
       const params = new URLSearchParams({
         api_key: TMDB_KEY,
-        page: currentMoviePage,
-        sort_by: 'popularity.desc',
-        'vote_count.gte': 50 // Ensure quality movies with enough votes
+        page: page,
+        include_adult: false,
+        'vote_count.gte': 50
       });
 
-      // If filters are active, use discover endpoint
-      if (genreFilter || yearFilter !== 'all' || ratingFilter !== 'all') {
+      // Construct API Call
+      if (sort === 'trending' && !genre && rating === 'all' && year === 'all') {
+        // Default Trending
+        apiUrl += `trending/movie/week?`;
+      } else {
+        // Discover endpoint for any filter/sort combo
         apiUrl += 'discover/movie?';
 
-        if (genreFilter) params.append('with_genres', genreFilter);
+        // Sort
+        if (sort === 'trending') params.append('sort_by', 'popularity.desc'); // Default for discover
+        else if (sort === 'rating') params.append('sort_by', 'vote_average.desc');
+        else if (sort === 'year') params.append('sort_by', 'primary_release_date.desc');
+        else if (sort === 'title') params.append('sort_by', 'original_title.asc');
+        else if (sort === 'popularity') params.append('sort_by', 'popularity.desc');
 
-        // Year filter
+        // Genre
+        if (genre) params.append('with_genres', genre);
+
+        // Rating
+        if (rating === 'high') params.append('vote_average.gte', '8.0');
+        else if (rating === 'mid') { params.append('vote_average.gte', '6.0'); params.append('vote_average.lte', '7.9'); }
+        else if (rating === 'low') params.append('vote_average.lte', '5.9');
+
+        // Year
         const currentYear = new Date().getFullYear();
-        if (yearFilter === '2024') {
-          params.append('primary_release_date.gte', '2024-01-01');
-          params.append('primary_release_date.lte', `${currentYear}-12-31`);
-        } else if (yearFilter === '2020') {
-          params.append('primary_release_date.gte', '2020-01-01');
-          params.append('primary_release_date.lte', '2023-12-31');
-        } else if (yearFilter === '2010') {
-          params.append('primary_release_date.gte', '2010-01-01');
-          params.append('primary_release_date.lte', '2019-12-31');
-        } else if (yearFilter === '2000') {
-          params.append('primary_release_date.gte', '2000-01-01');
-          params.append('primary_release_date.lte', '2009-12-31');
-        } else if (yearFilter === 'classic') {
-          params.append('primary_release_date.lte', '1999-12-31');
-        }
-
-        // Rating filter
-        if (ratingFilter === 'high') {
-          params.append('vote_average.gte', '8.0');
-        } else if (ratingFilter === 'mid') {
-          params.append('vote_average.gte', '6.0');
-          params.append('vote_average.lte', '7.9');
-        } else if (ratingFilter === 'low') {
-          params.append('vote_average.lte', '5.9');
-        }
-      } else {
-        // No filters, use trending
-        apiUrl += `trending/movie/week?`;
+        if (year === '2024') { params.append('primary_release_date.gte', '2024-01-01'); params.append('primary_release_date.lte', `${currentYear}-12-31`); }
+        else if (year === '2020') { params.append('primary_release_date.gte', '2020-01-01'); params.append('primary_release_date.lte', '2023-12-31'); }
+        else if (year === '2010') { params.append('primary_release_date.gte', '2010-01-01'); params.append('primary_release_date.lte', '2019-12-31'); }
+        else if (year === '2000') { params.append('primary_release_date.gte', '2000-01-01'); params.append('primary_release_date.lte', '2009-12-31'); }
+        else if (year === 'classic') params.append('primary_release_date.lte', '1999-12-31');
       }
-
-      console.log('API URL:', apiUrl + params.toString());
 
       try {
         const res = await fetch(apiUrl + params.toString());
         const data = await res.json();
-        console.log('API response:', data);
-        console.log('New movies fetched:', data.results?.length || 0);
-
         const newMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
-        currentMovies = [...currentMovies, ...newMovies];
-        console.log('Total movies now:', currentMovies.length);
 
-        renderGrid(currentMovies, 'grid-movies');
+        if (append) {
+          currentMovies = [...currentMovies, ...newMovies];
+          // Determine unique items to render
+          renderGrid(newMovies, 'grid-movies', true); // Add append mode to renderGrid if needed, or just append manually
+        } else {
+          currentMovies = newMovies;
+          renderGrid(currentMovies, 'grid-movies');
+
+          // Cache if this is the default view
+          if (page === 1 && isDefault) {
+            cacheData('trending_movies', currentMovies);
+            updateLastRefreshUI();
+          }
+        }
       } catch (e) {
-        console.error('Load more error:', e);
+        console.error('Fetch movies error:', e);
+      } finally {
+        document.getElementById('loader-movies').style.display = 'none';
       }
-    };
+    }
 
     window.forceRefreshTV = () => {
       localStorage.removeItem('trending_tv');
@@ -1793,123 +1879,13 @@
     });
 
     // 5. GENRE/SORT FILTERS
-    document.getElementById('movie-sort').addEventListener('change', async (e) => {
-      const sort = e.target.value;
-      if (sort === 'trending') fetchTrending();
-      else if (sort === 'rating') {
-        currentMovies.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
-        renderGrid(currentMovies, 'grid-movies');
-      } else if (sort === 'year') {
-        currentMovies.sort((a, b) => (b.release_date || '').localeCompare(a.release_date || ''));
-        renderGrid(currentMovies, 'grid-movies');
-      } else if (sort === 'title') {
-        currentMovies.sort((a, b) => a.title.localeCompare(b.title));
-        renderGrid(currentMovies, 'grid-movies');
-      } else if (sort === 'popularity') {
-        currentMovies.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-        renderGrid(currentMovies, 'grid-movies');
-      }
-    });
-
-    document.getElementById('movie-genre').addEventListener('change', async (e) => {
-      const genre = e.target.value;
-      if (!genre) {
-        fetchTrending();
-      } else {
-        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_genres=${genre}&sort_by=popularity.desc`);
-        const data = await res.json();
-        currentMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
-        renderGrid(currentMovies, 'grid-movies');
-      }
-    });
-
-    // NEW: Rating filter
-    document.getElementById('movie-rating-filter').addEventListener('change', () => {
-      applyMovieFilters();
-    });
-
-    // NEW: Year filter
-    document.getElementById('movie-year-filter').addEventListener('change', () => {
-      applyMovieFilters();
+    // 5. GENRE/SORT FILTERS - UNIFIED LISTENER
+    ['movie-sort', 'movie-genre', 'movie-rating-filter', 'movie-year-filter'].forEach(id => {
+      document.getElementById(id).addEventListener('change', () => fetchMovies(1, false));
     });
 
     // Apply all movie filters at once - FETCH NEW DATA
-    async function applyMovieFilters() {
-      console.log('=== APPLYING MOVIE FILTERS ===');
 
-      const ratingFilter = document.getElementById('movie-rating-filter').value;
-      const yearFilter = document.getElementById('movie-year-filter').value;
-      const genreFilter = document.getElementById('movie-genre').value;
-
-      console.log('Filters:', { rating: ratingFilter, year: yearFilter, genre: genreFilter });
-
-      // Reset page to 1 when filters change
-      currentMoviePage = 1;
-      currentMovies = [];
-
-      // Build API URL based on filters
-      let apiUrl = `https://api.themoviedb.org/3/`;
-      const params = new URLSearchParams({
-        api_key: TMDB_KEY,
-        page: 1,
-        sort_by: 'popularity.desc',
-        'vote_count.gte': 50
-      });
-
-      // If filters are active, use discover endpoint
-      if (genreFilter || yearFilter !== 'all' || ratingFilter !== 'all') {
-        apiUrl += 'discover/movie?';
-
-        if (genreFilter) params.append('with_genres', genreFilter);
-
-        // Year filter
-        const currentYear = new Date().getFullYear();
-        if (yearFilter === '2024') {
-          params.append('primary_release_date.gte', '2024-01-01');
-          params.append('primary_release_date.lte', `${currentYear}-12-31`);
-        } else if (yearFilter === '2020') {
-          params.append('primary_release_date.gte', '2020-01-01');
-          params.append('primary_release_date.lte', '2023-12-31');
-        } else if (yearFilter === '2010') {
-          params.append('primary_release_date.gte', '2010-01-01');
-          params.append('primary_release_date.lte', '2019-12-31');
-        } else if (yearFilter === '2000') {
-          params.append('primary_release_date.gte', '2000-01-01');
-          params.append('primary_release_date.lte', '2009-12-31');
-        } else if (yearFilter === 'classic') {
-          params.append('primary_release_date.lte', '1999-12-31');
-        }
-
-        // Rating filter
-        if (ratingFilter === 'high') {
-          params.append('vote_average.gte', '8.0');
-        } else if (ratingFilter === 'mid') {
-          params.append('vote_average.gte', '6.0');
-          params.append('vote_average.lte', '7.9');
-        } else if (ratingFilter === 'low') {
-          params.append('vote_average.lte', '5.9');
-        }
-      } else {
-        // No filters, use trending
-        apiUrl += `trending/movie/week?`;
-      }
-
-      console.log('Fetching:', apiUrl + params.toString());
-
-      try {
-        document.getElementById('loader-movies').style.display = 'flex';
-        const res = await fetch(apiUrl + params.toString());
-        const data = await res.json();
-        console.log('Filtered results:', data.results?.length || 0);
-
-        currentMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
-        renderGrid(currentMovies, 'grid-movies');
-        document.getElementById('loader-movies').style.display = 'none';
-      } catch (e) {
-        console.error('Filter error:', e);
-        document.getElementById('loader-movies').style.display = 'none';
-      }
-    }
 
     document.getElementById('tv-sort').addEventListener('change', async (e) => {
       const sort = e.target.value;
@@ -1944,9 +1920,9 @@
     });
 
     // 6. RENDERING CARDS
-    function renderGrid(items, targetId) {
+    function renderGrid(items, targetId, append = false) {
       const grid = document.getElementById(targetId);
-      grid.innerHTML = '';
+      if (!append) grid.innerHTML = '';
       if (!items || items.length === 0) {
         grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">No items found.</p>`;
         return;
@@ -2929,6 +2905,12 @@
 
     // Start the app
     fetchTrending();
+    // 10. SIDEBAR TOGGLE
+    window.toggleSidebar = () => {
+      document.body.classList.toggle('sidebar-collapsed');
+      const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+      localStorage.setItem('sidebar_collapsed', isCollapsed);
+    };
   </script>
 </body>
 
