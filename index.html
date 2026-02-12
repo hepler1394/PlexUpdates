@@ -131,17 +131,39 @@
     }
 
     /* Toggle Button */
+    /* Toggle Button - Toolbar Style */
     .sidebar-toggle-btn {
       background: none;
       border: none;
       color: var(--text-secondary);
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       cursor: pointer;
-      padding: 10px;
-      width: 100%;
-      text-align: right;
+      padding: 0 15px 0 0;
+      margin-right: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: color 0.3s;
-      margin-bottom: 10px;
+      border-right: 1px solid var(--border);
+      height: 100%;
+    }
+
+    .sidebar-toggle-btn:hover {
+      color: var(--accent);
+    }
+
+    /* Adjust controls bar padding when sidebar is collapsed */
+    body.sidebar-collapsed .controls-bar {
+      padding-left: 90px;
+      /* 70px sidebar + 20px */
+    }
+
+    @media (max-width: 768px) {
+      .sidebar-toggle-btn {
+        display: flex;
+        /* Visible on mobile */
+        border-right: none;
+      }
     }
 
     .sidebar-toggle-btn:hover {
@@ -1072,9 +1094,7 @@
 
   <header>
     <div class="container header-content">
-      <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
-        <i class="fa-solid fa-bars"></i>
-      </button>
+
       <h1><i class="fa-solid fa-clapperboard"></i> Plex Hub</h1>
       <p style="color: var(--text-secondary); font-size: 1.1rem; margin-top: -10px;">Request Movies For Corys Plex</p>
       <p id="last-updated" style="color: var(--text-muted); font-size: 0.85rem; margin-top: -5px;">
@@ -1111,6 +1131,9 @@
     <!-- MOVIES SECTION -->
     <div id="view-movies" class="view-section active">
       <div class="controls-bar">
+        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
         <label
           style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px; background:var(--bg-card); border-radius:8px;">
           <input type="checkbox" onchange="window.toggleSelectAllInView(this)"
@@ -1168,6 +1191,9 @@
     <!-- TV SHOWS SECTION -->
     <div id="view-tvshows" class="view-section">
       <div class="controls-bar">
+        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
         <label
           style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px; background:var(--bg-card); border-radius:8px;">
           <input type="checkbox" onchange="window.toggleSelectAllInView(this)"
@@ -1204,6 +1230,9 @@
     <!-- COMING SOON SECTION -->
     <div id="view-coming" class="view-section">
       <div class="controls-bar">
+        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
         <label
           style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px; background:var(--bg-card); border-radius:8px;">
           <input type="checkbox" onchange="window.toggleSelectAllInView(this)"
@@ -1232,6 +1261,9 @@
     <div id="view-tracking" class="view-section">
       <div class="section-header"><i class="fa-solid fa-bell"></i> TV Show Tracker</div>
       <div class="controls-bar">
+        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
         <button class="control-btn" onclick="showAddShowModal()"><i class="fa-solid fa-plus"></i> Add Show to
           Track</button>
         <button class="control-btn" onclick="checkForNewEpisodes()"><i class="fa-solid fa-sync"></i> Check for
@@ -1246,6 +1278,9 @@
     <!-- REQUESTS SECTION -->
     <div id="view-requests" class="view-section">
       <div class="controls-bar">
+        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
         <label
           style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px; background:var(--bg-card); border-radius:8px;">
           <input type="checkbox" onchange="window.toggleSelectAllInView(this)"
@@ -2904,13 +2939,35 @@
     };
 
     // Start the app
-    fetchTrending();
+    fetchMovies(1, false);
     // 10. SIDEBAR TOGGLE
     window.toggleSidebar = () => {
       document.body.classList.toggle('sidebar-collapsed');
       const isCollapsed = document.body.classList.contains('sidebar-collapsed');
       localStorage.setItem('sidebar_collapsed', isCollapsed);
     };
+
+    // 11. MOBILE SWIPE
+    let touchStartX = 0;
+    const swipeThreshold = 50;
+    document.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+      const touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX - touchStartX > swipeThreshold) {
+        // Swipe Right -> Open Sidebar (if collapsed)
+        if (document.body.classList.contains('sidebar-collapsed')) {
+          toggleSidebar();
+        }
+      } else if (touchStartX - touchEndX > swipeThreshold) {
+        // Swipe Left -> Close Sidebar (if open)
+        if (!document.body.classList.contains('sidebar-collapsed')) {
+          toggleSidebar();
+        }
+      }
+    }, { passive: true });
   </script>
 </body>
 
