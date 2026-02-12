@@ -373,9 +373,67 @@
 
     /* Mobile Tweaks (Original Simple Version) */
     /* Mobile Tweaks (Optimized) */
+    /* --- UTILITY CLASSES --- */
+    .desktop-only {
+      display: none !important;
+    }
+
+    @media (min-width: 769px) {
+      .brand-area .sidebar-toggle-btn {
+        display: none;
+      }
+
+      .desktop-only {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 5px;
+      }
+    }
+
+    /* Mobile Tweaks (Optimized) */
     @media (max-width: 768px) {
 
-      /* 1. Header & Layout */
+      /* 1. Header Layout Stack */
+      .header-main-row {
+        padding: 10px 15px !important;
+        gap: 10px !important;
+        justify-content: space-between;
+      }
+
+      /* Make brand full row */
+      .brand-area {
+        flex-basis: 100%;
+        justify-content: space-between;
+        /* Space between title and mobile menu btn */
+        margin-bottom: 5px;
+      }
+
+      /* Show sidebar toggle */
+      .sidebar-toggle-btn {
+        display: block !important;
+        order: -1;
+        /* Place first */
+      }
+
+      /* Make search full row */
+      .search-container {
+        flex-basis: 100%;
+        order: 3;
+        /* Push below brand */
+      }
+
+      /* Actions inline with brand (top right) */
+      .actions-area {
+        order: 2;
+        /* Top right */
+      }
+
+      /* Hide "Requests/Top" text labels on mobile to save space */
+      .desktop-only {
+        display: none !important;
+      }
+
+      /* 2. Layout Adjustments */
       main {
         margin-left: 0 !important;
         padding-top: 0;
@@ -385,23 +443,9 @@
         top: 0;
       }
 
-      /* Compact Title Row */
-      .sticky-header>div:first-child {
-        padding: 5px 15px !important;
-      }
-
-      .sticky-header h2 {
-        font-size: 1rem !important;
-      }
-
-      /* Search Bar Compact */
-      .search-container {
-        padding-right: 5px !important;
-      }
-
-      #search {
-        font-size: 16px !important;
-        /* Prevents iOS zoom */
+      .container {
+        margin-top: 180px !important;
+        /* Mobile needs more height due to stacking */
       }
 
       /* 2. Controls & Filters (Horizontal Scroll) */
@@ -584,101 +628,155 @@
       transform: translateY(-5px);
     }
 
-
-    /* --- MISSING STYLES RESTORED --- */
-    .overlay {
+    /* --- MOBILE BOTTOM NAV --- */
+    .mobile-bottom-nav {
+      display: none;
       position: fixed;
-      top: 0;
+      bottom: 0;
       left: 0;
       width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(5px);
+      background: rgba(15, 15, 20, 0.98);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border);
       z-index: 2000;
-      display: none;
-      justify-content: center;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-    }
-
-    .overlay.open {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      width: 90%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-      color: var(--text-primary);
-      animation: modalUp 0.3s ease;
-    }
-
-    @keyframes modalUp {
-      from {
-        transform: translateY(20px);
-        opacity: 0;
-      }
-
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    .modal-content {
-      padding: 30px;
-      display: flex;
-      gap: 30px;
-    }
-
-    .torrent-btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 600;
+      justify-content: center;
+      padding: 10px 0;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
+      transition: color 0.2s;
     }
 
-    .torrent-btn:hover {
-      background: #f00;
-      transform: translateY(-2px);
+    .nav-item i {
+      font-size: 1.2rem;
+      margin-bottom: 4px;
     }
 
-    .modal-note-input {
-      width: 100%;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      color: white;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      font-family: inherit;
-    }
-
-    .modal-note-input:focus {
-      border-color: var(--accent);
-    }
-
-    .loader {
-      display: none;
-      width: 100%;
-      padding: 40px;
-      justify-content: center;
-      align-items: center;
+    .nav-item:active,
+    .nav-item:hover {
       color: var(--accent);
     }
+
+    /* Mobile Tweaks (Optimized) */
+    @media (max-width: 768px) {
+      .mobile-bottom-nav {
+        display: flex;
+      }
+
+      /* Hide sidebar toggle if using bottom nav? No, keep both just in case, but maybe hide sidebar */
+      /* Add padding to body so content isn't hidden behind nav */
+      body {
+        padding-bottom: 70px;
+      }
+
+      #scroll-to-top {
+        bottom: 80px;
+        /* Move up above nav */
+      }
+
+
+      /* --- MISSING STYLES RESTORED --- */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        z-index: 2000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .overlay.open {
+        display: flex;
+      }
+
+      .modal {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        color: var(--text-primary);
+        animation: modalUp 0.3s ease;
+      }
+
+      @keyframes modalUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .modal-content {
+        padding: 30px;
+        display: flex;
+        gap: 30px;
+      }
+
+      .torrent-btn {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+      }
+
+      .torrent-btn:hover {
+        background: #f00;
+        transform: translateY(-2px);
+      }
+
+      .modal-note-input {
+        width: 100%;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-family: inherit;
+      }
+
+      .modal-note-input:focus {
+        border-color: var(--accent);
+      }
+
+      .loader {
+        display: none;
+        width: 100%;
+        padding: 40px;
+        justify-content: center;
+        align-items: center;
+        color: var(--accent);
+      }
   </style>
 </head>
 
@@ -825,50 +923,33 @@
     <div class="sticky-header"
       style="position:sticky; top:0; z-index:900; background:rgba(10, 10, 15, 0.95); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
 
-      <!-- SITE TITLE ROW (With Sidebar Toggle & Select Actions) -->
-      <div
-        style="padding:10px 20px; text-align:center; border-bottom:1px solid var(--border); background:rgba(10,10,15,0.98); display:flex; align-items:center; justify-content:space-between;">
+      <!-- ROW 1: BRANDING & SEARCH (Desktop Combined / Mobile Stacked) -->
+      <div class="header-main-row"
+        style="padding:15px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
 
-        <!-- Left: Sidebar Toggle (Mobile) -->
-        <button class="sidebar-toggle-btn" id="sidebar-toggle" onclick="document.body.classList.toggle('sidebar-open')"
-          title="Toggle Sidebar" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-
-        <!-- Center: Title -->
-        <div style="flex-grow:1; text-align:center;">
-          <h2 style="font-size:1.2rem; margin:0; color:white; font-weight:700; letter-spacing:1px;">Request Movies For
-            Cory's Plex</h2>
-          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;"><i class="fa-solid fa-clock"></i> Last
-            Updated: <span id="update-time">Today</span></div>
-        </div>
-
-        <!-- Right: Select Mode Actions -->
-        <div style="display:flex; align-items:center; gap:10px;">
-          <label id="select-mode-wrapper"
-            style="display:flex; align-items:center; gap:8px; cursor:pointer; display:none;">
-            <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll()"
-              style="width:18px; height:18px;">
-            <span
-              style="font-size:0.9rem; color:var(--text-secondary); display:none; @media(min-width:768px){display:inline;}">All</span>
-          </label>
-          <button class="control-btn" id="select-mode-btn" onclick="toggleSelectMode()"
-            style="padding:6px 12px; font-size:0.85rem;">
-            <i class="fa-solid fa-check-square"></i> Select
+        <!-- BRAND (Left on Desktop, Top on Mobile) -->
+        <div class="brand-area" style="display:flex; align-items:center; gap:15px; flex-basis:auto;">
+          <button class="sidebar-toggle-btn" id="sidebar-toggle"
+            onclick="document.body.classList.toggle('sidebar-open')" title="Toggle Sidebar"
+            style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; display:none;">
+            <i class="fa-solid fa-bars"></i>
           </button>
+          <div style="text-align:left;">
+            <h2
+              style="font-size:1.2rem; margin:0; color:white; font-weight:700; letter-spacing:1px; white-space:nowrap;">
+              Request Movies For Cory's Plex</h2>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+              <i class="fa-solid fa-clock"></i> Updated: <span id="update-time">Today</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Shared Search Bar Row -->
-
-      <!-- Shared Search Bar Row -->
-      <div
-        style="padding:15px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:20px;">
+        <!-- SEARCH (Center on Desktop, Row 2 on Mobile) -->
         <div class="search-container" id="search-box"
-          style="flex:1; max-width:600px; display:flex; align-items:center; gap:10px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:10px; padding-right:10px;">
+          style="flex:1; min-width:280px; display:flex; align-items:center; gap:10px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:10px; padding-right:10px;">
           <i class="fa-solid fa-magnifying-glass search-icon" style="left:14px;"></i>
           <input type="text" id="search" class="search-input" placeholder="Search movies, TV, people..."
-            style="border:none; background:transparent; padding-left:40px;">
+            style="border:none; background:transparent; padding-left:40px; width:100%;">
           <button id="voice-search-btn" onclick="startVoiceSearch()" title="Voice Search"
             style="background:none; border:none; color:var(--text-muted); cursor:pointer;">
             <i class="fa-solid fa-microphone"></i>
@@ -883,11 +964,21 @@
           </select>
         </div>
 
-        <!-- Quick Stats/Actions (Optional Pro Touch) -->
-        <div style="margin-left:auto; display:flex; gap:15px; font-size:0.9rem; color:var(--text-secondary);">
-          <span onclick="window.switchTab('requests')" style="cursor:pointer;"><i class="fa-solid fa-list"></i>
-            Requests</span>
-          <span onclick="window.scrollToTop()" style="cursor:pointer;"><i class="fa-solid fa-arrow-up"></i> Top</span>
+        <!-- ACTIONS (Right on Desktop, Inline on Mobile) -->
+        <div class="actions-area"
+          style="display:flex; gap:15px; align-items:center; font-size:0.9rem; color:var(--text-secondary); white-space:nowrap;">
+          <!-- Select Mode Toggle -->
+          <button class="control-btn" id="select-mode-btn" onclick="toggleSelectMode()"
+            style="padding:8px 15px; font-size:0.85rem;">
+            <i class="fa-solid fa-check-square"></i> Select
+          </button>
+
+          <span class="desktop-only" onclick="window.switchTab('requests')" style="cursor:pointer; display:none;">
+            <i class="fa-solid fa-list"></i> Requests
+          </span>
+          <span class="desktop-only" onclick="window.scrollToTop()" style="cursor:pointer; display:none;">
+            <i class="fa-solid fa-arrow-up"></i> Top
+          </span>
         </div>
       </div>
 
@@ -1033,10 +1124,10 @@
     <!-- END STICKY HEADER -->
 
 
-    <div class="container" style="margin-top: 170px;">
+    <div class="container" style="margin-top: 130px;">
 
-      <!-- Stats Dashboard -->
-      <div class="stats-grid">
+      <!-- Stats Dashboard (Compact) -->
+      <div class="stats-grid" style="margin: 10px 0 30px 0;">
         <div class="stat-card">
           <div class="stat-value" id="stat-total">0</div>
           <div class="stat-label">Total Requests</div>
@@ -1178,6 +1269,26 @@
   <button id="scroll-to-top" onclick="scrollToTop()">
     <i class="fa-solid fa-arrow-up"></i>
   </button>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-bottom-nav">
+    <div class="nav-item" onclick="switchTab('movies')">
+      <i class="fa-solid fa-film"></i>
+      <span>Movies</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tvshows')">
+      <i class="fa-solid fa-tv"></i>
+      <span>TV</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('requests')">
+      <i class="fa-solid fa-list-check"></i>
+      <span>Requests</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('tracking')">
+      <i class="fa-solid fa-eye"></i>
+      <span>Track</span>
+    </div>
+  </nav>
 
   <!-- Main Application Logic -->
 
@@ -2270,48 +2381,55 @@
 
     document.addEventListener('contextmenu', (e) => {
       const card = e.target.closest('.movie-card');
-      if (card) {
-        e.preventDefault();
 
-        // Find the item data
-        // Try requests first
-        const checkbox = card.querySelector('.request-checkbox');
+      if (card) {
+        e.preventDefault(); // Only hijack right-click on cards
+
+        // Reset menu state
+        document.getElementById('ctx-delete').style.display = 'none';
+
+        // Find item data
         let itemData = null;
 
+        // 1. Try checkbox data (Requests)
+        const checkbox = card.querySelector('.request-checkbox');
         if (checkbox && checkbox.dataset.item) {
-          itemData = JSON.parse(decodeURIComponent(checkbox.dataset.item));
+          try { itemData = JSON.parse(decodeURIComponent(checkbox.dataset.item)); } catch (e) { }
         }
 
+        // 2. Try click handler (Movies/TV) - fallback extraction
         if (!itemData) {
-          // Fallback: try finding in current data arrays
-          // This part depends on if we store data on the card or index
-          // Since we render from arrays, we might need a lookup
-          // But for now let's rely on what we have.
-          // Best to attach data-id to card
+          // Attempt to reconstruct from DOM if direct data missing (fallback)
+          const title = card.querySelector('.movie-title')?.innerText;
+          const date = card.querySelector('.movie-year')?.innerText;
+          if (title) itemData = { title: title, release_date: date, id: 'unknown' };
+          // Note: ideally we bind data to the card element itself in renderGrid
         }
 
-        // Simpler approach: Re-attach updated logic to cards or utilize what we have
-        // Let's assume we have the item data from the click handler or similar
-        // Actually, we can just grab the title text
-
-        contextItem = itemData; // If available
+        contextItem = itemData;
 
         // Position Menu
         const x = e.clientX;
         const y = e.clientY;
-        contextMenu.style.top = `${y}px`;
-        contextMenu.style.left = `${x}px`;
+
+        // Boundary check
+        const menuWidth = 180;
+        const menuHeight = 150;
+        const winWidth = window.innerWidth;
+        const winHeight = window.innerHeight;
+
+        contextMenu.style.left = (x + menuWidth > winWidth) ? `${x - menuWidth}px` : `${x}px`;
+        contextMenu.style.top = (y + menuHeight > winHeight) ? `${y - menuHeight}px` : `${y}px`;
+
         contextMenu.classList.add('active');
 
-        // Toggle Delete Option based on if it's a request (has status)
+        // Toggle Delete Option
         if (itemData && (itemData.status === 'pending' || itemData.status === 'added')) {
-          ctxDelete.style.display = 'flex';
-        } else {
-          ctxDelete.style.display = 'none';
+          document.getElementById('ctx-delete').style.display = 'flex';
         }
-
       } else {
         contextMenu.classList.remove('active');
+        // Allow native right click on background
       }
     });
 
