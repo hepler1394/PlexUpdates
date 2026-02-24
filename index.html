@@ -3,8 +3,25 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Plex Requests Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Cory's Plex Hub</title>
+
+  <!-- Social Meta Tags for Snapchat / iMessage / Discord link previews -->
+  <meta property="og:title" content="Cory's Plex Hub — Request Movies & TV Shows">
+  <meta property="og:description" content="Browse trending movies, request titles for Cory's Plex server, and track new episodes. Sign in with Google to save your requests!">
+  <meta property="og:image" content="https://image.tmdb.org/t/p/w1280/628Dep6AxEtDxjZoGP78TsOxYbK.jpg">
+  <meta property="og:url" content="https://plex-updates.vercel.app">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="Request movies and TV shows for Cory's Plex server. Browse trending titles, track episodes, and manage your watchlist.">
+
+  <!-- PWA / Mobile App Meta -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PlexHub">
+  <meta name="theme-color" content="#0a0a0f">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/180/plex.png">
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNvcnkncyBQbGV4IEh1YiIsCiAgInNob3J0X25hbWUiOiAiUGxleEh1YiIsCiAgInN0YXJ0X3VybCI6ICIvIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGEwYTBmIiwKICAidGhlbWVfY29sb3IiOiAiI2U1MDkxNCIsCiAgImljb25zIjogW3sic3JjIjogImh0dHBzOi8vaW1nLmljb25zOC5jb20vY29sb3IvMTkyL3BsZXgucG5nIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmcifV0KfQ==">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -209,15 +226,37 @@
     /* ===========================================
        SEARCH
        =========================================== */
+    @keyframes searchRingSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     .search-container {
       width: 100%;
       position: relative;
       border-radius: 12px;
       padding: 2px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-      flex-shrink: 1;
-      min-width: 0;
+      background: var(--bg-secondary);
+      flex: 1;
+      min-width: 200px;
+      max-width: 500px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(
+        #e50914, #ff6b35, #f7c948, #39ff14, #00d4ff, #667eea, #764ba2, #e50914
+      );
+      animation: searchRingSpin 3s linear infinite;
+      z-index: 0;
     }
 
     .search-container::after {
@@ -233,12 +272,20 @@
       position: relative;
       width: 100%;
       padding: 0 14px 0 40px;
-      height: 40px;
+      height: 44px;
       border: none;
       background: transparent;
       color: var(--text-primary);
       border-radius: 10px;
       z-index: 2;
+    }
+
+    .search-container:focus-within {
+      box-shadow: 0 0 20px rgba(229, 9, 20, 0.3), 0 0 40px rgba(102, 126, 234, 0.2);
+    }
+
+    .search-container:focus-within::before {
+      animation-duration: 1.5s;
     }
 
     .search-icon {
@@ -903,10 +950,16 @@
       height: 3px;
       background: var(--accent);
       border-radius: 0 0 3px 3px;
+      animation: navIndicator 0.3s ease;
+    }
+
+    @keyframes navIndicator {
+      from { width: 0; opacity: 0; }
+      to { width: 30px; opacity: 1; }
     }
 
     .nav-item.active i {
-      transform: translateY(-2px);
+      transform: translateY(-2px) scale(1.1);
     }
 
     .nav-item i {
@@ -1098,6 +1151,23 @@
         order: 3;
         min-width: 0 !important;
         max-width: none !important;
+        flex: 1 1 100% !important;
+        overflow: hidden;
+      }
+
+      /* Ensure animated ring works on mobile */
+      .search-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: conic-gradient(
+          #e50914, #ff6b35, #f7c948, #39ff14, #00d4ff, #667eea, #764ba2, #e50914
+        );
+        animation: searchRingSpin 3s linear infinite;
+        z-index: 0;
       }
 
       /* --- [OPT 4] Shorter placeholder on mobile (handled via JS) --- */
@@ -1223,15 +1293,25 @@
       /* --- Modal: full screen on mobile --- */
       .modal {
         width: 100%;
-        height: 100%;
-        max-height: 100%;
-        border-radius: 0;
+        height: auto;
+        max-height: 95vh;
+        border-radius: 16px 16px 0 0;
         max-width: 100%;
+        margin-top: auto;
+      }
+
+      .overlay {
+        align-items: flex-end;
       }
 
       .modal-content {
         flex-direction: column;
         padding: 15px;
+      }
+
+      /* Larger touch targets for all buttons on mobile */
+      button, .btn-card, .control-btn, .torrent-btn, .auth-btn, .btn-hero {
+        min-height: 44px;
       }
 
       /* --- [OPT 8] Hero: shorter on mobile --- */
@@ -1505,6 +1585,14 @@
 </head>
 
 <body>
+  <!-- Loading Screen -->
+  <div id="app-loader" style="position:fixed; inset:0; background:var(--bg-primary); z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:opacity 0.5s;">
+    <i class="fa-brands fa-plex" style="font-size:4rem; color:var(--accent); margin-bottom:15px; animation:pulse 1.5s infinite;"></i>
+    <div style="color:var(--text-secondary); font-size:0.9rem;">Loading Cory's Plex Hub...</div>
+  </div>
+  <style>
+    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.1); } }
+  </style>
 
   <!-- MOBILE OVERLAY BACKDROP -->
   <div class="mobile-overlay"></div>
@@ -1550,6 +1638,9 @@
                 <div class="user-email" id="sidebar-user-email">email@example.com</div>
               </div>
             </div>
+            <button class="auth-btn admin-only" onclick="window.openAdminPanel()" style="display:none; background:var(--accent); border-color:var(--accent); color:white; margin-bottom:8px;">
+              <i class="fa-solid fa-shield-halved"></i> Admin Dashboard
+            </button>
             <button class="auth-btn sign-out" onclick="window.googleSignOut()">
               <i class="fa-solid fa-right-from-bracket"></i> Sign Out
             </button>
@@ -1601,17 +1692,15 @@
         </div>
 
         <!-- SEARCH -->
-        <div class="search-container" id="search-box"
-          style="flex:1; min-width:200px; max-width:500px; display:flex; align-items:center; position:relative;">
-          <i class="fa-solid fa-magnifying-glass search-icon" style="left:14px;"></i>
-          <input type="text" id="search" class="search-input" placeholder="Search movies, TV, people..."
-            style="border:none; background:transparent; padding-left:40px; width:100%;">
+        <div class="search-container" id="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="search" class="search-input" placeholder="Search movies, TV, people...">
           <button id="voice-search-btn" onclick="startVoiceSearch()" title="Voice Search"
-            style="background:none; border:none; color:var(--text-muted); cursor:pointer; z-index:2; padding:8px;">
+            style="background:none; border:none; color:var(--text-muted); cursor:pointer; z-index:3; padding:8px; position:relative;">
             <i class="fa-solid fa-microphone"></i>
           </button>
           <select id="search-type"
-            style="background:transparent; border:none; color:var(--text-secondary); font-size:0.8rem; cursor:pointer; outline:none; z-index:2;">
+            style="background:transparent; border:none; color:var(--text-secondary); font-size:0.8rem; cursor:pointer; outline:none; z-index:3; position:relative;">
             <option value="multi">All</option>
             <option value="movie">Movies</option>
             <option value="tv">TV</option>
@@ -1636,6 +1725,10 @@
           <span class="desktop-only" onclick="window.scrollToTop()" style="cursor:pointer;">
             <i class="fa-solid fa-arrow-up"></i> Top
           </span>
+          <!-- Admin Button (visible only to admin) -->
+          <button class="control-btn admin-only" onclick="window.openAdminPanel()" title="Admin Dashboard" style="display:none; padding:8px 12px; color:var(--accent);">
+            <i class="fa-solid fa-shield-halved"></i>
+          </button>
           <!-- Header Auth Button -->
           <button class="header-user-btn" id="header-auth-btn" onclick="window.headerAuthAction()">
             <i class="fa-solid fa-user" id="header-auth-icon"></i>
@@ -1984,12 +2077,33 @@
     </div>
   </nav>
 
+  <!-- ADMIN PANEL OVERLAY -->
+  <div id="admin-overlay" class="overlay">
+    <div class="modal" style="max-width:700px; max-height:90vh;">
+      <div style="padding:20px 25px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0; font-size:1.3rem;"><i class="fa-solid fa-shield-halved" style="color:var(--accent);"></i> Admin Dashboard</h2>
+        <button onclick="document.getElementById('admin-overlay').classList.remove('open')" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div style="padding:20px 25px; overflow-y:auto; max-height:calc(90vh - 80px);">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;">
+          <div class="stat-card"><div class="stat-value" id="admin-total-users">0</div><div class="stat-label">Users</div></div>
+          <div class="stat-card"><div class="stat-value" id="admin-total-requests">0</div><div class="stat-label">Requests</div></div>
+          <div class="stat-card"><div class="stat-value" id="admin-pending">0</div><div class="stat-label">Pending</div></div>
+        </div>
+        <h3 style="margin-bottom:12px; font-size:1rem; color:var(--text-secondary);"><i class="fa-solid fa-users"></i> Registered Users</h3>
+        <div id="admin-users-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;"></div>
+        <h3 style="margin-bottom:12px; font-size:1rem; color:var(--text-secondary);"><i class="fa-solid fa-clock-rotate-left"></i> Recent Requests</h3>
+        <div id="admin-requests-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Main Application Logic -->
   <script type="module">
     // FIREBASE CONFIGURATION
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, setDoc, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, setDoc, doc, updateDoc, deleteDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCftljTkWcA2-CyojsF40Dpjm9rAiSlKNc",
@@ -2010,18 +2124,54 @@
     let currentUser = null;
     let globalRequests = [];
 
+    // ===== DETECT IN-APP BROWSER (Snapchat, Instagram, etc.) =====
+    function isInAppBrowser() {
+      const ua = navigator.userAgent || navigator.vendor || '';
+      return /snapchat|instagram|fbav|fban|line\//i.test(ua) || 
+             (!/safari/i.test(ua) && /applewebkit/i.test(ua) && /mobile/i.test(ua));
+    }
+
     // ===== GOOGLE AUTH FUNCTIONS =====
     window.googleSignIn = async () => {
       try {
-        const result = await signInWithPopup(auth, googleProvider);
-        showToast(`Welcome, ${result.user.displayName}!`, 'success');
+        // Show loading state
+        const authBtns = document.querySelectorAll('.auth-btn.sign-in, .header-user-btn');
+        authBtns.forEach(btn => { btn.disabled = true; btn.style.opacity = '0.6'; });
+
+        if (isInAppBrowser()) {
+          // In-app browsers block popups — use redirect
+          await signInWithRedirect(auth, googleProvider);
+        } else {
+          try {
+            const result = await signInWithPopup(auth, googleProvider);
+            showToast(`Welcome, ${result.user.displayName}!`, 'success');
+          } catch (popupErr) {
+            if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request') {
+              // Fallback to redirect if popup blocked
+              await signInWithRedirect(auth, googleProvider);
+            } else if (popupErr.code !== 'auth/popup-closed-by-user') {
+              throw popupErr;
+            }
+          }
+        }
       } catch (error) {
         console.error('Sign-in error:', error);
-        if (error.code !== 'auth/popup-closed-by-user') {
-          showToast('Sign-in failed. Please try again.', 'error');
-        }
+        showToast('Sign-in failed. Please try again.', 'error');
+        const authBtns = document.querySelectorAll('.auth-btn.sign-in, .header-user-btn');
+        authBtns.forEach(btn => { btn.disabled = false; btn.style.opacity = '1'; });
       }
     };
+
+    // Handle redirect result on page load
+    getRedirectResult(auth).then((result) => {
+      if (result && result.user) {
+        showToast(`Welcome back, ${result.user.displayName}!`, 'success');
+      }
+    }).catch((error) => {
+      if (error.code !== 'auth/popup-closed-by-user') {
+        console.error('Redirect result error:', error);
+      }
+    });
 
     window.googleSignOut = async () => {
       try {
@@ -2035,10 +2185,20 @@
 
     window.headerAuthAction = () => {
       if (currentUser) {
-        // Toggle a dropdown or just sign out
-        if (confirm(`Signed in as ${currentUser.displayName || currentUser.email}. Sign out?`)) {
-          window.googleSignOut();
-        }
+        // Show a user menu overlay
+        const overlay = document.getElementById('detail-overlay');
+        overlay.innerHTML = `
+        <div class="modal" style="max-width:380px; padding:30px; text-align:center;">
+          ${currentUser.photoURL ? `<img src="${currentUser.photoURL}" style="width:64px; height:64px; border-radius:50%; border:3px solid var(--accent); margin-bottom:12px;">` : `<i class="fa-solid fa-user-circle" style="font-size:4rem; color:var(--text-muted); margin-bottom:12px;"></i>`}
+          <h3 style="margin-bottom:4px;">${currentUser.displayName || 'User'}</h3>
+          <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">${currentUser.email}</p>
+          ${isAdmin() ? `<button class="torrent-btn" style="width:100%; margin-bottom:8px; background:var(--accent);" onclick="document.getElementById('detail-overlay').classList.remove('open'); window.openAdminPanel();"><i class="fa-solid fa-shield-halved"></i> Admin Dashboard</button>` : ''}
+          <button class="torrent-btn" style="width:100%; background:#333;" onclick="document.getElementById('detail-overlay').classList.remove('open'); window.googleSignOut();">
+            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+          </button>
+          <button style="background:none; border:none; color:var(--text-muted); margin-top:12px; cursor:pointer; font-size:0.85rem;" onclick="document.getElementById('detail-overlay').classList.remove('open');">Cancel</button>
+        </div>`;
+        overlay.classList.add('open');
       } else {
         window.googleSignIn();
       }
@@ -2111,9 +2271,76 @@
       }
     }
 
+    // ===== ADMIN FUNCTIONS =====
+    const ADMIN_EMAIL = 'coryh2014@gmail.com';
+
+    function isAdmin() {
+      return currentUser && currentUser.email === ADMIN_EMAIL;
+    }
+
+    window.openAdminPanel = async () => {
+      if (!isAdmin()) {
+        showToast('Admin access only.', 'error');
+        return;
+      }
+      const overlay = document.getElementById('admin-overlay');
+      overlay.classList.add('open');
+
+      // Load users
+      try {
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const users = [];
+        usersSnap.forEach(d => users.push({ id: d.id, ...d.data() }));
+        users.sort((a, b) => (b.lastLogin || 0) - (a.lastLogin || 0));
+
+        document.getElementById('admin-total-users').textContent = users.length;
+        document.getElementById('admin-total-requests').textContent = globalRequests.length;
+        document.getElementById('admin-pending').textContent = globalRequests.filter(r => r.status === 'pending').length;
+
+        const usersList = document.getElementById('admin-users-list');
+        usersList.innerHTML = users.map(u => `
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--bg-secondary); border-radius:10px; border:1px solid var(--border);">
+            ${u.photoURL ? `<img src="${u.photoURL}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">` : `<div style="width:36px; height:36px; border-radius:50%; background:var(--bg-card); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><i class="fa-solid fa-user"></i></div>`}
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.displayName || 'Unknown'}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${u.email || 'No email'}</div>
+            </div>
+            <div style="text-align:right; flex-shrink:0;">
+              <div style="font-size:0.7rem; color:var(--text-muted);">Last: ${u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : 'N/A'}</div>
+              <div style="font-size:0.65rem; padding:2px 6px; border-radius:4px; background:${u.role === 'admin' ? 'var(--accent)' : 'var(--blue)'}; color:white; display:inline-block; margin-top:2px;">${u.role || 'user'}</div>
+            </div>
+          </div>
+        `).join('');
+
+        // Recent requests
+        const recentRequests = [...globalRequests].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).slice(0, 10);
+        const reqList = document.getElementById('admin-requests-list');
+        reqList.innerHTML = recentRequests.map(r => `
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--bg-secondary); border-radius:8px; border:1px solid var(--border);">
+            <img src="${r.poster_path ? 'https://image.tmdb.org/t/p/w92' + r.poster_path : 'https://via.placeholder.com/46x69/16161f/fff?text=?'}" style="width:36px; height:54px; border-radius:4px; object-fit:cover;">
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:600; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title || r.name || 'Unknown'}</div>
+              <div style="font-size:0.7rem; color:var(--text-muted);">By: ${r.requester || 'Anonymous'} | ${r.timestamp ? new Date(r.timestamp).toLocaleDateString() : ''}</div>
+            </div>
+            <div style="padding:3px 8px; border-radius:4px; font-size:0.7rem; font-weight:600; color:white; background:${r.status === 'added' ? 'var(--green)' : r.status === 'pending' ? 'var(--blue)' : 'var(--text-muted)'};">${r.status}</div>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('Admin panel error:', e);
+        showToast('Error loading admin data.', 'error');
+      }
+    };
+
     // Listen for auth state changes
     onAuthStateChanged(auth, (user) => {
       updateAuthUI(user);
+      // Show/hide admin button based on role
+      const adminBtns = document.querySelectorAll('.admin-only');
+      if (user && user.email === ADMIN_EMAIL) {
+        adminBtns.forEach(b => b.style.display = '');
+      } else {
+        adminBtns.forEach(b => b.style.display = 'none');
+      }
     });
     let currentMovies = [];
     let currentTVShows = [];
@@ -2212,6 +2439,13 @@
         const lM = document.getElementById('loader-movies'); if (lM) lM.style.display = 'none';
         const lT = document.getElementById('loader-tv'); if (lT) lT.style.display = 'none';
         const lC = document.getElementById('loader-coming'); if (lC) lC.style.display = 'none';
+      } finally {
+        // Dismiss loading screen
+        const appLoader = document.getElementById('app-loader');
+        if (appLoader) {
+          appLoader.style.opacity = '0';
+          setTimeout(() => appLoader.remove(), 500);
+        }
       }
     }
 
@@ -2724,9 +2958,33 @@
     window.openRequestModal = (itemObj) => {
       const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
       const overlay = document.getElementById('detail-overlay');
+
+      // If not signed in, prompt to sign in first
+      if (!currentUser) {
+        overlay.innerHTML = `
+        <div class="modal" style="max-width: 420px; padding: 40px; text-align:center;">
+          <i class="fa-solid fa-user-lock" style="font-size:3rem; color:var(--accent); margin-bottom:15px;"></i>
+          <h2 style="margin-bottom: 10px;">Sign In to Request</h2>
+          <p style="color:var(--text-secondary); margin-bottom:25px; line-height:1.6;">Sign in with your Google account to request <strong>${item.title || item.name}</strong> and track your requests.</p>
+          <button class="auth-btn sign-in" onclick="window.googleSignIn()" style="margin-bottom:12px;">
+            <svg class="google-icon-svg" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Sign in with Google
+          </button>
+          <button class="torrent-btn" style="background:#333; width:100%;" onclick="document.getElementById('detail-overlay').classList.remove('open')">
+            Cancel
+          </button>
+          <p style="font-size:0.75rem; color:var(--text-muted); margin-top:15px;">Or continue as guest below</p>
+          <button class="torrent-btn" style="background:transparent; border:1px solid var(--border); color:var(--text-secondary); width:100%; font-size:0.8rem;" onclick="window.openRequestModalGuest(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+            Continue without signing in
+          </button>
+        </div>`;
+        overlay.classList.add('open');
+        return;
+      }
+
       overlay.innerHTML = `
       <div class="modal" style="max-width: 500px; padding: 40px;">
-        <h2 style="margin-bottom: 20px;">Request: ${item.title}</h2>
+        <h2 style="margin-bottom: 20px;">Request: ${item.title || item.name}</h2>
         <input type="text" id="requester-name" class="modal-note-input" placeholder="Your name (optional)" style="height: 45px;" value="${currentUser ? (currentUser.displayName || '') : ''}">
         <textarea id="request-note" class="modal-note-input" placeholder="Add a note or reason for this request (optional)" rows="3"></textarea>
         <div style="margin-bottom: 15px;">
@@ -2756,6 +3014,27 @@
       const priority = document.getElementById('request-priority').value;
       await saveItemFromObject(item, 'pending', note, requester, priority);
       document.getElementById('detail-overlay').classList.remove('open');
+    };
+
+    // Guest request modal (no sign-in required)
+    window.openRequestModalGuest = (itemObj) => {
+      const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
+      const overlay = document.getElementById('detail-overlay');
+      overlay.innerHTML = `
+      <div class="modal" style="max-width: 500px; padding: 40px;">
+        <h2 style="margin-bottom: 20px;">Request: ${item.title || item.name}</h2>
+        <input type="text" id="requester-name" class="modal-note-input" placeholder="Your name" style="height: 45px;">
+        <textarea id="request-note" class="modal-note-input" placeholder="Add a note (optional)" rows="3"></textarea>
+        <div style="display: flex; gap: 10px;">
+          <button class="torrent-btn" style="flex: 1;" onclick="window.submitRequest(${JSON.stringify(item).replace(/\"/g, '&quot;')})">
+            <i class="fa-solid fa-paper-plane"></i> Submit
+          </button>
+          <button class="torrent-btn" style="background: #333;" onclick="document.getElementById('detail-overlay').classList.remove('open')">
+            Cancel
+          </button>
+        </div>
+      </div>`;
+      overlay.classList.add('open');
     };
 
     // DATABASE ACTIONS
@@ -2872,6 +3151,10 @@
       // Update view sections
       document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
       document.getElementById(`view-${tabId}`).classList.add('active');
+
+      // Hide hero on non-movie tabs
+      const heroSection = document.getElementById('hero-section');
+      if (heroSection) heroSection.style.display = tabId === 'movies' ? '' : 'none';
 
       // Toggle controls bars
       const bars = ['controls-movies', 'controls-tv', 'controls-coming', 'controls-requests', 'controls-tracking'];
@@ -3080,12 +3363,14 @@
 
     // TOAST NOTIFICATION
     function showToast(message, type = 'info') {
+      // Remove existing toast if any
       const existing = document.querySelector('.toast-notification');
       if (existing) existing.remove();
       const toast = document.createElement('div');
       toast.className = 'toast-notification';
       const colors = { success: 'var(--green)', error: 'var(--red)', info: 'var(--blue)' };
-      toast.style.cssText = `position:fixed; bottom:${window.innerWidth <= 768 ? '85px' : '30px'}; left:50%; transform:translateX(-50%); background:${colors[type] || colors.info}; color:white; padding:12px 24px; border-radius:8px; font-weight:600; z-index:10000; animation:fadeInUp 0.3s ease; box-shadow:0 4px 15px rgba(0,0,0,0.3);`;
+      const bottomOffset = window.innerWidth <= 768 ? 'calc(var(--nav-height) + env(safe-area-inset-bottom, 10px) + 10px)' : '30px';
+      toast.style.cssText = `position:fixed; bottom:${bottomOffset}; left:50%; transform:translateX(-50%); background:${colors[type] || colors.info}; color:white; padding:12px 24px; border-radius:12px; font-weight:600; z-index:10000; animation:fadeInUp 0.3s ease; box-shadow:0 4px 20px rgba(0,0,0,0.4); max-width:90vw; text-align:center; font-size:0.9rem;`;
       toast.textContent = message;
       document.body.appendChild(toast);
       setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
@@ -3134,6 +3419,13 @@
             document.body.classList.remove('sidebar-open');
           }
         }
+      });
+
+      // Close modals on overlay backdrop click
+      document.querySelectorAll('.overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) overlay.classList.remove('open');
+        });
       });
 
       // [OPT 1] Auto-hide header on scroll down, show on scroll up
