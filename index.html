@@ -1226,6 +1226,153 @@
         font-size: 1.2rem;
       }
     }
+
+    /* ===========================================
+       USER AUTH / PROFILE STYLES
+       =========================================== */
+    .user-profile-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 15px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 15px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .user-avatar-placeholder {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .auth-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .auth-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+    }
+
+    .auth-btn.sign-in {
+      background: #4285f4;
+      border-color: #4285f4;
+      color: white;
+    }
+
+    .auth-btn.sign-in:hover {
+      background: #3367d6;
+    }
+
+    .auth-btn.sign-out {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      padding: 8px 12px;
+    }
+
+    .google-icon-svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Header auth button (desktop) */
+    .header-user-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .header-user-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+    }
+
+    .header-user-btn img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    @media (max-width: 768px) {
+      .header-user-btn {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+      }
+
+      .header-user-btn img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .header-user-btn .user-btn-name {
+        display: none;
+      }
+    }
   </style>
 </head>
 
@@ -1258,8 +1405,31 @@
           </button>
         </div>
 
+        <!-- User Auth Section -->
+        <div id="sidebar-auth" class="user-profile-section">
+          <div id="sidebar-signed-out">
+            <button class="auth-btn sign-in" onclick="window.googleSignIn()">
+              <svg class="google-icon-svg" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Sign in with Google
+            </button>
+          </div>
+          <div id="sidebar-signed-in" style="display:none; width:100%;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+              <img id="sidebar-user-avatar" class="user-avatar" src="" alt="" style="display:none;">
+              <div id="sidebar-user-placeholder" class="user-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+              <div class="user-info">
+                <div class="user-name" id="sidebar-user-name">User</div>
+                <div class="user-email" id="sidebar-user-email">email@example.com</div>
+              </div>
+            </div>
+            <button class="auth-btn sign-out" onclick="window.googleSignOut()">
+              <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+            </button>
+          </div>
+        </div>
+
         <div style="margin-top:auto; font-size:0.8rem; color:var(--text-muted); text-align:center;">
-          v2.6 Pro
+          v2.7 Pro
         </div>
 
         <div style="margin-top:auto; font-size:0.8rem; color:var(--text-muted); text-align:center;">
@@ -1338,6 +1508,11 @@
           <span class="desktop-only" onclick="window.scrollToTop()" style="cursor:pointer;">
             <i class="fa-solid fa-arrow-up"></i> Top
           </span>
+          <!-- Header Auth Button -->
+          <button class="header-user-btn" id="header-auth-btn" onclick="window.headerAuthAction()">
+            <i class="fa-solid fa-user" id="header-auth-icon"></i>
+            <span class="user-btn-name" id="header-auth-text">Sign In</span>
+          </button>
         </div>
       </div>
 
@@ -1685,7 +1860,8 @@
   <script type="module">
     // FIREBASE CONFIGURATION
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, setDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, setDoc, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCftljTkWcA2-CyojsF40Dpjm9rAiSlKNc",
@@ -1699,9 +1875,118 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
     const TMDB_KEY = '5e30970a964f6e59d184fa77433b17ca';
 
+    let currentUser = null;
     let globalRequests = [];
+
+    // ===== GOOGLE AUTH FUNCTIONS =====
+    window.googleSignIn = async () => {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        showToast(`Welcome, ${result.user.displayName}!`, 'success');
+      } catch (error) {
+        console.error('Sign-in error:', error);
+        if (error.code !== 'auth/popup-closed-by-user') {
+          showToast('Sign-in failed. Please try again.', 'error');
+        }
+      }
+    };
+
+    window.googleSignOut = async () => {
+      try {
+        await signOut(auth);
+        showToast('Signed out successfully.', 'info');
+      } catch (error) {
+        console.error('Sign-out error:', error);
+        showToast('Sign-out failed.', 'error');
+      }
+    };
+
+    window.headerAuthAction = () => {
+      if (currentUser) {
+        // Toggle a dropdown or just sign out
+        if (confirm(`Signed in as ${currentUser.displayName || currentUser.email}. Sign out?`)) {
+          window.googleSignOut();
+        }
+      } else {
+        window.googleSignIn();
+      }
+    };
+
+    function updateAuthUI(user) {
+      currentUser = user;
+      // Sidebar UI
+      const signedOut = document.getElementById('sidebar-signed-out');
+      const signedIn = document.getElementById('sidebar-signed-in');
+      const avatar = document.getElementById('sidebar-user-avatar');
+      const placeholder = document.getElementById('sidebar-user-placeholder');
+      const userName = document.getElementById('sidebar-user-name');
+      const userEmail = document.getElementById('sidebar-user-email');
+      // Header UI
+      const headerBtn = document.getElementById('header-auth-btn');
+      const headerIcon = document.getElementById('header-auth-icon');
+      const headerText = document.getElementById('header-auth-text');
+
+      if (user) {
+        // Sidebar
+        if (signedOut) signedOut.style.display = 'none';
+        if (signedIn) signedIn.style.display = 'block';
+        if (userName) userName.textContent = user.displayName || 'User';
+        if (userEmail) userEmail.textContent = user.email || '';
+        if (user.photoURL && avatar) {
+          avatar.src = user.photoURL;
+          avatar.style.display = 'block';
+          if (placeholder) placeholder.style.display = 'none';
+        } else {
+          if (avatar) avatar.style.display = 'none';
+          if (placeholder) placeholder.style.display = 'flex';
+        }
+        // Header
+        if (headerBtn && user.photoURL) {
+          headerBtn.innerHTML = `<img src="${user.photoURL}" alt=""> <span class="user-btn-name">${user.displayName?.split(' ')[0] || 'Me'}</span>`;
+        } else if (headerBtn) {
+          headerBtn.innerHTML = `<i class="fa-solid fa-user"></i> <span class="user-btn-name">${user.displayName?.split(' ')[0] || 'Me'}</span>`;
+        }
+        // Save user profile to Firestore
+        saveUserProfile(user);
+      } else {
+        // Sidebar
+        if (signedOut) signedOut.style.display = 'block';
+        if (signedIn) signedIn.style.display = 'none';
+        // Header
+        if (headerBtn) {
+          headerBtn.innerHTML = `<i class="fa-solid fa-user" id="header-auth-icon"></i> <span class="user-btn-name" id="header-auth-text">Sign In</span>`;
+        }
+      }
+    }
+
+    async function saveUserProfile(user) {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+        const profileData = {
+          displayName: user.displayName || '',
+          email: user.email || '',
+          photoURL: user.photoURL || '',
+          lastLogin: Date.now()
+        };
+        if (!userSnap.exists()) {
+          profileData.createdAt = Date.now();
+          profileData.role = 'user';
+        }
+        await setDoc(userRef, profileData, { merge: true });
+      } catch (e) {
+        console.error('Error saving user profile:', e);
+      }
+    }
+
+    // Listen for auth state changes
+    onAuthStateChanged(auth, (user) => {
+      updateAuthUI(user);
+    });
     let currentMovies = [];
     let currentTVShows = [];
     let currentComingSoon = [];
@@ -2314,7 +2599,7 @@
       overlay.innerHTML = `
       <div class="modal" style="max-width: 500px; padding: 40px;">
         <h2 style="margin-bottom: 20px;">Request: ${item.title}</h2>
-        <input type="text" id="requester-name" class="modal-note-input" placeholder="Your name (optional)" style="height: 45px;">
+        <input type="text" id="requester-name" class="modal-note-input" placeholder="Your name (optional)" style="height: 45px;" value="${currentUser ? (currentUser.displayName || '') : ''}">
         <textarea id="request-note" class="modal-note-input" placeholder="Add a note or reason for this request (optional)" rows="3"></textarea>
         <div style="margin-bottom: 15px;">
           <label style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px; display: block;">Priority Level:</label>
@@ -2355,10 +2640,17 @@
         const priorityToSave = priority || (existingItem ? existingItem.priority : 'normal');
         const docId = `${item.mediaType || 'movie'}_${item.id}`;
         const timestamp = existingItem ? existingItem.timestamp : Date.now();
-        await setDoc(doc(db, "requests", docId), {
+        const requestData = {
           ...item, mediaType: item.mediaType || 'movie', timestamp: timestamp,
           status: status, note: noteToSave, requester: requesterToSave, priority: priorityToSave
-        });
+        };
+        // Attach user info if logged in
+        if (currentUser) {
+          requestData.userId = currentUser.uid;
+          requestData.userEmail = currentUser.email || '';
+          if (!requesterToSave) requestData.requester = currentUser.displayName || '';
+        }
+        await setDoc(doc(db, "requests", docId), requestData);
         if (!silent) {
           if (status === 'added') showToast(`"${item.title}" marked as available!`, 'success');
           else showToast(`Request for "${item.title}" submitted!`, 'success');
