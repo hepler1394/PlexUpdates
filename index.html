@@ -1019,49 +1019,92 @@
         width: 100%;
       }
 
-      /* --- Sticky header adjustments --- */
+      /* --- [OPT 1] Auto-hide sticky header on scroll down --- */
       .sticky-header {
         top: 0;
         position: sticky;
         z-index: 900;
+        transition: transform 0.3s ease;
       }
 
-      /* --- Header row stacking --- */
+      .sticky-header.header-hidden {
+        transform: translateY(-100%);
+      }
+
+      /* --- [OPT 2 & 3] Compact header layout: brand + icons on row 1, search full-width row 2 --- */
       .header-main-row {
-        padding: 10px 15px !important;
-        gap: 8px !important;
+        padding: 8px 12px !important;
+        gap: 6px !important;
         flex-wrap: wrap !important;
       }
 
       .brand-area {
-        flex-basis: 100%;
+        flex: 1 1 auto;
         display: flex !important;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 2px;
+        margin-bottom: 0;
+        min-width: 0;
       }
 
       .brand-area h2 {
-        font-size: 1rem !important;
-        white-space: normal !important;
+        font-size: 0.9rem !important;
+        white-space: nowrap !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .brand-area > div {
+        min-width: 0;
+      }
+
+      .update-time-row {
+        display: none;
       }
 
       .sidebar-toggle-btn {
         display: flex !important;
         order: -1;
+        min-height: 40px;
+        min-width: 40px;
+        padding: 6px !important;
       }
 
       .sidebar-toggle-desktop {
         display: none !important;
       }
 
+      /* --- [OPT 3] Actions: compact icon-only row, same line as brand --- */
+      .actions-area {
+        order: 2;
+        gap: 4px !important;
+        flex-shrink: 0;
+      }
+
+      .actions-area .control-btn {
+        padding: 6px 8px !important;
+        min-height: 36px;
+        min-width: 36px;
+        font-size: 0.85rem;
+      }
+
+      .header-user-btn {
+        padding: 4px 6px !important;
+        min-height: 36px;
+      }
+
+      /* --- [OPT 2] Search: full width, own row --- */
       .search-container {
         flex-basis: 100%;
         order: 3;
+        min-width: 0 !important;
+        max-width: none !important;
       }
 
-      .actions-area {
-        order: 2;
+      /* --- [OPT 4] Shorter placeholder on mobile (handled via JS) --- */
+
+      /* --- [OPT 5] Hide search type dropdown on mobile --- */
+      #search-type {
+        display: none !important;
       }
 
       .desktop-only {
@@ -1072,11 +1115,11 @@
         display: flex !important;
       }
 
-      /* --- Controls bar: horizontal scroll --- */
+      /* --- [OPT 7] Controls bar: compact horizontal scroll --- */
       .controls-bar {
-        padding: 8px 12px;
+        padding: 6px 10px;
         flex-wrap: nowrap;
-        gap: 8px;
+        gap: 6px;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
@@ -1086,10 +1129,19 @@
         display: none;
       }
 
-      /* --- Touch targets: min 44px --- */
-      .control-btn,
-      .control-select,
-      .sidebar-toggle-btn,
+      .controls-bar .header-title {
+        font-size: 0.9rem !important;
+        padding-right: 4px;
+      }
+
+      .control-select {
+        padding: 6px 10px !important;
+        font-size: 0.8rem !important;
+        min-height: 36px;
+        min-width: 0;
+      }
+
+      /* --- Touch targets: min 44px for primary actions --- */
       .tab-btn,
       #voice-search-btn {
         min-height: 44px;
@@ -1111,21 +1163,26 @@
       }
 
       .stat-card {
-        min-width: 110px;
-        padding: 12px;
+        min-width: 100px;
+        padding: 10px;
         flex: 0 0 auto;
       }
 
       .stat-value {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
+      }
+
+      .stat-label {
+        font-size: 0.65rem;
       }
 
       /* --- Movie grid: 2 columns --- */
       .movie-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px;
+        gap: 10px;
         display: grid !important;
         overflow-x: visible !important;
+        padding: 0 10px;
       }
 
       .movie-card {
@@ -1134,9 +1191,32 @@
         width: 100% !important;
       }
 
+      /* --- [OPT 9] Compact card buttons --- */
+      .btn-card {
+        font-size: 0.7rem !important;
+        padding: 6px 8px !important;
+        gap: 4px !important;
+      }
+
+      .btn-wrapper {
+        gap: 4px !important;
+      }
+
+      .movie-title {
+        font-size: 0.85rem !important;
+        -webkit-line-clamp: 2;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .movie-year {
+        font-size: 0.75rem !important;
+      }
+
       /* --- Container spacing --- */
       .container {
-        padding: 0 12px 100px 12px !important;
+        padding: 0 10px 100px 10px !important;
         margin-top: 0 !important;
       }
 
@@ -1151,45 +1231,60 @@
 
       .modal-content {
         flex-direction: column;
-        padding: 20px;
+        padding: 15px;
       }
 
-      /* --- Hero: smaller on mobile --- */
+      /* --- [OPT 8] Hero: shorter on mobile --- */
       #hero-section {
-        height: 50vh;
-        margin-bottom: -50px;
+        height: 40vh;
+        min-height: 250px;
+        margin-bottom: -30px;
       }
 
       .hero-title {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
+      }
+
+      .hero-desc {
+        font-size: 0.85rem;
+        -webkit-line-clamp: 2;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .hero-content {
-        padding: 0 20px 80px 20px;
+        padding: 0 15px 60px 15px;
       }
 
       .hero-btns {
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 8px;
       }
 
       .btn-hero {
-        padding: 10px 20px;
-        font-size: 0.95rem;
+        padding: 8px 16px;
+        font-size: 0.85rem;
       }
 
-      /* --- Bottom nav: visible --- */
+      .hero-badge {
+        font-size: 0.7rem !important;
+        padding: 4px 10px !important;
+      }
+
+      /* --- [OPT 10] Bottom nav: iOS safe area + visible --- */
       .mobile-bottom-nav {
         display: flex;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
       }
 
       body {
-        padding-bottom: calc(var(--nav-height) + 10px);
+        padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 10px));
       }
 
       #scroll-to-top {
-        bottom: calc(var(--nav-height) + 15px);
-        right: 15px;
+        bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 10px) + 10px);
+        right: 12px;
         width: 44px;
         height: 44px;
       }
@@ -1201,6 +1296,26 @@
 
       .rec-img {
         border-radius: 6px;
+      }
+
+      /* --- [OPT 6] Tighter spacing everywhere --- */
+      .card-content {
+        padding: 8px !important;
+      }
+
+      .poster-wrapper {
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .rating-badge {
+        font-size: 0.7rem !important;
+        padding: 3px 6px !important;
+      }
+
+      .priority-badge {
+        font-size: 0.6rem !important;
+        padding: 2px 6px !important;
       }
     }
 
@@ -1214,16 +1329,29 @@
       }
 
       .brand-area h2 {
-        font-size: 0.85rem !important;
+        font-size: 0.8rem !important;
       }
 
       .stat-card {
-        min-width: 95px;
-        padding: 10px;
+        min-width: 90px;
+        padding: 8px;
       }
 
       .stat-value {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+      }
+
+      .hero-title {
+        font-size: 1.3rem;
+      }
+
+      .btn-hero {
+        padding: 7px 14px;
+        font-size: 0.8rem;
+      }
+
+      .controls-bar .header-title {
+        font-size: 0.8rem !important;
       }
     }
 
@@ -1463,10 +1591,10 @@
             <i class="fa-solid fa-bars"></i>
           </button>
           <div style="text-align:left; min-width:0;">
-            <h2
+            <h2 class="brand-title"
               style="font-size:1.1rem; margin:0; color:white; font-weight:700; letter-spacing:0.5px;">
               Request Movies For Cory's Plex</h2>
-            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+            <div class="update-time-row" style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
               <i class="fa-solid fa-clock"></i> Updated: <span id="update-time-header">Today</span>
             </div>
           </div>
@@ -3007,6 +3135,41 @@
           }
         }
       });
+
+      // [OPT 1] Auto-hide header on scroll down, show on scroll up
+      let lastScrollY = 0;
+      let scrollTicking = false;
+      const stickyHeader = document.querySelector('.sticky-header');
+
+      window.addEventListener('scroll', () => {
+        if (!scrollTicking) {
+          window.requestAnimationFrame(() => {
+            if (window.innerWidth <= 768 && stickyHeader) {
+              const currentScrollY = window.scrollY;
+              if (currentScrollY > lastScrollY && currentScrollY > 120) {
+                // Scrolling down past 120px — hide header
+                stickyHeader.classList.add('header-hidden');
+              } else {
+                // Scrolling up — show header
+                stickyHeader.classList.remove('header-hidden');
+              }
+              lastScrollY = currentScrollY;
+            }
+            scrollTicking = false;
+          });
+          scrollTicking = true;
+        }
+      }, { passive: true });
+
+      // [OPT 4] Shorter search placeholder on mobile
+      const searchInput = document.getElementById('search');
+      function updateSearchPlaceholder() {
+        if (searchInput) {
+          searchInput.placeholder = window.innerWidth <= 768 ? 'Search...' : 'Search movies, TV, people...';
+        }
+      }
+      updateSearchPlaceholder();
+      window.addEventListener('resize', updateSearchPlaceholder);
     });
 
     // Observe hero updates
