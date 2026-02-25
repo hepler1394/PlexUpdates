@@ -64,6 +64,40 @@
       --nav-height: 65px;
     }
 
+    /* Global Yellow Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #e6a817;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-close-btn {
+        display: flex !important;
+        margin-top: -5px;
+        padding-bottom: 5px;
+        justify-content: center;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .mobile-close-btn {
+        display: none !important;
+      }
+    }
+
     body.light-mode {
       --bg-primary: #f0f2f5;
       --bg-secondary: #ffffff;
@@ -120,7 +154,7 @@
       width: var(--sidebar-width);
       height: 100vh;
       z-index: 1000;
-      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      border-right: 1px solid var(--accent);
       overflow-y: auto;
       transition: transform 0.3s ease;
       transform: translateX(0);
@@ -2032,11 +2066,11 @@
 
     <!-- UNIFIED STICKY HEADER -->
     <div class="sticky-header"
-      style="background: rgba(22, 22, 31, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 10px 20px; display: flex; flex-direction: column; gap: 15px;">
+      style="background: rgba(22, 22, 31, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--accent); padding: 8px 15px; display: flex; flex-direction: column; gap: 5px;">
 
       <!-- ROW 1: BRANDING & SEARCH -->
       <div class="header-main-row"
-        style="padding:15px 20px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+        style="padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
 
         <!-- BRAND -->
         <div class="brand-area" style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
@@ -2114,179 +2148,186 @@
           </button>
         </div>
       </div>
+      <!-- Context Filters Row (Movies) -->
+      <div class="controls-bar" id="controls-movies" style="display:none;">
+        <div class="header-title" id="movie-header"
+          style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
+          Trending Movies</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+
+        <!-- Filters Container (Scrollable horizontally on mobile) -->
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <select id="movie-genre" class="control-select">
+            <option value="">All Genres</option>
+            <option value="28">Action</option>
+            <option value="12">Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="18">Drama</option>
+            <option value="10751">Family</option>
+            <option value="14">Fantasy</option>
+            <option value="27">Horror</option>
+            <option value="9648">Mystery</option>
+            <option value="10749">Romance</option>
+            <option value="878">Sci-Fi</option>
+            <option value="53">Thriller</option>
+          </select>
+          <select id="movie-rating-filter" class="control-select">
+            <option value="all">Any Rating</option>
+            <option value="high">High (8+)</option>
+            <option value="mid">Mid (6-8)</option>
+            <option value="low">Low (&lt;6)</option>
+          </select>
+          <select id="movie-year-filter" class="control-select">
+            <option value="all">Any Year</option>
+            <option value="2024">2024</option>
+            <option value="2020">2020-2023</option>
+            <option value="2010">2010s</option>
+            <option value="2000">2000s</option>
+            <option value="classic">Classic</option>
+          </select>
+        </div>
+
+        <div style="flex-grow:1; min-width:10px;"></div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <select id="movie-runtime-filter" class="control-select flex-shrink-0">
+            <option value="all">Any Length</option>
+            <option value="short">&lt; 90m</option>
+            <option value="medium">90-120m</option>
+            <option value="long">&gt; 120m</option>
+          </select>
+          <select id="movie-votes-filter" class="control-select">
+            <option value="all">Any Votes</option>
+            <option value="popular">Popular</option>
+            <option value="niche">Niche</option>
+          </select>
+          <select id="movie-sort" class="control-select">
+            <option value="trending">Trending</option>
+            <option value="rating">Top Rated</option>
+            <option value="year">Newest</option>
+            <option value="title">A-Z</option>
+          </select>
+          <button class="control-btn" onclick="clearMovieFilters()"><i class="fa-solid fa-filter-circle-xmark"></i>
+            Clear</button>
+          <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i></button>
+        </div>
+
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+        <button class="control-btn admin-only"
+          onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
+          title="Search Pirate Bay" style="display:none;">
+          <i class="fa-solid fa-magnet"></i> <span class="desktop-only">TPB</span>
+        </button>
+        <button class="control-btn admin-only"
+          onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
+          title="Search 1337x" style="display:none;">
+          <i class="fa-solid fa-download"></i> <span class="desktop-only">1337x</span>
+        </button>
+      </div>
+
+      <!-- Context Filters Row (TV) -->
+      <div class="controls-bar" id="controls-tv" style="display:none;">
+        <div class="header-title" id="tv-header"
+          style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap; flex-shrink:0;"><i
+            class="fa-solid fa-fire"></i>
+          Trending TV</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px; flex-shrink:0;"></div>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="tv-genre" class="control-select flex-shrink-0">
+            <option value="">All Genres</option>
+            <option value="10759">Action & Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="18">Drama</option>
+            <option value="9648">Mystery</option>
+            <option value="10765">Sci-Fi & Fantasy</option>
+          </select>
+        </div>
+
+        <div style="flex-grow:1; min-width:10px;"></div>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="tv-sort" class="control-select flex-shrink-0">
+            <option value="trending">Trending</option>
+            <option value="rating">Top Rated</option>
+            <option value="year">Newest</option>
+            <option value="title">A-Z</option>
+          </select>
+          <button class="control-btn flex-shrink-0" onclick="forceRefreshTV()"><i
+              class="fa-solid fa-rotate"></i></button>
+        </div>
+
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+        <button class="control-btn admin-only"
+          onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
+          title="Search Pirate Bay" style="display:none;">
+          <i class="fa-solid fa-magnet"></i> <span class="desktop-only">TPB</span>
+        </button>
+        <button class="control-btn admin-only"
+          onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
+          title="Search 1337x" style="display:none;">
+          <i class="fa-solid fa-download"></i> <span class="desktop-only">1337x</span>
+        </button>
+      </div>
+
+      <!-- Context Filters Row (Coming Soon) -->
+      <div class="controls-bar" id="controls-coming" style="display:none;">
+        <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
+            class="fa-solid fa-calendar-days"></i> Coming Soon</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+        <button class="control-btn" onclick="fetchComingSoon()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
+
+      <!-- Context Filters Row (Requests) -->
+      <div class="controls-bar" id="controls-requests" style="display:none;">
+        <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
+            class="fa-solid fa-list-check"></i> Requests</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+
+        <button class="control-btn" onclick="toggleSelectMode()">
+          <i class="fa-solid fa-check-square"></i> Select Mode
+        </button>
+
+        <div id="bulk-actions" style="display:none; gap:10px;">
+          <button class="control-btn" onclick="toggleSelectAll()" style="font-size:0.9rem;">
+            <i class="fa-solid fa-check-double"></i> All
+          </button>
+          <button id="btn-bulk-delete" class="control-btn" onclick="bulkDelete()"
+            style="background:var(--accent); color:white; display:none;">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+          <button id="btn-bulk-request" class="control-btn" onclick="bulkRequest()"
+            style="background:var(--green); color:white; display:none;">
+            <i class="fa-solid fa-plus"></i> Request
+          </button>
+        </div>
+
+        <div style="flex-grow:1;"></div>
+        <button class="control-btn" onclick="renderRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
+
+      <!-- Context Filters Row (Tracking) -->
+      <div class="controls-bar" id="controls-tracking" style="display:none;">
+        <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
+            class="fa-solid fa-eye"></i> Tracked Shows</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+        <button class="control-btn" onclick="showAddShowModal()"><i class="fa-solid fa-plus"></i> Add Show</button>
+        <div style="flex-grow:1;"></div>
+        <button class="control-btn" onclick="checkForNewEpisodes()"><i class="fa-solid fa-rotate"></i> Check
+          Episodes</button>
+      </div>
+
+      <!-- Close Header Button (Mobile) -->
+      <div class="mobile-close-btn" style="width:100%; cursor:pointer;"
+        onclick="document.querySelector('.sticky-header').classList.add('header-hidden'); document.getElementById('header-pull-handle').style.display='flex';">
+        <i class="fa-solid fa-chevron-up" style="color:rgba(255,255,255,0.4); font-size:1.4rem;"></i>
+      </div>
+
     </div>
     <!-- END STICKY HEADER -->
-
-    <!-- Context Filters Row (Movies) -->
-    <div class="controls-bar" id="controls-movies" style="display:none;">
-      <div class="header-title" id="movie-header"
-        style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
-        Trending Movies</div>
-      <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-
-      <!-- Filters Container (Scrollable horizontally on mobile) -->
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-        <select id="movie-genre" class="control-select">
-          <option value="">All Genres</option>
-          <option value="28">Action</option>
-          <option value="12">Adventure</option>
-          <option value="16">Animation</option>
-          <option value="35">Comedy</option>
-          <option value="80">Crime</option>
-          <option value="18">Drama</option>
-          <option value="10751">Family</option>
-          <option value="14">Fantasy</option>
-          <option value="27">Horror</option>
-          <option value="9648">Mystery</option>
-          <option value="10749">Romance</option>
-          <option value="878">Sci-Fi</option>
-          <option value="53">Thriller</option>
-        </select>
-        <select id="movie-rating-filter" class="control-select">
-          <option value="all">Any Rating</option>
-          <option value="high">High (8+)</option>
-          <option value="mid">Mid (6-8)</option>
-          <option value="low">Low (&lt;6)</option>
-        </select>
-        <select id="movie-year-filter" class="control-select">
-          <option value="all">Any Year</option>
-          <option value="2024">2024</option>
-          <option value="2020">2020-2023</option>
-          <option value="2010">2010s</option>
-          <option value="2000">2000s</option>
-          <option value="classic">Classic</option>
-        </select>
-      </div>
-
-      <div style="flex-grow:1; min-width:10px;"></div>
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-        <select id="movie-runtime-filter" class="control-select flex-shrink-0">
-          <option value="all">Any Length</option>
-          <option value="short">&lt; 90m</option>
-          <option value="medium">90-120m</option>
-          <option value="long">&gt; 120m</option>
-        </select>
-        <select id="movie-votes-filter" class="control-select">
-          <option value="all">Any Votes</option>
-          <option value="popular">Popular</option>
-          <option value="niche">Niche</option>
-        </select>
-        <select id="movie-sort" class="control-select">
-          <option value="trending">Trending</option>
-          <option value="rating">Top Rated</option>
-          <option value="year">Newest</option>
-          <option value="title">A-Z</option>
-        </select>
-        <button class="control-btn" onclick="clearMovieFilters()"><i class="fa-solid fa-filter-circle-xmark"></i>
-          Clear</button>
-        <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i></button>
-      </div>
-
-      <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-      <button class="control-btn admin-only"
-        onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
-        title="Search Pirate Bay" style="display:none;">
-        <i class="fa-solid fa-magnet"></i> <span class="desktop-only">TPB</span>
-      </button>
-      <button class="control-btn admin-only"
-        onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
-        title="Search 1337x" style="display:none;">
-        <i class="fa-solid fa-download"></i> <span class="desktop-only">1337x</span>
-      </button>
-    </div>
-
-    <!-- Context Filters Row (TV) -->
-    <div class="controls-bar" id="controls-tv" style="display:none;">
-      <div class="header-title" id="tv-header"
-        style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap; flex-shrink:0;"><i
-          class="fa-solid fa-fire"></i>
-        Trending TV</div>
-      <div style="height:20px; width:1px; background:var(--border); margin:0 5px; flex-shrink:0;"></div>
-
-      <div style="display:flex; gap:10px; align-items:center;">
-        <select id="tv-genre" class="control-select flex-shrink-0">
-          <option value="">All Genres</option>
-          <option value="10759">Action & Adventure</option>
-          <option value="16">Animation</option>
-          <option value="35">Comedy</option>
-          <option value="80">Crime</option>
-          <option value="18">Drama</option>
-          <option value="9648">Mystery</option>
-          <option value="10765">Sci-Fi & Fantasy</option>
-        </select>
-      </div>
-
-      <div style="flex-grow:1; min-width:10px;"></div>
-
-      <div style="display:flex; gap:10px; align-items:center;">
-        <select id="tv-sort" class="control-select flex-shrink-0">
-          <option value="trending">Trending</option>
-          <option value="rating">Top Rated</option>
-          <option value="year">Newest</option>
-          <option value="title">A-Z</option>
-        </select>
-        <button class="control-btn flex-shrink-0" onclick="forceRefreshTV()"><i class="fa-solid fa-rotate"></i></button>
-      </div>
-
-      <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-      <button class="control-btn admin-only"
-        onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
-        title="Search Pirate Bay" style="display:none;">
-        <i class="fa-solid fa-magnet"></i> <span class="desktop-only">TPB</span>
-      </button>
-      <button class="control-btn admin-only"
-        onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
-        title="Search 1337x" style="display:none;">
-        <i class="fa-solid fa-download"></i> <span class="desktop-only">1337x</span>
-      </button>
-    </div>
-
-    <!-- Context Filters Row (Coming Soon) -->
-    <div class="controls-bar" id="controls-coming" style="display:none;">
-      <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
-          class="fa-solid fa-calendar-days"></i> Coming Soon</div>
-      <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-      <button class="control-btn" onclick="fetchComingSoon()"><i class="fa-solid fa-rotate"></i> Refresh</button>
-    </div>
-
-    <!-- Context Filters Row (Requests) -->
-    <div class="controls-bar" id="controls-requests" style="display:none;">
-      <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
-          class="fa-solid fa-list-check"></i> Requests</div>
-      <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-
-      <button class="control-btn" onclick="toggleSelectMode()">
-        <i class="fa-solid fa-check-square"></i> Select Mode
-      </button>
-
-      <div id="bulk-actions" style="display:none; gap:10px;">
-        <button class="control-btn" onclick="toggleSelectAll()" style="font-size:0.9rem;">
-          <i class="fa-solid fa-check-double"></i> All
-        </button>
-        <button id="btn-bulk-delete" class="control-btn" onclick="bulkDelete()"
-          style="background:var(--accent); color:white; display:none;">
-          <i class="fa-solid fa-trash"></i> Delete
-        </button>
-        <button id="btn-bulk-request" class="control-btn" onclick="bulkRequest()"
-          style="background:var(--green); color:white; display:none;">
-          <i class="fa-solid fa-plus"></i> Request
-        </button>
-      </div>
-
-      <div style="flex-grow:1;"></div>
-      <button class="control-btn" onclick="renderRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button>
-    </div>
-
-    <!-- Context Filters Row (Tracking) -->
-    <div class="controls-bar" id="controls-tracking" style="display:none;">
-      <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
-          class="fa-solid fa-eye"></i> Tracked Shows</div>
-      <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-      <button class="control-btn" onclick="showAddShowModal()"><i class="fa-solid fa-plus"></i> Add Show</button>
-      <div style="flex-grow:1;"></div>
-      <button class="control-btn" onclick="checkForNewEpisodes()"><i class="fa-solid fa-rotate"></i> Check
-        Episodes</button>
-    </div>
 
     <!-- HERO SECTION (Dynamic) -->
     <div id="hero-section" style="display:none;">
@@ -3647,6 +3688,12 @@
     searchForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       document.getElementById('search').blur();
+
+      const stickyHeader = document.querySelector('.sticky-header');
+      if (stickyHeader) stickyHeader.classList.add('header-hidden');
+      const pullHandle = document.getElementById('header-pull-handle');
+      if (pullHandle) pullHandle.style.display = 'flex';
+
       window.scrollToGrid();
       document.getElementById('search').dispatchEvent(new Event('input'));
     });
