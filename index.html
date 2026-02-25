@@ -62,7 +62,8 @@
       /* Keep netflix red for delete actions */
       --sidebar-width: 260px;
       --nav-height: 65px;
-      --bottom-nav-height: 60px;
+      --bottom-nav-height: 70px;
+      /* Increased for better touch targets */
     }
 
     /* GLOBAL MOBILE UX OVERRIDES */
@@ -420,13 +421,16 @@
     .controls-bar {
       display: flex;
       gap: 12px;
-      padding: 10px 20px;
+      padding: 5px 20px;
+      /* Reduced vertical padding */
       background: transparent;
       align-items: center;
       position: relative;
       z-index: 900;
       overflow-x: auto;
       scrollbar-width: none;
+      min-height: 60px;
+      /* Ensure consistent height */
     }
 
     .controls-bar::-webkit-scrollbar {
@@ -447,10 +451,14 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      flex-shrink: 0;
       white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.2s;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      transition: all 0.2s ease;
+    }
+
+    .control-btn:active {
+      transform: scale(0.95);
     }
 
     .control-btn:hover,
@@ -1287,12 +1295,26 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         color: var(--text-muted);
-        font-size: 0.7rem;
+        font-size: 0.65rem;
+        /* Slightly smaller to prevent wrapping */
         font-weight: 600;
         text-decoration: none;
-        gap: 4px;
-        padding: 8px;
+        gap: 2px;
+        flex: 1;
+        min-width: 0;
+        /* Allow shrinking */
+        height: 100%;
+        transition: color 0.2s, transform 0.1s;
+      }
+
+      .bottom-nav-item span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        text-align: center;
       }
 
       .bottom-nav-item.active {
@@ -1300,7 +1322,7 @@
       }
 
       .bottom-nav-item i {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
       }
 
       .fab-search {
@@ -1330,7 +1352,9 @@
         display: flex;
       }
 
-      .sidebar-toggle-btn {
+      .sidebar-toggle-btn,
+      #header-pull-handle,
+      .mobile-close-btn {
         display: none !important;
       }
 
@@ -1350,11 +1374,16 @@
 
       .sticky-header {
         position: sticky;
-        top: -20px;
-        margin: -20px -20px 20px -20px;
-        padding-top: 20px;
-        z-index: 900;
+        top: 0;
+        margin: 0;
+        z-index: 1100;
+        /* Above hero and sidebar toggles */
         transition: transform 0.3s ease;
+      }
+
+      .hero-section {
+        margin-top: 20px;
+        /* Give space for the header */
       }
 
       .header-main-row {
@@ -1371,9 +1400,12 @@
       /* --- Mobile Micro-Interactions & Resets --- */
       * {
         scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
       }
 
       *::-webkit-scrollbar {
+        width: 0 !important;
+        height: 0 !important;
         display: none !important;
       }
 
@@ -2175,9 +2207,10 @@
     </div>
 
     <!-- PULL DOWN HANDLE (Mobile) -->
-    <div id="header-pull-handle" onclick="document.querySelector('.sticky-header').classList.remove('header-hidden')"
-      style="display:none; position:fixed; top:0; left:50%; transform:translateX(-50%); width:60px; height:24px; background:rgba(22,22,31,0.95); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1); border-top:none; border-radius:0 0 12px 12px; z-index:901; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.5);">
-      <div style="width:24px; height:4px; background:rgba(255,255,255,0.4); border-radius:2px;"></div>
+    <div id="header-pull-handle"
+      style="display:none; position:fixed; top:0; left:50%; transform:translateX(-50%); z-index:2000; background:var(--accent); color:white; padding:5px 20px; border-radius:0 0 15px 15px; cursor:pointer; font-size:1.2rem; box-shadow:0 4px 10px rgba(0,0,0,0.3);"
+      onclick="document.querySelector('.sticky-header').classList.remove('header-hidden'); this.style.display='none';">
+      <i class="fa-solid fa-chevron-down"></i>
     </div>
 
     <!-- UNIFIED STICKY HEADER -->
@@ -2252,10 +2285,10 @@
           <span class="desktop-only" onclick="window.scrollToTop()" style="cursor:pointer;">
             <i class="fa-solid fa-arrow-up"></i> Top
           </span>
-          <!-- Admin Button (visible only to admin) -->
-          <button class="control-btn admin-only" onclick="window.openAdminPanel()" title="Admin Dashboard"
-            style="display:none; padding:8px 12px; color:var(--accent);">
-            <i class="fa-solid fa-shield-halved"></i>
+          <!-- Admin Control Button (Dedicated) -->
+          <button class="control-btn admin-only" onclick="window.openAdminPanel()" title="Admin Controllers"
+            style="display:none; padding:8px 12px; color:var(--accent); background:rgba(229,160,13,0.1); border-color:var(--accent);">
+            <i class="fa-solid fa-toolbox"></i>
           </button>
           <!-- Header Auth Button -->
           <button class="header-user-btn" id="header-auth-btn" onclick="window.headerAuthAction()">
@@ -2268,11 +2301,11 @@
       <div class="controls-bar" id="controls-movies" style="display:none;">
         <div class="header-title" id="movie-header"
           style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
-          Trending Movies</div>
+          Trending</div>
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
 
-        <!-- Filters Container (Scrollable horizontally on mobile) -->
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <div
+          style="display:flex; gap:8px; align-items:center; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-right:10px;">
           <select id="movie-genre" class="control-select">
             <option value="">All Genres</option>
             <option value="28">Action</option>
@@ -2303,11 +2336,7 @@
             <option value="2000">2000s</option>
             <option value="classic">Classic</option>
           </select>
-        </div>
-
-        <div style="flex-grow:1; min-width:10px;"></div>
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <select id="movie-runtime-filter" class="control-select flex-shrink-0">
+          <select id="movie-runtime-filter" class="control-select">
             <option value="all">Any Length</option>
             <option value="short">&lt; 90m</option>
             <option value="medium">90-120m</option>
@@ -2324,22 +2353,23 @@
             <option value="year">Newest</option>
             <option value="title">A-Z</option>
           </select>
-          <button class="control-btn" onclick="clearMovieFilters()"><i class="fa-solid fa-filter-circle-xmark"></i>
-            Clear</button>
-          <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i></button>
-        </div>
+          <button class="control-btn" onclick="clearMovieFilters()" title="Clear Filters"><i
+              class="fa-solid fa-filter-circle-xmark"></i></button>
+          <button class="control-btn" onclick="forceRefreshMovies()" title="Refresh"><i
+              class="fa-solid fa-rotate"></i></button>
 
-        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-        <button class="control-btn admin-only"
-          onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
-          title="Search Pirate Bay" style="display:none;">
-          <i class="fa-solid fa-magnet"></i> <span class="desktop-only">TPB</span>
-        </button>
-        <button class="control-btn admin-only"
-          onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
-          title="Search 1337x" style="display:none;">
-          <i class="fa-solid fa-download"></i> <span class="desktop-only">1337x</span>
-        </button>
+          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+          <button class="control-btn admin-only"
+            onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
+            title="Search Pirate Bay" style="display:none;">
+            <i class="fa-solid fa-magnet"></i>
+          </button>
+          <button class="control-btn admin-only"
+            onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
+            title="Search 1337x" style="display:none;">
+            <i class="fa-solid fa-download"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Context Filters Row (TV) -->
@@ -2347,11 +2377,12 @@
         <div class="header-title" id="tv-header"
           style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap; flex-shrink:0;"><i
             class="fa-solid fa-fire"></i>
-          Trending TV</div>
+          Trending</div>
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px; flex-shrink:0;"></div>
 
-        <div style="display:flex; gap:10px; align-items:center;">
-          <select id="tv-genre" class="control-select flex-shrink-0">
+        <div
+          style="display:flex; gap:8px; align-items:center; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-right:10px;">
+          <select id="tv-genre" class="control-select">
             <option value="">All Genres</option>
             <option value="10759">Action & Adventure</option>
             <option value="16">Animation</option>
@@ -2361,32 +2392,27 @@
             <option value="9648">Mystery</option>
             <option value="10765">Sci-Fi & Fantasy</option>
           </select>
-        </div>
-
-        <div style="flex-grow:1; min-width:10px;"></div>
-
-        <div style="display:flex; gap:10px; align-items:center;">
-          <select id="tv-sort" class="control-select flex-shrink-0">
+          <select id="tv-sort" class="control-select">
             <option value="trending">Trending</option>
             <option value="rating">Top Rated</option>
             <option value="year">Newest</option>
             <option value="title">A-Z</option>
           </select>
-          <button class="control-btn flex-shrink-0" onclick="forceRefreshTV()"><i
+          <button class="control-btn" onclick="forceRefreshTV()" title="Refresh"><i
               class="fa-solid fa-rotate"></i></button>
-        </div>
 
-        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-        <button class="control-btn admin-only"
-          onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
-          title="Search Pirate Bay" style="display:none;">
-          <i class="fa-solid fa-magnet"></i> <span class="desktop-only">TPB</span>
-        </button>
-        <button class="control-btn admin-only"
-          onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
-          title="Search 1337x" style="display:none;">
-          <i class="fa-solid fa-download"></i> <span class="desktop-only">1337x</span>
-        </button>
+          <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
+          <button class="control-btn admin-only"
+            onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
+            title="Search Pirate Bay" style="display:none;">
+            <i class="fa-solid fa-magnet"></i>
+          </button>
+          <button class="control-btn admin-only"
+            onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
+            title="Search 1337x" style="display:none;">
+            <i class="fa-solid fa-download"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Context Filters Row (Coming Soon) -->
@@ -2437,9 +2463,12 @@
       </div>
 
       <!-- Close Header Button (Mobile) -->
-      <div class="mobile-close-btn" style="width:100%; cursor:pointer;"
-        onclick="document.querySelector('.sticky-header').classList.add('header-hidden'); document.getElementById('header-pull-handle').style.display='flex';">
-        <i class="fa-solid fa-chevron-up" style="color:rgba(255,255,255,0.4); font-size:1.4rem;"></i>
+      <div
+        style="display: flex; justify-content: center; width: 100%; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 5px; margin-top: 5px;">
+        <div style="cursor:pointer; padding: 5px 40px; color: var(--text-muted);"
+          onclick="document.querySelector('.sticky-header').classList.add('header-hidden'); document.getElementById('header-pull-handle').style.display='flex';">
+          <i class="fa-solid fa-chevron-up"></i>
+        </div>
       </div>
 
     </div>
@@ -2573,6 +2602,24 @@
 
         <!-- Signed-in personal/global content -->
         <div id="home-global-section" style="display:none;">
+
+          <!-- My Playlists Home Section -->
+          <div id="home-playlists-section" style="display:none; margin-bottom:25px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h3
+                style="margin:0; font-size:1rem; font-weight:700; color:white; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-bookmark" style="color:var(--accent);"></i> My Playlists
+              </h3>
+              <button onclick="window.createPlaylist()"
+                style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.82rem; font-weight:600;">+
+                New</button>
+            </div>
+            <div id="home-playlists-list"
+              style="display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; scrollbar-width:none;">
+              <!-- Playlists rendered here -->
+            </div>
+          </div>
+
           <div id="home-personal-section" style="display:none;margin-bottom:25px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
               <h3 style="margin:0;font-size:1rem;font-weight:700;color:white;display:flex;align-items:center;gap:8px;">
@@ -2645,6 +2692,20 @@
         <div class="skeleton-card"></div>
         <div class="skeleton-card"></div>
         <div class="skeleton-card"></div>
+      </div>
+    </div>
+
+    <!-- WATCH LATER (PLAYLIST) TAB -->
+    <div id="view-playlist" class="view-section">
+      <div
+        style="padding: 20px; text-align: center; background: rgba(229, 160, 13, 0.05); border: 1px dashed rgba(229, 160, 13, 0.3); border-radius: 16px; margin-bottom: 30px;">
+        <i class="fa-solid fa-bookmark"
+          style="font-size: 2.5rem; color: var(--accent); margin-bottom: 10px; display: block;"></i>
+        <h2 style="margin-bottom: 5px;">My Watch Later</h2>
+        <p style="color: var(--text-muted);">Save movies and TV shows to watch them later.</p>
+      </div>
+      <div class="movie-grid" id="grid-playlist">
+        <p style="grid-column: 1/-1; text-align: center; color: gray; padding: 40px;">Your playlist is empty.</p>
       </div>
     </div>
 
@@ -3140,7 +3201,7 @@
     const ADMIN_IP = '136.35.132.12';
 
     function isAdmin() {
-      return currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      return isHomeNetwork || (currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
     }
 
     window.messageAllUsers = async () => {
@@ -3213,34 +3274,223 @@
     };
 
     let userWatchedListener = null;
-    let userWatched = [];
+    let isHomeNetwork = false;
+    let userPlaylist = []; // Legacy / default playlist
+    let userPlaylists = []; // Future multi-playlist support
 
     // Listen for auth state changes
     onAuthStateChanged(auth, (user) => {
       updateAuthUI(user);
-      // Show/hide admin button based on role
-      const adminBtns = document.querySelectorAll('.admin-only');
-      if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-        adminBtns.forEach(b => b.style.display = '');
-      } else {
-        adminBtns.forEach(b => b.style.display = 'none');
-      }
+      currentUser = user;
 
-      // Watch history listener
+      const updateAdminUI = () => {
+        const adminBtns = document.querySelectorAll('.admin-only');
+        const isAdminUser = isHomeNetwork || (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+        adminBtns.forEach(b => b.style.display = isAdminUser ? '' : 'none');
+      };
+
+      updateAdminUI();
+
+      // Sync listeners
       if (userWatchedListener) userWatchedListener();
       if (user) {
+        checkUserOnboarding(user);
         userWatchedListener = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
           if (docSnap.exists()) {
             userWatched = docSnap.data().watchedHistory || [];
+            userPlaylist = docSnap.data().playlist || [];
+            userPlaylists = docSnap.data().playlists || [{ name: 'Watch Later', items: userPlaylist }];
+            if (currentTab === 'playlist') renderPlaylist();
           } else {
             userWatched = [];
+            userPlaylist = [];
+            userPlaylists = [{ name: 'Watch Later', items: [] }];
           }
           if (currentTab === 'collections') renderCollections();
+          // Always refresh grid to show updated bookmark state
+          if (currentTab === 'movies') renderGrid(currentMovies, 'grid-movies');
+          if (currentTab === 'tvshows') renderGrid(currentTVShows, 'grid-tvshows');
+          updateAdminUI();
         });
       } else {
         userWatched = [];
+        userPlaylist = [];
+        userPlaylists = [];
+        if (currentTab === 'playlist') renderPlaylist();
+        updateAdminUI();
       }
     });
+
+    // Onboarding modal logic
+    async function checkUserOnboarding(user) {
+      if (!user) return;
+      try {
+        const docSnap = await getDoc(doc(db, "users", user.uid));
+        if (!docSnap.exists() || !docSnap.data().displayName) {
+          document.getElementById('onboarding-overlay').classList.add('open');
+        }
+      } catch (e) { console.error("Onboarding check failed", e); }
+    }
+
+    window.saveOnboarding = async () => {
+      const username = document.getElementById('onboarding-username').value.trim();
+      if (!username) { showToast("Please enter a username", "error"); return; }
+
+      const fileInput = document.getElementById('onboarding-avatar-upload');
+      let photoURL = currentUser.photoURL || '';
+
+      try {
+        // If they uploaded a file, we should handle upload to storage. 
+        // For now, let's just save the username to Firestore.
+        await setDoc(doc(db, "users", currentUser.uid), {
+          displayName: username,
+          email: currentUser.email,
+          photoURL: photoURL,
+          lastLogin: Date.now()
+        }, { merge: true });
+
+        document.getElementById('onboarding-overlay').classList.remove('open');
+        showToast("Profile completed!", "success");
+        // Reload to update UI
+        location.reload();
+      } catch (e) {
+        console.error("Onboarding error", e);
+        showToast("Error saving profile", "error");
+      }
+    };
+
+    function renderPlaylist(playlistName = 'Watch Later') {
+      const grid = document.getElementById('grid-playlist');
+      if (!grid) return;
+
+      if (!currentUser) {
+        grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">Sign in to view your playlists.</p>`;
+        return;
+      }
+
+      const activePlaylist = userPlaylists.find(p => p.name === playlistName) || userPlaylists[0];
+      const items = activePlaylist ? activePlaylist.items : [];
+
+      // Add Playlist Manager UI at top of section
+      const managerHtml = `
+        <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; padding-bottom:10px; scrollbar-width:none;">
+          ${userPlaylists.map(p => `
+            <button class="control-btn ${p.name === playlistName ? 'active' : ''}" 
+                    style="background:${p.name === playlistName ? 'var(--accent)' : 'rgba(255,255,255,0.05)'}; color:${p.name === playlistName ? 'white' : 'var(--text-muted)'}; padding:8px 16px; border-color:${p.name === playlistName ? 'var(--accent)' : 'var(--border)'}"
+                    onclick="renderPlaylist('${p.name}')">
+              ${p.name}
+            </button>
+          `).join('')}
+          <button class="control-btn" style="background:rgba(255,255,255,0.1); padding:8px 16px;" onclick="window.createPlaylist()">
+            <i class="fa-solid fa-plus"></i> New Playlist
+          </button>
+        </div>
+      `;
+
+      grid.innerHTML = managerHtml;
+
+      if (items.length === 0) {
+        grid.innerHTML += `<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">This playlist is empty.</p>`;
+        return;
+      }
+
+      // We need a way to render items into the grid but after the manager
+      const itemContainer = document.createElement('div');
+      itemContainer.className = 'movie-grid';
+      itemContainer.id = 'playlist-item-container';
+      grid.appendChild(itemContainer);
+
+      renderGrid([...items].sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0)), 'playlist-item-container');
+    }
+
+    window.createPlaylist = async () => {
+      const name = prompt("Enter playlist name:");
+      if (!name) return;
+      if (userPlaylists.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+        showToast("Playlist already exists!", "error");
+        return;
+      }
+
+      try {
+        const newUserPlaylists = [...userPlaylists, { name, items: [] }];
+        await updateDoc(doc(db, "users", currentUser.uid), { playlists: newUserPlaylists });
+        showToast("Playlist created!", "success");
+        if (currentTab === 'home') renderHomeRequests();
+        if (currentTab === 'playlist') renderPlaylist(name);
+      } catch (e) { console.error(e); showToast("Failed to create playlist", "error"); }
+    };
+
+    window.deletePlaylist = async (name) => {
+      if (name === 'Watch Later') {
+        showToast("Cannot delete default playlist", "error");
+        return;
+      }
+      if (!confirm(`Are you sure you want to delete the playlist "${name}"?`)) return;
+
+      try {
+        const newUserPlaylists = userPlaylists.filter(p => p.name !== name);
+        await updateDoc(doc(db, "users", currentUser.uid), { playlists: newUserPlaylists });
+        showToast("Playlist deleted", "info");
+        if (currentTab === 'home') renderHomeRequests();
+        if (currentTab === 'playlist') renderPlaylist();
+      } catch (e) { console.error(e); showToast("Failed to delete", "error"); }
+    };
+
+    window.openPlaylistManager = (itemObj) => {
+      if (!currentUser) { showToast("Sign in to save for later", "info"); return; }
+      const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
+      const overlay = document.getElementById('detail-overlay');
+
+      overlay.innerHTML = `
+        <div class="modal" style="max-width: 400px; padding: 30px;">
+          <h2 style="margin-bottom:20px;">Add to Playlist</h2>
+          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+            ${userPlaylists.map(p => {
+        const inPlaylist = p.items.find(i => i.id === item.id);
+        return `
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.05); border-radius:10px;">
+                  <span>${p.name}</span>
+                  <button class="torrent-btn" style="width: auto; height:auto; padding:5px 15px; background:${inPlaylist ? 'var(--blue)' : 'var(--accent)'};" 
+                          onclick="window.toggleInPlaylist('${p.name}', ${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                    ${inPlaylist ? '<i class="fa-solid fa-check"></i> Added' : 'Add'}
+                  </button>
+                </div>
+              `;
+      }).join('')}
+          </div>
+          <button class="torrent-btn" style="background:#333; width:100%;" onclick="overlay.classList.remove('open')">Close</button>
+        </div>
+      `;
+      overlay.classList.add('open');
+    };
+
+    window.toggleInPlaylist = async (playlistName, item) => {
+      const playlist = userPlaylists.find(p => p.name === playlistName);
+      if (!playlist) return;
+
+      const isSaved = playlist.items.find(i => i.id === item.id);
+      let newPlaylists = [...userPlaylists];
+      const pIndex = newPlaylists.findIndex(p => p.name === playlistName);
+
+      if (isSaved) {
+        newPlaylists[pIndex].items = playlist.items.filter(i => i.id !== item.id);
+        showToast(`Removed from ${playlistName}`, "info");
+      } else {
+        // Check for duplicates before adding
+        if (!playlist.items.find(i => i.id === item.id)) {
+          newPlaylists[pIndex].items = [...playlist.items, { ...item, addedAt: Date.now() }];
+          showToast(`Added to ${playlistName}`, "success");
+          if (navigator.vibrate) navigator.vibrate(50);
+        } else {
+          showToast("Already in playlist!", "info");
+        }
+      }
+
+      try {
+        await updateDoc(doc(db, "users", currentUser.uid), { playlists: newPlaylists, playlist: newPlaylists[0].items }); // Update legacy too
+        window.openPlaylistManager(item); // Refresh modal
+      } catch (e) { console.error(e); showToast("Failed to update", "error"); }
+    };
     let currentMovies = [];
     let currentTVShows = [];
     let currentComingSoon = [];
@@ -3304,9 +3554,29 @@
       });
       document.getElementById('stat-total').innerText = globalRequests.length;
       document.getElementById('stat-avail').innerText = globalRequests.filter(r => r.status === 'added').length;
-      document.getElementById('stat-pending').innerText = globalRequests.filter(r => r.status === 'pending').length;
+      // Home Playlists Section
+      const homePlaylistsContainer = document.getElementById('home-playlists-section');
+      const homePlaylistsList = document.getElementById('home-playlists-list');
 
-      const pendingCount = globalRequests.filter(r => r.status === 'pending').length;
+      if (currentUser && userPlaylists && userPlaylists.length > 0) {
+        if (homePlaylistsContainer) homePlaylistsContainer.style.display = 'block';
+        if (homePlaylistsList) {
+          homePlaylistsList.innerHTML = userPlaylists.map(playlist => `
+            <div style="flex:0 0 160px; background:rgba(30,30,42,0.6); border:1px solid var(--border); border-radius:15px; padding:15px; position:relative; cursor:pointer; transition:transform 0.2s;"
+                 onclick="switchTab('playlist'); renderPlaylist('${playlist.name}');">
+              <i class="fa-solid fa-folder-open" style="font-size:1.8rem; color:var(--accent); margin-bottom:10px; display:block;"></i>
+              <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${playlist.name}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${playlist.items.length} items</div>
+              <button onclick="event.stopPropagation(); window.deletePlaylist('${playlist.name}')" 
+                      style="position:absolute; top:8px; right:8px; background:transparent; border:none; color:var(--text-muted); font-size:0.7rem;">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          `).join('');
+        }
+      } else if (homePlaylistsContainer) {
+        homePlaylistsContainer.style.display = 'none';
+      } const pendingCount = globalRequests.filter(r => r.status === 'pending').length;
       const badges = document.querySelectorAll('#req-count');
       badges.forEach(b => {
         b.innerText = pendingCount;
@@ -3348,11 +3618,11 @@
             const ipRes = await fetch('https://api.ipify.org?format=json');
             const ipData = await ipRes.json();
             if (ipData.ip === ADMIN_IP) {
-              // We can't auto-pass a password securely client-side without a custom token.
-              // We will just show a toast letting them know they are on the home network
-              // but Firebase requires credentials. (Since the user asked to "auto log me in",
-              // we will rely on Firebase's persisted session, which usually keeps them logged in anyway).
+              isHomeNetwork = true;
               showToast('Admin Network Detected.', 'info');
+              // Trigger UI update
+              const adminBtns = document.querySelectorAll('.admin-only');
+              adminBtns.forEach(b => b.style.display = '');
             }
           } catch (e) { console.error('IP check failed', e); }
         }
@@ -4003,6 +4273,22 @@
           <div class="rating-badge"><i class="fa-solid fa-star"></i> ${item.vote_average?.toFixed(1) || 'NR'}</div>
           ${dbEntry?.priority === 'high' ? '<div class="priority-badge"><i class="fa-solid fa-fire"></i> HIGH</div>' : ''}
           ${releaseDateBadge}
+          
+          <!-- Playlist Toggle Button (Top Right) -->
+          <button class="playlist-toggle-btn" 
+                  style="position:absolute; top:10px; right:10px; z-index:10; background:rgba(0,0,0,0.6); backdrop-filter:blur(10px); color:white; border:none; width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: all 0.2s;"
+                  onclick="event.stopPropagation(); window.openPlaylistManager(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+            <i class="fa-solid ${userPlaylist.find(p => p.id === item.id) ? 'fa-bookmark' : 'fa-plus'}" style="color:${userPlaylist.find(p => p.id === item.id) ? 'var(--accent)' : 'white'};"></i>
+          </button>
+          
+          <!-- Admin Delete Button (Top Left) -->
+          ${isAdmin() ? `
+          <button class="admin-delete-btn" 
+                  style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(229,9,20,0.8); color:white; border:none; width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;"
+                  onclick="event.stopPropagation(); window.deleteItem('${item.id}', '${item.mediaType}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+          ` : ''}
         </div>
         <div class="card-content">
           <div class="movie-title">${item.title}</div>
@@ -4047,9 +4333,14 @@
       const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
       const overlay = document.getElementById('detail-overlay');
 
+      // 1. ONE-CLICK REQUEST (If signed in, just do it)
+      if (currentUser) {
+        saveItemFromObject(item, 'pending');
+        return; // Modal not needed
+      }
+
       // If not signed in, prompt to sign in first
-      if (!currentUser) {
-        overlay.innerHTML = `
+      overlay.innerHTML = `
         <div class="modal" style="max-width: 420px; padding: 40px; text-align:center;">
           <i class="fa-solid fa-user-lock" style="font-size:3rem; color:var(--accent); margin-bottom:15px;"></i>
           <h2 style="margin-bottom: 10px;">Sign In to Request</h2>
@@ -4066,32 +4357,6 @@
             Continue without signing in
           </button>
         </div>`;
-        overlay.classList.add('open');
-        return;
-      }
-
-      overlay.innerHTML = `
-      <div class="modal" style="max-width: 500px; padding: 40px;">
-        <h2 style="margin-bottom: 20px;">Request: ${item.title || item.name}</h2>
-        <input type="text" id="requester-name" class="modal-note-input" placeholder="Your name (optional)" style="height: 45px;" value="${currentUser ? (currentUser.displayName || '') : ''}">
-        <textarea id="request-note" class="modal-note-input" placeholder="Add a note or reason for this request (optional)" rows="3"></textarea>
-        <div style="margin-bottom: 15px;">
-          <label style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px; display: block;">Priority Level:</label>
-          <select id="request-priority" class="control-select" style="width: 100%;">
-            <option value="normal">Normal</option>
-            <option value="high">High Priority</option>
-          </select>
-        </div>
-        <div style="display: flex; gap: 10px;">
-          <button class="torrent-btn" style="flex: 1;" onclick="window.submitRequest(${JSON.stringify(item).replace(/"/g, '&quot;')})">
-            <i class="fa-solid fa-paper-plane"></i> Submit Request
-          </button>
-          <button class="torrent-btn" style="background: #333;" onclick="document.getElementById('detail-overlay').classList.remove('open')">
-            Cancel
-          </button>
-        </div>
-      </div>
-    `;
       overlay.classList.add('open');
     };
 
@@ -4234,7 +4499,9 @@
 
       // Update sidebar tab buttons
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      const activeBtn = document.getElementById(`tab-${tabId === 'requests' ? 'downloads' : tabId}`);
+      // Sidebar uses tab-watchlist for the Watch Later tab
+      const tabKey = tabId === 'requests' ? 'downloads' : tabId === 'playlist' ? 'watchlist' : tabId;
+      const activeBtn = document.getElementById(`tab-${tabKey}`);
       if (activeBtn) activeBtn.classList.add('active');
 
       // Update bottom nav
@@ -4247,8 +4514,14 @@
 
       // Update view sections
       document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
-      document.getElementById(`view-${tabId}`).classList.add('active');
+      const targetView = document.getElementById(`view-${tabId}`);
+      if (targetView) targetView.classList.add('active');
 
+      // Auto-scroll to top for smooth transition
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (tabId === 'playlist') renderPlaylist();
+      if (tabId === 'home') renderHomeRequests();
       // Hide hero on non-movie tabs
       const heroSection = document.getElementById('hero-section');
       if (heroSection) heroSection.style.display = tabId === 'movies' ? '' : 'none';
@@ -4788,7 +5061,7 @@
   </script>
 
   <!-- MOBILE PERSISTENT BOTTOM NAV -->
-  <div class="mobile-bottom-nav">
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
     <div class="bottom-nav-item active" onclick="switchTab('home')">
       <i class="fa-solid fa-house"></i>
       <span>Home</span>
@@ -4801,9 +5074,37 @@
       <i class="fa-solid fa-tv"></i>
       <span>TV Shows</span>
     </div>
+    <div class="bottom-nav-item" onclick="switchTab('playlist')">
+      <i class="fa-solid fa-bookmark"></i>
+      <span>Playlist</span>
+    </div>
     <div class="bottom-nav-item" onclick="switchTab('tracking')">
       <i class="fa-solid fa-eye"></i>
       <span>Tracking</span>
+    </div>
+  </nav>
+
+  <!-- PROFILE ONBOARDING MODAL -->
+  <div id="onboarding-overlay" class="overlay">
+    <div class="modal" style="max-width: 450px; padding: 40px; text-align:center;">
+      <div id="onboarding-step-1">
+        <i class="fa-solid fa-user-plus"
+          style="font-size:3rem; color:var(--accent); margin-bottom:15px; display:block;"></i>
+        <h2 style="margin-bottom:10px;">Complete Your Profile</h2>
+        <p style="color:var(--text-secondary); margin-bottom:25px; font-size:0.95rem;">To give you the best experience,
+          we just need a display name.</p>
+        <input type="text" id="onboarding-username" class="modal-note-input" placeholder="Desired Username"
+          style="text-align:center; height:50px; font-size:1.1rem; margin-bottom:20px;">
+        <label for="onboarding-avatar-upload"
+          style="display:block; padding:12px; border:2px dashed var(--border); border-radius:12px; cursor:pointer; margin-bottom:25px; transition:all 0.2s;"
+          onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <i class="fa-solid fa-camera" style="margin-right:8px;"></i> Upload Profile Picture (Optional)
+          <input type="file" id="onboarding-avatar-upload" accept="image/*" style="display:none;">
+        </label>
+        <button class="torrent-btn" style="width:100%; height:50px; font-size:1rem;" onclick="window.saveOnboarding()">
+          Save and Continue
+        </button>
+      </div>
     </div>
   </div>
 
