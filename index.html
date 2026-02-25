@@ -1948,6 +1948,55 @@
   <!-- MAIN CONTENT AREA -->
   <main>
 
+    <!-- GLOBAL MESSAGE BANNER -->
+    <div id="global-message-banner"
+      style="display:none; background: var(--accent); color: white; padding: 12px 40px 12px 20px; text-align: center; font-weight: bold; font-size: 0.95rem; z-index: 9999; box-shadow: 0 4px 15px rgba(229, 160, 13, 0.4); position: relative;">
+      <i class="fa-solid fa-bullhorn" style="margin-right:8px; display:inline-block; animation: ring 4s infinite;"></i>
+      <span id="global-message-text"></span>
+      <button onclick="document.getElementById('global-message-banner').style.display='none'"
+        style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background:transparent; border:none; color:white; font-size: 1.2rem; cursor:pointer; opacity:0.8;"><i
+          class="fa-solid fa-xmark"></i></button>
+      <style>
+        @keyframes ring {
+          0% {
+            transform: rotate(0);
+          }
+
+          5% {
+            transform: rotate(30deg);
+          }
+
+          10% {
+            transform: rotate(-28deg);
+          }
+
+          15% {
+            transform: rotate(34deg);
+          }
+
+          20% {
+            transform: rotate(-32deg);
+          }
+
+          25% {
+            transform: rotate(30deg);
+          }
+
+          30% {
+            transform: rotate(-28deg);
+          }
+
+          35% {
+            transform: rotate(0);
+          }
+
+          100% {
+            transform: rotate(0);
+          }
+        }
+      </style>
+    </div>
+
     <!-- UNIFIED STICKY HEADER -->
     <div class="sticky-header"
       style="background: rgba(22, 22, 31, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 10px 20px; display: flex; flex-direction: column; gap: 15px;">
@@ -2840,11 +2889,19 @@
       return currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
     }
 
-    window.messageAllUsers = () => {
-      const msg = prompt("Enter a message to send to all users (this will send via Firebase or show as an alert next time they log in):");
-      if (msg) {
-        showToast("Message broadcast sent!", "success");
-        // In a full implementation, this could save to a 'messages' collection
+    window.messageAllUsers = async () => {
+      const msg = prompt("Enter a message to send to all users (leave blank to clear the active message):");
+      if (msg !== null) {
+        try {
+          await setDoc(doc(db, 'system', 'global_message'), {
+            text: msg,
+            timestamp: Date.now()
+          });
+          showToast(msg ? "Message broadcast sent!" : "Message cleared.", "success");
+        } catch (e) {
+          console.error("Error sending broadcast:", e);
+          showToast("Failed to send message.", "error");
+        }
       }
     };
 
@@ -2901,6 +2958,9 @@
       }
     };
 
+    let userWatchedListener = null;
+    let userWatched = [];
+
     // Listen for auth state changes
     onAuthStateChanged(auth, (user) => {
       updateAuthUI(user);
@@ -2910,6 +2970,21 @@
         adminBtns.forEach(b => b.style.display = '');
       } else {
         adminBtns.forEach(b => b.style.display = 'none');
+      }
+
+      // Watch history listener
+      if (userWatchedListener) userWatchedListener();
+      if (user) {
+        userWatchedListener = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
+          if (docSnap.exists()) {
+            userWatched = docSnap.data().watchedHistory || [];
+          } else {
+            userWatched = [];
+          }
+          if (currentTab === 'collections') renderCollections();
+        });
+      } else {
+        userWatched = [];
       }
     });
     let currentMovies = [];
@@ -2996,6 +3071,18 @@
       trackedShows = [];
       snapshot.forEach(doc => trackedShows.push({ docId: doc.id, ...doc.data() }));
       renderTrackedShows();
+    });
+
+    // Global message listener
+    onSnapshot(doc(db, "system", "global_message"), (snapshot) => {
+      const banner = document.getElementById('global-message-banner');
+      const textEl = document.getElementById('global-message-text');
+      if (snapshot.exists() && snapshot.data().text && banner && textEl) {
+        textEl.textContent = snapshot.data().text;
+        banner.style.display = 'block';
+      } else if (banner) {
+        banner.style.display = 'none';
+      }
     });
 
     // INITIALIZATION
@@ -4012,10 +4099,14 @@
             <div style="font-size:0.75rem; color:var(--text-muted); margin-top:5px;">
               By: ${item.requester || 'Anonymous'} | ${item.timestamp ? new Date(item.timestamp).toLocaleDateString() : ''}
             </div>
-            <div class="btn-wrapper" style="margin-top:10px;">
+            <div class="btn-wrapper" style="margin-top:10px; flex-wrap:wrap;">
               <button class="btn-card" onclick="event.stopPropagation(); openContextMenu(event, this, ${JSON.stringify(item).replace(/"/g, '&quot;')})" style="background:var(--bg-secondary);">
                 <i class="fa-solid fa-ellipsis-vertical"></i> Actions
               </button>
+              ${gridContainer.id.startsWith('grid-coll') ?
+            `<button class="btn-card" onclick="event.stopPropagation(); window.toggleWatched('${item.id}', '${item.mediaType}')" style="background:${userWatched.includes(item.mediaType + '_' + item.id) ? 'var(--blue)' : 'var(--bg-secondary)'}; color:white; border:none; ${userWatched.includes(item.mediaType + '_' + item.id) ? 'opacity:0.7;' : ''}">
+                  <i class="fa-solid ${userWatched.includes(item.mediaType + '_' + item.id) ? 'fa-eye' : 'fa-eye-slash'}"></i> ${userWatched.includes(item.mediaType + '_' + item.id) ? 'Watched' : 'Mark Watched'}
+                </button>` : ''}
               ${item.status !== 'added' && isAdmin() ?
             `<button class="btn-card" onclick="event.stopPropagation(); window.saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'acknowledged')" style="background:#f39c12; color:white; border:none;">
                 <i class="fa-solid fa-thumbs-up"></i> Ack
@@ -4030,6 +4121,26 @@
         gridContainer.appendChild(card);
       });
     }
+
+    window.toggleWatched = async (id, mediaType) => {
+      if (!currentUser) return;
+      const itemId = `${mediaType}_${id}`;
+      const isWatched = userWatched.includes(itemId);
+      try {
+        const userRef = doc(db, 'users', currentUser.uid);
+        let history = [...userWatched];
+        if (isWatched) {
+          history = history.filter(x => x !== itemId);
+        } else {
+          history.push(itemId);
+        }
+        await updateDoc(userRef, { watchedHistory: history });
+        showToast(isWatched ? "Removed from watched list" : "Marked as watched!", "success");
+      } catch (e) {
+        console.error(e);
+        showToast("Error updating history.", "error");
+      }
+    };
 
     // DETAIL MODAL
     window.openDetail = (item) => {

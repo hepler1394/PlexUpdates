@@ -1,0 +1,2 @@
+origin	https://github.com/hepler1394/PlexUpdates.git (fetch)
+origin	https://github.com/hepler1394/PlexUpdates.git (push)
