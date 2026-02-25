@@ -1297,14 +1297,13 @@
         align-items: center;
         justify-content: center;
         color: var(--text-muted);
-        font-size: 0.65rem;
-        /* Slightly smaller to prevent wrapping */
+        font-size: 0.7rem;
         font-weight: 600;
         text-decoration: none;
-        gap: 2px;
+        gap: 6px;
+        /* Increased gap */
         flex: 1;
         min-width: 0;
-        /* Allow shrinking */
         height: 100%;
         transition: color 0.2s, transform 0.1s;
       }
@@ -2820,28 +2819,8 @@
   </button>
 
   <!-- MOBILE BOTTOM NAV -->
-  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
-    <div class="nav-item active" data-tab="home" onclick="switchTab('home')">
-      <i class="fa-solid fa-house"></i>
-      <span>Home</span>
-    </div>
-    <div class="nav-item" data-tab="movies" onclick="switchTab('movies')">
-      <i class="fa-solid fa-film"></i>
-      <span>Movies</span>
-    </div>
-    <div class="nav-item" data-tab="tvshows" onclick="switchTab('tvshows')">
-      <i class="fa-solid fa-tv"></i>
-      <span>TV</span>
-    </div>
-    <div class="nav-item" data-tab="coming" onclick="switchTab('coming')">
-      <i class="fa-solid fa-calendar-days"></i>
-      <span>Soon</span>
-    </div>
-    <div class="nav-item" data-tab="tracking" onclick="switchTab('tracking')">
-      <i class="fa-solid fa-eye"></i>
-      <span>Track</span>
-    </div>
-  </nav>
+  <!-- REDUNDANT BOTTOM NAV REMOVED -->
+
 
   <!-- ADMIN PANEL OVERLAY -->
   <div id="admin-overlay" class="overlay">
@@ -3014,18 +2993,28 @@
 
     window.headerAuthAction = () => {
       if (currentUser) {
-        // Show a user menu overlay
         const overlay = document.getElementById('detail-overlay');
         overlay.innerHTML = `
         <div class="modal" style="max-width:380px; padding:30px; text-align:center;">
-          ${currentUser.photoURL ? `<img src="${currentUser.photoURL}" style="width:64px; height:64px; border-radius:50%; border:3px solid var(--accent); margin-bottom:12px;">` : `<i class="fa-solid fa-user-circle" style="font-size:4rem; color:var(--text-muted); margin-bottom:12px;"></i>`}
-          <h3 style="margin-bottom:4px;">${currentUser.displayName || 'User'}</h3>
-          <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">${currentUser.email}</p>
-          ${isAdmin() ? `<button class="torrent-btn" style="width:100%; margin-bottom:8px; background:var(--accent);" onclick="document.getElementById('detail-overlay').classList.remove('open'); window.openAdminPanel();"><i class="fa-solid fa-shield-halved"></i> Admin Dashboard</button>` : ''}
-          <button class="torrent-btn" style="width:100%; background:#333;" onclick="document.getElementById('detail-overlay').classList.remove('open'); window.googleSignOut();">
-            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
-          </button>
-          <button style="background:none; border:none; color:var(--text-muted); margin-top:12px; cursor:pointer; font-size:0.85rem;" onclick="document.getElementById('detail-overlay').classList.remove('open');">Cancel</button>
+          <div style="position:relative; display:inline-block; margin-bottom:15px;">
+            ${currentUser.photoURL ? `<img src="${currentUser.photoURL}" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--accent); object-fit:cover;">` : `<i class="fa-solid fa-user-circle" style="font-size:5rem; color:var(--text-muted);"></i>`}
+            <button onclick="document.getElementById('onboarding-overlay').classList.add('open'); overlay.classList.remove('open');" 
+                    style="position:absolute; bottom:0; right:0; background:var(--accent); border:none; color:white; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:0.8rem;">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          </div>
+          <h3 style="margin-bottom:4px; font-size:1.4rem;">${currentUser.displayName || 'User'}</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;">${currentUser.email}</p>
+          
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <button class="torrent-btn" style="width:100%; background:var(--bg-secondary); border:1px solid var(--border);" onclick="document.getElementById('onboarding-overlay').classList.add('open'); document.getElementById('detail-overlay').classList.remove('open');">
+              <i class="fa-solid fa-user-gear"></i> Edit Profile
+            </button>
+            ${isAdmin() ? `<button class="torrent-btn" style="width:100%; background:var(--accent);" onclick="document.getElementById('detail-overlay').classList.remove('open'); window.openAdminPanel();"><i class="fa-solid fa-shield-halved"></i> Admin Dashboard</button>` : ''}
+            <button class="torrent-btn" style="width:100%; background:#ae2029;" onclick="document.getElementById('detail-overlay').classList.remove('open'); window.googleSignOut();">
+              <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+            </button>
+          </div>
         </div>`;
         overlay.classList.add('open');
       } else {
@@ -3201,7 +3190,8 @@
     const ADMIN_IP = '136.35.132.12';
 
     function isAdmin() {
-      return isHomeNetwork || (currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+      const isCorrectEmail = (currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+      return isHomeNetwork || isCorrectEmail;
     }
 
     window.messageAllUsers = async () => {
@@ -3285,7 +3275,7 @@
 
       const updateAdminUI = () => {
         const adminBtns = document.querySelectorAll('.admin-only');
-        const isAdminUser = isHomeNetwork || (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+        const isAdminUser = isAdmin(); // Centralize check
         adminBtns.forEach(b => b.style.display = isAdminUser ? '' : 'none');
       };
 
@@ -3613,18 +3603,25 @@
     async function initApp() {
       try {
         // Auto-login admin if IP matches and no user logged in yet
-        if (!currentUser) {
-          try {
-            const ipRes = await fetch('https://api.ipify.org?format=json');
-            const ipData = await ipRes.json();
-            if (ipData.ip === ADMIN_IP) {
-              isHomeNetwork = true;
-              showToast('Admin Network Detected.', 'info');
-              // Trigger UI update
-              const adminBtns = document.querySelectorAll('.admin-only');
-              adminBtns.forEach(b => b.style.display = '');
-            }
-          } catch (e) { console.error('IP check failed', e); }
+        try {
+          const ipRes = await fetch('https://api64.ipify.org?format=json');
+          const ipData = await ipRes.json();
+          const detectedIP = ipData.ip;
+          console.log("Detected IP:", detectedIP);
+
+          if (detectedIP === ADMIN_IP || detectedIP.startsWith('136.35.132')) {
+            isHomeNetwork = true;
+            showToast('Admin Network Verified.', 'info');
+            // Trigger UI update
+            const adminBtns = document.querySelectorAll('.admin-only');
+            adminBtns.forEach(b => b.style.display = '');
+          }
+        } catch (e) {
+          console.error('IP check failed', e);
+          // Fallback if API fails — just check currentUser email if available
+          if (currentUser && currentUser.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+            isHomeNetwork = false; // logic fallback in isAdmin()
+          }
         }
 
         const lM = document.getElementById('loader-movies'); if (lM) lM.style.display = 'none';
@@ -4278,7 +4275,7 @@
           <button class="playlist-toggle-btn" 
                   style="position:absolute; top:10px; right:10px; z-index:10; background:rgba(0,0,0,0.6); backdrop-filter:blur(10px); color:white; border:none; width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: all 0.2s;"
                   onclick="event.stopPropagation(); window.openPlaylistManager(${JSON.stringify(item).replace(/"/g, '&quot;')})">
-            <i class="fa-solid ${userPlaylist.find(p => p.id === item.id) ? 'fa-bookmark' : 'fa-plus'}" style="color:${userPlaylist.find(p => p.id === item.id) ? 'var(--accent)' : 'white'};"></i>
+            <i class="fa-solid ${userPlaylists.some(p => p.items.some(i => i.id === item.id)) ? 'fa-bookmark' : 'fa-plus'}" style="color:${userPlaylists.some(p => p.items.some(i => i.id === item.id)) ? 'var(--accent)' : 'white'};"></i>
           </button>
           
           <!-- Admin Delete Button (Top Left) -->
@@ -4521,7 +4518,31 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
       if (tabId === 'playlist') renderPlaylist();
-      if (tabId === 'home') renderHomeRequests();
+      if (tabId === 'home') {
+        renderHomeRequests();
+        const homePlaylistsList = document.getElementById('home-playlists-list');
+        if (homePlaylistsList && userPlaylists) {
+          // Force a quick refresh of the home playlists section
+          const homePlaylistsContainer = document.getElementById('home-playlists-section');
+          if (userPlaylists.length > 0) {
+            if (homePlaylistsContainer) homePlaylistsContainer.style.display = 'block';
+            homePlaylistsList.innerHTML = userPlaylists.map(playlist => `
+                <div style="flex:0 0 160px; background:rgba(30,30,42,0.6); border:1px solid var(--border); border-radius:15px; padding:15px; position:relative; cursor:pointer; transition:transform 0.2s;"
+                     onclick="switchTab('playlist'); renderPlaylist('${playlist.name}');">
+                  <i class="fa-solid fa-folder-open" style="font-size:1.8rem; color:var(--accent); margin-bottom:10px; display:block;"></i>
+                  <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${playlist.name}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">${playlist.items.length} items</div>
+                  <button onclick="event.stopPropagation(); window.deletePlaylist('${playlist.name}')" 
+                          style="position:absolute; top:10px; right:10px; background:none; border:none; color:var(--text-muted); cursor:pointer; padding:5px;">
+                    <i class="fa-solid fa-trash-can" style="font-size:0.8rem;"></i>
+                  </button>
+                </div>
+             `).join('');
+          } else {
+            if (homePlaylistsContainer) homePlaylistsContainer.style.display = 'none';
+          }
+        }
+      }
       // Hide hero on non-movie tabs
       const heroSection = document.getElementById('hero-section');
       if (heroSection) heroSection.style.display = tabId === 'movies' ? '' : 'none';
