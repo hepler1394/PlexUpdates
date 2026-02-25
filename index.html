@@ -2024,6 +2024,12 @@
       </style>
     </div>
 
+    <!-- PULL DOWN HANDLE (Mobile) -->
+    <div id="header-pull-handle" onclick="document.querySelector('.sticky-header').classList.remove('header-hidden')"
+      style="display:none; position:fixed; top:0; left:50%; transform:translateX(-50%); width:60px; height:24px; background:rgba(22,22,31,0.95); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1); border-top:none; border-radius:0 0 12px 12px; z-index:901; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.5);">
+      <div style="width:24px; height:4px; background:rgba(255,255,255,0.4); border-radius:2px;"></div>
+    </div>
+
     <!-- UNIFIED STICKY HEADER -->
     <div class="sticky-header"
       style="background: rgba(22, 22, 31, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 10px 20px; display: flex; flex-direction: column; gap: 15px;">
@@ -2148,6 +2154,10 @@
             <option value="2000">2000s</option>
             <option value="classic">Classic</option>
           </select>
+        </div>
+
+        <div style="flex-grow:1; min-width:10px;"></div>
+        <div style="display:flex; gap:10px; align-items:center;">
           <select id="movie-runtime-filter" class="control-select flex-shrink-0">
             <option value="all">Any Length</option>
             <option value="short">&lt; 90m</option>
@@ -2159,10 +2169,6 @@
             <option value="popular">Popular</option>
             <option value="niche">Niche</option>
           </select>
-        </div>
-
-        <div style="flex-grow:1; min-width:10px;"></div>
-        <div style="display:flex; gap:10px; align-items:center;">
           <select id="movie-sort" class="control-select">
             <option value="trending">Trending</option>
             <option value="rating">Top Rated</option>
@@ -2347,20 +2353,17 @@
         <!-- 3 Clickable Glass Stat Cards with gold glow ring -->
         <div class="stats-grid" id="home-stats"
           style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px;">
-          <button class="stat-card"
-            onclick="currentUser?switchTab('requests'):document.getElementById('auth-overlay').classList.add('open')"
+          <button class="stat-card" onclick="window.goToRequestsIfAuth()"
             style="cursor:pointer;text-align:center;padding:16px 8px;border:none;width:100%;font-family:inherit;">
             <div class="stat-value" id="stat-total">0</div>
             <div class="stat-label">Requests</div>
           </button>
-          <button class="stat-card"
-            onclick="currentUser?switchTab('requests'):document.getElementById('auth-overlay').classList.add('open')"
+          <button class="stat-card" onclick="window.goToRequestsIfAuth()"
             style="cursor:pointer;text-align:center;padding:16px 8px;border:none;width:100%;font-family:inherit;">
             <div class="stat-value" id="stat-avail" style="color:var(--green-neon);">0</div>
             <div class="stat-label">Available</div>
           </button>
-          <button class="stat-card"
-            onclick="currentUser?switchTab('requests'):document.getElementById('auth-overlay').classList.add('open')"
+          <button class="stat-card" onclick="window.goToRequestsIfAuth()"
             style="cursor:pointer;text-align:center;padding:16px 8px;border:none;width:100%;font-family:inherit;">
             <div class="stat-value" id="stat-pending" style="color:var(--blue);">0</div>
             <div class="stat-label">Pending</div>
@@ -2843,6 +2846,15 @@
         document.getElementById('pwd-reset-overlay').classList.remove('open');
         showToast('Password updated successfully!', 'success');
       } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    };
+
+    // Global helper for UI clicks requiring auth context
+    window.goToRequestsIfAuth = () => {
+      if (currentUser) {
+        window.switchTab('requests');
+      } else {
+        document.getElementById('auth-overlay').classList.add('open');
+      }
     };
 
     function updateAuthUI(user) {
@@ -4065,6 +4077,9 @@
       if (window.innerWidth <= 768) {
         document.body.classList.remove('sidebar-open');
       }
+
+      // Scroll to top of the page when changing tabs
+      window.scrollTo({ top: 0, behavior: 'instant' });
     };
 
     window.injectDemoData = () => {
@@ -4483,13 +4498,20 @@
           window.requestAnimationFrame(() => {
             if (window.innerWidth <= 768 && stickyHeader) {
               const currentScrollY = window.scrollY;
+              const pullHandle = document.getElementById('header-pull-handle');
+
               if (currentScrollY > lastScrollY && currentScrollY > 120) {
-                // Scrolling down past 120px — hide header
+                // Scrolling down past 120px — auto-hide header
                 stickyHeader.classList.add('header-hidden');
-              } else {
-                // Scrolling up — show header
+                if (pullHandle) pullHandle.style.display = 'flex';
+              } else if (currentScrollY <= 20) {
+                // Keep header visible at the very top
                 stickyHeader.classList.remove('header-hidden');
+                if (pullHandle) pullHandle.style.display = 'none';
               }
+              // Notice we DO NOT auto-show on scroll up anymore, unless at the very top.
+              // The user must click the pull handle to show it manually.
+
               lastScrollY = currentScrollY;
             }
             scrollTicking = false;
