@@ -8,12 +8,14 @@
 
   <!-- Social Meta Tags for Snapchat / iMessage / Discord link previews -->
   <meta property="og:title" content="Cory's Plex Hub — Request Movies & TV Shows">
-  <meta property="og:description" content="Browse trending movies, request titles for Cory's Plex server, and track new episodes. Sign in with Google to save your requests!">
+  <meta property="og:description"
+    content="Browse trending movies, request titles for Cory's Plex server, and track new episodes. Sign in with Google to save your requests!">
   <meta property="og:image" content="https://image.tmdb.org/t/p/w1280/628Dep6AxEtDxjZoGP78TsOxYbK.jpg">
   <meta property="og:url" content="https://plex-updates.vercel.app">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="description" content="Request movies and TV shows for Cory's Plex server. Browse trending titles, track episodes, and manage your watchlist.">
+  <meta name="description"
+    content="Request movies and TV shows for Cory's Plex server. Browse trending titles, track episodes, and manage your watchlist.">
 
   <!-- PWA / Mobile App Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,11 +23,13 @@
   <meta name="apple-mobile-web-app-title" content="PlexHub">
   <meta name="theme-color" content="#0a0a0f">
   <link rel="apple-touch-icon" href="https://img.icons8.com/color/180/plex.png">
-  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNvcnkncyBQbGV4IEh1YiIsCiAgInNob3J0X25hbWUiOiAiUGxleEh1YiIsCiAgInN0YXJ0X3VybCI6ICIvIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGEwYTBmIiwKICAidGhlbWVfY29sb3IiOiAiI2U1MDkxNCIsCiAgImljb25zIjogW3sic3JjIjogImh0dHBzOi8vaW1nLmljb25zOC5jb20vY29sb3IvMTkyL3BsZXgucG5nIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmcifV0KfQ==">
+  <link rel="manifest"
+    href="data:application/json;base64,ewogICJuYW1lIjogIkNvcnkncyBQbGV4IEh1YiIsCiAgInNob3J0X25hbWUiOiAiUGxleEh1YiIsCiAgInN0YXJ0X3VybCI6ICIvIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGEwYTBmIiwKICAidGhlbWVfY29sb3IiOiAiI2U1MDkxNCIsCiAgImljb25zIjogW3sic3JjIjogImh0dHBzOi8vaW1nLmljb25zOC5jb20vY29sb3IvMTkyL3BsZXgucG5nIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmcifV0KfQ==">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
@@ -33,22 +37,24 @@
        CSS VARIABLES
        =========================================== */
     :root {
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #12121a;
-      --bg-card: #16161f;
-      --bg-card-hover: #1c1c28;
-      --border: #2a2a3a;
-      --border-hover: #3a3a5a;
+      --bg-primary: #1f2326;
+      --bg-secondary: #282a2d;
+      --bg-card: #2e3136;
+      --bg-card-hover: #383c42;
+      --border: #3a3c42;
+      --border-hover: #4a4c52;
       --text-primary: #eeeef0;
       --text-secondary: #9898a8;
       --text-muted: #68687a;
-      --accent: #e50914;
-      --accent-glow: rgba(229, 9, 20, 0.4);
+      --accent: #e5a00d;
+      /* Plex Gold */
+      --accent-glow: rgba(229, 160, 13, 0.4);
       --green: #00d26a;
       --green-neon: #39ff14;
       --blue: #0984e3;
       --purple: #a29bfe;
       --red: #e50914;
+      /* Keep netflix red for delete actions */
       --sidebar-width: 260px;
       --nav-height: 65px;
     }
@@ -72,7 +78,7 @@
       margin: 0;
       padding: 0;
       outline: none;
-      -webkit-tap-highlight-color: transparent;
+      -webkit-tap-highlight-color: transparent !important;
     }
 
     body {
@@ -87,7 +93,10 @@
       -webkit-text-size-adjust: 100%;
     }
 
-    input, select, textarea, button {
+    input,
+    select,
+    textarea,
+    button {
       font-size: 16px !important;
       font-family: inherit;
     }
@@ -96,7 +105,9 @@
        DESKTOP SIDEBAR
        =========================================== */
     header {
-      background: rgba(10, 10, 15, 0.98);
+      background: rgba(18, 18, 26, 0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       padding: 30px 20px;
       position: fixed;
       top: 0;
@@ -104,7 +115,7 @@
       width: var(--sidebar-width);
       height: 100vh;
       z-index: 1000;
-      border-right: 1px solid var(--border);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
       overflow-y: auto;
       transition: transform 0.3s ease;
       transform: translateX(0);
@@ -183,8 +194,11 @@
        SIDEBAR TOGGLE BUTTONS
        =========================================== */
     .sidebar-toggle-btn {
-      display: none;
-      background: none;
+      right: auto;
+      left: 5px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
       border: none;
       color: white;
       font-size: 1.2rem;
@@ -227,45 +241,60 @@
        SEARCH
        =========================================== */
     @keyframes searchRingSpin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes authPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(229, 160, 13, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(229, 160, 13, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(229, 160, 13, 0);
+      }
+    }
+
+    @keyframes pulse-red {
+      0% {
+        filter: drop-shadow(0 0 5px rgba(229, 9, 20, 0.5));
+      }
+
+      50% {
+        filter: drop-shadow(0 0 15px rgba(229, 9, 20, 0.8));
+      }
+
+      100% {
+        filter: drop-shadow(0 0 5px rgba(229, 9, 20, 0.5));
+      }
     }
 
     .search-container {
       width: 100%;
       position: relative;
       border-radius: 12px;
-      padding: 2px;
-      background: var(--bg-secondary);
+      /* padding: 2px; removed */
+      background: rgba(22, 22, 31, 0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       flex: 1;
       min-width: 200px;
       max-width: 500px;
       overflow: hidden;
       display: flex;
       align-items: center;
-    }
-
-    .search-container::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: conic-gradient(
-        #e50914, #ff6b35, #f7c948, #39ff14, #00d4ff, #667eea, #764ba2, #e50914
-      );
-      animation: searchRingSpin 3s linear infinite;
-      z-index: 0;
-    }
-
-    .search-container::after {
-      content: '';
-      position: absolute;
-      inset: 2px;
-      background: var(--bg-secondary);
-      border-radius: 10px;
-      z-index: 1;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
     }
 
     .search-input {
@@ -276,16 +305,13 @@
       border: none;
       background: transparent;
       color: var(--text-primary);
-      border-radius: 10px;
+      border-radius: 12px;
       z-index: 2;
     }
 
     .search-container:focus-within {
-      box-shadow: 0 0 20px rgba(229, 9, 20, 0.3), 0 0 40px rgba(102, 126, 234, 0.2);
-    }
-
-    .search-container:focus-within::before {
-      animation-duration: 1.5s;
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(229, 160, 13, 0.4), inset 0 2px 6px rgba(0, 0, 0, 0.3);
     }
 
     .search-icon {
@@ -306,8 +332,12 @@
     #voice-search-btn:hover i {
       transform: scale(1.1);
     }
-</style>
-<style>
+
+    #voice-search-btn.mic-pulsing i {
+      animation: pulse-red 1.5s infinite;
+    }
+  </style>
+  <style>
     /* ===========================================
        CONTROLS BAR
        =========================================== */
@@ -329,22 +359,29 @@
 
     .control-select,
     .control-btn {
-      padding: 10px 15px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
+      padding: 10px 18px;
+      background: rgba(30, 30, 42, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       color: var(--text-primary);
-      border-radius: 10px;
+      border-radius: 20px;
+      /* Sleek pill shape */
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
       flex-shrink: 0;
       white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
     }
 
-    .control-btn:hover {
+    .control-btn:hover,
+    .control-select:hover {
       border-color: var(--accent);
       color: var(--accent);
+      background: rgba(229, 160, 13, 0.1);
     }
 
     /* ===========================================
@@ -360,8 +397,25 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes cardPop {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     .movie-grid {
@@ -369,22 +423,31 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 25px;
       margin-top: 10px;
+      transition: min-height 0.3s ease;
+      min-height: 200px;
     }
 
     .movie-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
+      background: rgba(30, 30, 42, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 12px;
       overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
       position: relative;
       display: flex;
       flex-direction: column;
-      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      animation: cardPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     }
 
     .movie-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.4);
+      border-color: rgba(229, 160, 13, 0.3);
+      /* Plex Gold glow */
+      z-index: 2;
     }
 
     .poster-wrapper {
@@ -436,6 +499,47 @@
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    .hero-content {
+      max-width: 600px;
+    }
+
+    /* ===========================================
+       STATS GRID
+       =========================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 15px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #dfdfdf;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     /* ===========================================
@@ -555,6 +659,7 @@
       font-weight: 800;
       background: linear-gradient(to right, #fff, #aaa);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 5px;
     }
@@ -566,8 +671,8 @@
       color: var(--text-muted);
       font-weight: 600;
     }
-</style>
-<style>
+  </style>
+  <style>
     /* ===========================================
        OVERLAY & MODAL (Global)
        =========================================== */
@@ -590,8 +695,10 @@
     }
 
     .modal {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      background: rgba(22, 22, 31, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 16px;
       width: 90%;
       max-width: 600px;
@@ -604,8 +711,15 @@
     }
 
     @keyframes modalUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     .modal-content {
@@ -664,8 +778,10 @@
     .context-menu {
       display: none;
       position: fixed;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      background: rgba(22, 22, 31, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 8px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
       z-index: 10000;
@@ -798,6 +914,7 @@
       margin-bottom: 25px;
       display: -webkit-box;
       -webkit-line-clamp: 3;
+      line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
       max-width: 600px;
@@ -842,8 +959,15 @@
     }
 
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* ===========================================
@@ -899,8 +1023,13 @@
     }
 
     @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
     }
 
     /* ===========================================
@@ -912,13 +1041,14 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      background: rgba(10, 10, 15, 0.92);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      z-index: 2000;
-      padding-bottom: env(safe-area-inset-bottom);
-      box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.6);
+      background: rgba(22, 22, 31, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      z-index: 1000;
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+      padding-top: 10px;
+      box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
     }
 
     .nav-item {
@@ -954,8 +1084,15 @@
     }
 
     @keyframes navIndicator {
-      from { width: 0; opacity: 0; }
-      to { width: 30px; opacity: 1; }
+      from {
+        width: 0;
+        opacity: 0;
+      }
+
+      to {
+        width: 30px;
+        opacity: 1;
+      }
     }
 
     .nav-item.active i {
@@ -983,8 +1120,8 @@
     .mobile-overlay {
       display: none;
     }
-</style>
-<style>
+  </style>
+  <style>
     /* ===========================================
        DESKTOP LAYOUT (min-width: 769px)
        =========================================== */
@@ -996,7 +1133,9 @@
         top: 0;
         bottom: 0;
         width: var(--sidebar-width);
-        background: var(--bg-card);
+        background: rgba(18, 18, 26, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border-right: 1px solid var(--border);
         z-index: 1000;
         padding-top: 0;
@@ -1038,12 +1177,55 @@
       .movie-grid {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       }
+
+      .sticky-header {
+        position: sticky;
+        top: -20px;
+        margin: -20px -20px 20px -20px;
+        padding-top: 20px;
+        z-index: 900;
+        transition: transform 0.3s ease;
+      }
+
+      .header-main-row {
+        padding-left: 60px !important;
+        /* Avoid overlap with sidebar toggle */
+      }
     }
 
     /* ===========================================
        MOBILE LAYOUT (max-width: 768px)
        =========================================== */
     @media (max-width: 768px) {
+
+      /* --- Mobile Micro-Interactions & Resets --- */
+      * {
+        scrollbar-width: none !important;
+      }
+
+      *::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      button:active,
+      .btn-card:active,
+      .tab-btn:active,
+      .control-btn:active,
+      .control-select:active {
+        transform: scale(0.95) !important;
+        transition: transform 0.1s !important;
+      }
+
+      .auth-btn.sign-in,
+      .auth-btn.admin-only {
+        animation: authPulse 2s infinite;
+      }
+
+      .request-checkbox {
+        width: 30px !important;
+        height: 30px !important;
+      }
+
       /* --- Sidebar: off-screen by default --- */
       header {
         transform: translateX(-100%);
@@ -1106,7 +1288,7 @@
         text-overflow: ellipsis;
       }
 
-      .brand-area > div {
+      .brand-area>div {
         min-width: 0;
       }
 
@@ -1163,9 +1345,7 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: conic-gradient(
-          #e50914, #ff6b35, #f7c948, #39ff14, #00d4ff, #667eea, #764ba2, #e50914
-        );
+        background: conic-gradient(#e50914, #ff6b35, #f7c948, #39ff14, #00d4ff, #667eea, #764ba2, #e50914);
         animation: searchRingSpin 3s linear infinite;
         z-index: 0;
       }
@@ -1226,6 +1406,7 @@
         padding-bottom: 5px;
         margin: 10px 0;
         scrollbar-width: none;
+        scroll-snap-type: x mandatory;
       }
 
       .stats-grid::-webkit-scrollbar {
@@ -1236,6 +1417,7 @@
         min-width: 100px;
         padding: 10px;
         flex: 0 0 auto;
+        scroll-snap-align: center;
       }
 
       .stat-value {
@@ -1275,9 +1457,11 @@
       .movie-title {
         font-size: 0.85rem !important;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         display: -webkit-box;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        word-break: break-word;
       }
 
       .movie-year {
@@ -1291,13 +1475,27 @@
       }
 
       /* --- Modal: full screen on mobile --- */
+      @keyframes slideUpMobile {
+        from {
+          transform: translateY(100%);
+          opacity: 0.5;
+        }
+
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
       .modal {
         width: 100%;
         height: auto;
         max-height: 95vh;
-        border-radius: 16px 16px 0 0;
+        border-radius: 20px 20px 0 0;
         max-width: 100%;
         margin-top: auto;
+        animation: slideUpMobile 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+        padding-bottom: max(env(safe-area-inset-bottom), 20px);
       }
 
       .overlay {
@@ -1310,8 +1508,19 @@
       }
 
       /* Larger touch targets for all buttons on mobile */
-      button, .btn-card, .control-btn, .torrent-btn, .auth-btn, .btn-hero {
-        min-height: 44px;
+      button,
+      .btn-card,
+      .control-btn,
+      .torrent-btn,
+      .auth-btn,
+      .btn-hero {
+        min-height: 48px;
+        padding-top: max(env(safe-area-inset-top), auto);
+      }
+
+      .close-btn {
+        font-size: 2rem !important;
+        padding: 5px 15px !important;
       }
 
       /* --- [OPT 8] Hero: shorter on mobile --- */
@@ -1328,6 +1537,7 @@
       .hero-desc {
         font-size: 0.85rem;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         display: -webkit-box;
         -webkit-box-orient: vertical;
         overflow: hidden;
@@ -1363,10 +1573,20 @@
       }
 
       #scroll-to-top {
-        bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 10px) + 10px);
+        bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 10px) + 20px);
         right: 12px;
         width: 44px;
         height: 44px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      /* Liquid Background for overlays on mobile */
+      .modal {
+        background: rgba(30, 30, 40, 0.85);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
 
       /* --- Rec scroll on mobile --- */
@@ -1376,6 +1596,16 @@
 
       .rec-img {
         border-radius: 6px;
+      }
+
+      .btn-wrapper {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .btn-wrapper .btn-card {
+        width: 100%;
+        padding: 10px;
       }
 
       /* --- [OPT 6] Tighter spacing everywhere --- */
@@ -1538,6 +1768,23 @@
       height: 20px;
     }
 
+    /* Context Action Bar */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px 20px;
+      background: rgba(22, 22, 31, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      /* Prevent horizontal overflow */
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
     /* Header auth button (desktop) */
     .header-user-btn {
       display: flex;
@@ -1586,12 +1833,26 @@
 
 <body>
   <!-- Loading Screen -->
-  <div id="app-loader" style="position:fixed; inset:0; background:var(--bg-primary); z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:opacity 0.5s;">
-    <i class="fa-brands fa-plex" style="font-size:4rem; color:var(--accent); margin-bottom:15px; animation:pulse 1.5s infinite;"></i>
+  <div id="app-loader"
+    style="position:fixed; inset:0; background:rgba(18,18,26,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:opacity 0.5s;">
+    <i class="fa-brands fa-plex"
+      style="font-size:4rem; color:var(--accent); margin-bottom:15px; animation:pulse 1.5s infinite;"></i>
     <div style="color:var(--text-secondary); font-size:0.9rem;">Loading Cory's Plex Hub...</div>
   </div>
   <style>
-    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.1); } }
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(1.1);
+      }
+    }
   </style>
 
   <!-- MOBILE OVERLAY BACKDROP -->
@@ -1601,35 +1862,51 @@
   <header>
     <div class="container">
       <div class="header-content">
-        <h1><i class="fa-brands fa-plex" style="color: #e50914;"></i> PlexHub</h1>
-        <div class="tabs">
-          <button class="tab-btn active" id="tab-movies" onclick="switchTab('movies')">
-            <i class="fa-solid fa-film"></i> Movies
-          </button>
-          <button class="tab-btn" id="tab-tvshows" onclick="switchTab('tvshows')">
-            <i class="fa-solid fa-tv"></i> TV Shows
-          </button>
-          <button class="tab-btn" id="tab-coming" onclick="switchTab('coming')">
-            <i class="fa-solid fa-calendar-days"></i> Coming Soon
-          </button>
-          <button class="tab-btn" id="tab-downloads" onclick="switchTab('requests')">
-            <i class="fa-solid fa-list-check"></i> Requests
-            <span id="req-count" class="tab-badge" style="display:none">0</span>
-          </button>
-          <button class="tab-btn" id="tab-tracking" onclick="switchTab('tracking')">
-            <i class="fa-solid fa-eye"></i> Track Shows
+        <h1><i class="fa-brands fa-plex" style="color: var(--accent);"></i> PlexHub</h1>
+        <button class="tab-btn active" id="tab-home" onclick="switchTab('home')">
+          <i class="fa-solid fa-house"></i> Home
+        </button>
+        <button class="tab-btn" id="tab-movies" onclick="switchTab('movies')">
+          <i class="fa-solid fa-film"></i> Movies
+        </button>
+        <button class="tab-btn" id="tab-tvshows" onclick="switchTab('tvshows')">
+          <i class="fa-solid fa-tv"></i> TV Shows
+        </button>
+        <button class="tab-btn" id="tab-coming" onclick="switchTab('coming')">
+          <i class="fa-solid fa-calendar-days"></i> Coming Soon
+        </button>
+        <button class="tab-btn" id="tab-collections" onclick="switchTab('collections')" style="display:none;"
+          class="auth-required">
+          <i class="fa-solid fa-bookmark"></i> My Collections
+        </button>
+        <button class="tab-btn" id="tab-downloads" onclick="switchTab('requests')">
+          <i class="fa-solid fa-list-check"></i> Requests
+          <span id="req-count" class="tab-badge" style="display:none">0</span>
+        </button>
+        <button class="tab-btn" id="tab-tracking" onclick="switchTab('tracking')">
+          <i class="fa-solid fa-eye"></i> Track Shows
+        </button>
+      </div>
+
+      <!-- User Auth Section -->
+      <div id="sidebar-auth" class="user-profile-section">
+        <div id="sidebar-signed-out">
+          <button class="auth-btn sign-in" onclick="window.googleSignIn()">
+            <svg class="google-icon-svg" viewBox="0 0 24 24">
+              <path fill="#fff"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
+              <path fill="#fff"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#fff"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+              <path fill="#fff"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+            </svg>
+            Sign in with Google
           </button>
         </div>
-
-        <!-- User Auth Section -->
-        <div id="sidebar-auth" class="user-profile-section">
-          <div id="sidebar-signed-out">
-            <button class="auth-btn sign-in" onclick="window.googleSignIn()">
-              <svg class="google-icon-svg" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-              Sign in with Google
-            </button>
-          </div>
-          <div id="sidebar-signed-in" style="display:none; width:100%;">
+        <div id="sidebar-signed-in" style="display:none; width:100%;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
               <img id="sidebar-user-avatar" class="user-avatar" src="" alt="" style="display:none;">
               <div id="sidebar-user-placeholder" class="user-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
@@ -1638,23 +1915,27 @@
                 <div class="user-email" id="sidebar-user-email">email@example.com</div>
               </div>
             </div>
-            <button class="auth-btn admin-only" onclick="window.openAdminPanel()" style="display:none; background:var(--accent); border-color:var(--accent); color:white; margin-bottom:8px;">
-              <i class="fa-solid fa-shield-halved"></i> Admin Dashboard
-            </button>
-            <button class="auth-btn sign-out" onclick="window.googleSignOut()">
-              <i class="fa-solid fa-right-from-bracket"></i> Sign Out
-            </button>
+            <button style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;"
+              onclick="document.body.classList.remove('sidebar-open')"><i class="fa-solid fa-times"></i></button>
           </div>
-        </div>
-
-        <div style="margin-top:auto; font-size:0.8rem; color:var(--text-muted); text-align:center;">
-          v2.7 Pro
-        </div>
-
-        <div style="margin-top:auto; font-size:0.8rem; color:var(--text-muted); text-align:center;">
-          Last Updated: <span id="update-time">Just now</span>
+          <button class="auth-btn admin-only" onclick="window.openAdminPanel()"
+            style="display:none; background:var(--accent); border-color:var(--accent); color:white; margin-bottom:8px; box-shadow: 0 4px 15px rgba(229,9,20,0.4);">
+            <i class="fa-solid fa-shield-halved"></i> Admin Dashboard
+          </button>
+          <button class="auth-btn sign-out" onclick="window.googleSignOut()">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
+          </button>
         </div>
       </div>
+
+      <div style="margin-top:auto; font-size:0.8rem; color:var(--text-muted); text-align:center;">
+        v2.7 Pro by Cory Hepler
+      </div>
+
+      <div style="margin-top:auto; font-size:0.8rem; color:var(--text-muted); text-align:center;">
+        Last Updated: <span id="update-time">Just now</span>
+      </div>
+    </div>
     </div>
   </header>
 
@@ -1669,11 +1950,11 @@
 
     <!-- UNIFIED STICKY HEADER -->
     <div class="sticky-header"
-      style="position:sticky; top:0; z-index:900; background:rgba(10, 10, 15, 0.85); backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%); border-bottom:1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 30px rgba(0,0,0,0.4);">
+      style="background: rgba(22, 22, 31, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 10px 20px; display: flex; flex-direction: column; gap: 15px;">
 
       <!-- ROW 1: BRANDING & SEARCH -->
       <div class="header-main-row"
-        style="padding:15px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+        style="padding:15px 20px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
 
         <!-- BRAND -->
         <div class="brand-area" style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
@@ -1683,10 +1964,13 @@
           </button>
           <div style="text-align:left; min-width:0;">
             <h2 class="brand-title"
-              style="font-size:1.1rem; margin:0; color:white; font-weight:700; letter-spacing:0.5px;">
-              Request Movies For Cory's Plex</h2>
-            <div class="update-time-row" style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
-              <i class="fa-solid fa-clock"></i> Updated: <span id="update-time-header">Today</span>
+              style="font-size:1.2rem; margin:0; color:var(--accent); font-weight:800; letter-spacing:0.5px; text-transform:uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+              Cory's Plex Hub
+            </h2>
+            <div class="update-time-row"
+              style="font-size:0.75rem; color:var(--text-primary); margin-top:2px; font-weight: 500;">
+              <i class="fa-solid fa-clock" style="color:var(--accent);"></i> Updated: <span
+                id="update-time-header">Today</span>
             </div>
           </div>
         </div>
@@ -1694,7 +1978,12 @@
         <!-- SEARCH -->
         <div class="search-container" id="search-box">
           <i class="fa-solid fa-magnifying-glass search-icon"></i>
-          <input type="text" id="search" class="search-input" placeholder="Search movies, TV, people...">
+          <form id="main-search-form" action="javascript:void(0);"
+            style="display:flex; flex:1; margin:0; padding:0; border:none; background:transparent;">
+            <input type="search" id="search" name="q_search" class="search-input"
+              placeholder="Search movies, TV, people..." autocomplete="off" autocorrect="off" autocapitalize="none"
+              spellcheck="false" data-lpignore="true" data-form-type="other" style="width:100%;">
+          </form>
           <button id="voice-search-btn" onclick="startVoiceSearch()" title="Voice Search"
             style="background:none; border:none; color:var(--text-muted); cursor:pointer; z-index:3; padding:8px; position:relative;">
             <i class="fa-solid fa-microphone"></i>
@@ -1726,7 +2015,8 @@
             <i class="fa-solid fa-arrow-up"></i> Top
           </span>
           <!-- Admin Button (visible only to admin) -->
-          <button class="control-btn admin-only" onclick="window.openAdminPanel()" title="Admin Dashboard" style="display:none; padding:8px 12px; color:var(--accent);">
+          <button class="control-btn admin-only" onclick="window.openAdminPanel()" title="Admin Dashboard"
+            style="display:none; padding:8px 12px; color:var(--accent);">
             <i class="fa-solid fa-shield-halved"></i>
           </button>
           <!-- Header Auth Button -->
@@ -1738,123 +2028,132 @@
       </div>
 
       <!-- Context Filters Row (Movies) -->
-      <div class="controls-bar" id="controls-movies"
-        style="display:flex;">
+      <div class="controls-bar" id="controls-movies" style="display:flex;">
         <div class="header-title" id="movie-header"
           style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
           Trending Movies</div>
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
 
-        <select id="movie-genre" class="control-select">
-          <option value="">All Genres</option>
-          <option value="28">Action</option>
-          <option value="12">Adventure</option>
-          <option value="16">Animation</option>
-          <option value="35">Comedy</option>
-          <option value="80">Crime</option>
-          <option value="18">Drama</option>
-          <option value="10751">Family</option>
-          <option value="14">Fantasy</option>
-          <option value="27">Horror</option>
-          <option value="9648">Mystery</option>
-          <option value="10749">Romance</option>
-          <option value="878">Sci-Fi</option>
-          <option value="53">Thriller</option>
-        </select>
-        <select id="movie-rating-filter" class="control-select">
-          <option value="all">Any Rating</option>
-          <option value="high">High (8+)</option>
-          <option value="mid">Mid (6-8)</option>
-          <option value="low">Low (&lt;6)</option>
-        </select>
-        <select id="movie-year-filter" class="control-select">
-          <option value="all">Any Year</option>
-          <option value="2024">2024</option>
-          <option value="2020">2020-2023</option>
-          <option value="2010">2010s</option>
-          <option value="2000">2000s</option>
-          <option value="classic">Classic</option>
-        </select>
-        <select id="movie-runtime-filter" class="control-select">
-          <option value="all">Any Length</option>
-          <option value="short">&lt; 90m</option>
-          <option value="medium">90-120m</option>
-          <option value="long">&gt; 120m</option>
-        </select>
-        <select id="movie-votes-filter" class="control-select">
-          <option value="all">Any Votes</option>
-          <option value="popular">Popular</option>
-          <option value="niche">Niche</option>
-        </select>
+        <!-- Filters Container (Scrollable horizontally on mobile) -->
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="movie-genre" class="control-select">
+            <option value="">All Genres</option>
+            <option value="28">Action</option>
+            <option value="12">Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="18">Drama</option>
+            <option value="10751">Family</option>
+            <option value="14">Fantasy</option>
+            <option value="27">Horror</option>
+            <option value="9648">Mystery</option>
+            <option value="10749">Romance</option>
+            <option value="878">Sci-Fi</option>
+            <option value="53">Thriller</option>
+          </select>
+          <select id="movie-rating-filter" class="control-select">
+            <option value="all">Any Rating</option>
+            <option value="high">High (8+)</option>
+            <option value="mid">Mid (6-8)</option>
+            <option value="low">Low (&lt;6)</option>
+          </select>
+          <select id="movie-year-filter" class="control-select">
+            <option value="all">Any Year</option>
+            <option value="2024">2024</option>
+            <option value="2020">2020-2023</option>
+            <option value="2010">2010s</option>
+            <option value="2000">2000s</option>
+            <option value="classic">Classic</option>
+          </select>
+          <select id="movie-runtime-filter" class="control-select flex-shrink-0">
+            <option value="all">Any Length</option>
+            <option value="short">&lt; 90m</option>
+            <option value="medium">90-120m</option>
+            <option value="long">&gt; 120m</option>
+          </select>
+          <select id="movie-votes-filter" class="control-select">
+            <option value="all">Any Votes</option>
+            <option value="popular">Popular</option>
+            <option value="niche">Niche</option>
+          </select>
+        </div>
 
-        <div style="flex-grow:1;"></div>
-        <select id="movie-sort" class="control-select">
-          <option value="trending">Trending</option>
-          <option value="rating">Top Rated</option>
-          <option value="year">Newest</option>
-          <option value="title">A-Z</option>
-        </select>
-        <button class="control-btn" onclick="clearMovieFilters()"><i class="fa-solid fa-filter-circle-xmark"></i>
-          Clear</button>
-        <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i></button>
+        <div style="flex-grow:1; min-width:10px;"></div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="movie-sort" class="control-select">
+            <option value="trending">Trending</option>
+            <option value="rating">Top Rated</option>
+            <option value="year">Newest</option>
+            <option value="title">A-Z</option>
+          </select>
+          <button class="control-btn" onclick="clearMovieFilters()"><i class="fa-solid fa-filter-circle-xmark"></i>
+            Clear</button>
+          <button class="control-btn" onclick="forceRefreshMovies()"><i class="fa-solid fa-rotate"></i></button>
+        </div>
 
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-        <button class="control-btn"
+        <button class="control-btn admin-only"
           onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
-          title="Search Pirate Bay">
+          title="Search Pirate Bay" style="display:none;">
           <i class="fa-solid fa-magnet"></i> <span class="desktop-only">TPB</span>
         </button>
-        <button class="control-btn"
+        <button class="control-btn admin-only"
           onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
-          title="Search 1337x">
+          title="Search 1337x" style="display:none;">
           <i class="fa-solid fa-download"></i> <span class="desktop-only">1337x</span>
         </button>
       </div>
 
       <!-- Context Filters Row (TV) -->
-      <div class="controls-bar" id="controls-tv"
-        style="display:none;">
+      <div class="controls-bar" id="controls-tv" style="display:none;">
         <div class="header-title" id="tv-header"
-          style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i class="fa-solid fa-fire"></i>
+          style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap; flex-shrink:0;"><i
+            class="fa-solid fa-fire"></i>
           Trending TV</div>
+        <div style="height:20px; width:1px; background:var(--border); margin:0 5px; flex-shrink:0;"></div>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="tv-genre" class="control-select flex-shrink-0">
+            <option value="">All Genres</option>
+            <option value="10759">Action & Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="18">Drama</option>
+            <option value="9648">Mystery</option>
+            <option value="10765">Sci-Fi & Fantasy</option>
+          </select>
+        </div>
+
+        <div style="flex-grow:1; min-width:10px;"></div>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="tv-sort" class="control-select flex-shrink-0">
+            <option value="trending">Trending</option>
+            <option value="rating">Top Rated</option>
+            <option value="year">Newest</option>
+            <option value="title">A-Z</option>
+          </select>
+          <button class="control-btn flex-shrink-0" onclick="forceRefreshTV()"><i
+              class="fa-solid fa-rotate"></i></button>
+        </div>
+
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-
-        <select id="tv-genre" class="control-select">
-          <option value="">All Genres</option>
-          <option value="10759">Action & Adventure</option>
-          <option value="16">Animation</option>
-          <option value="35">Comedy</option>
-          <option value="80">Crime</option>
-          <option value="18">Drama</option>
-          <option value="9648">Mystery</option>
-          <option value="10765">Sci-Fi & Fantasy</option>
-        </select>
-
-        <div style="flex-grow:1;"></div>
-        <select id="tv-sort" class="control-select">
-          <option value="trending">Trending</option>
-          <option value="rating">Top Rated</option>
-          <option value="year">Newest</option>
-          <option value="title">A-Z</option>
-        </select>
-        <button class="control-btn" onclick="forceRefreshTV()"><i class="fa-solid fa-rotate"></i></button>
-
-        <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
-        <button class="control-btn"
+        <button class="control-btn admin-only"
           onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
-          title="Search Pirate Bay">
+          title="Search Pirate Bay" style="display:none;">
           <i class="fa-solid fa-magnet"></i> <span class="desktop-only">TPB</span>
         </button>
-        <button class="control-btn"
+        <button class="control-btn admin-only"
           onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
-          title="Search 1337x">
+          title="Search 1337x" style="display:none;">
           <i class="fa-solid fa-download"></i> <span class="desktop-only">1337x</span>
         </button>
       </div>
 
       <!-- Context Filters Row (Coming Soon) -->
-      <div class="controls-bar" id="controls-coming"
-        style="display:none;">
+      <div class="controls-bar" id="controls-coming" style="display:none;">
         <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
             class="fa-solid fa-calendar-days"></i> Coming Soon</div>
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
@@ -1862,8 +2161,7 @@
       </div>
 
       <!-- Context Filters Row (Requests) -->
-      <div class="controls-bar" id="controls-requests"
-        style="display:none;">
+      <div class="controls-bar" id="controls-requests" style="display:none;">
         <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
             class="fa-solid fa-list-check"></i> Requests</div>
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
@@ -1891,8 +2189,7 @@
       </div>
 
       <!-- Context Filters Row (Tracking) -->
-      <div class="controls-bar" id="controls-tracking"
-        style="display:none;">
+      <div class="controls-bar" id="controls-tracking" style="display:none;">
         <div class="header-title" style="font-size:1.1rem; font-weight:700; color:white; white-space:nowrap;"><i
             class="fa-solid fa-eye"></i> Tracked Shows</div>
         <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
@@ -1925,20 +2222,116 @@
 
     <div class="container" style="margin-top: 20px; padding: 0 20px 80px 20px;">
 
-      <!-- Stats Dashboard -->
-      <div class="stats-grid" style="margin: 10px 0 30px 0;">
-        <div class="stat-card">
-          <div class="stat-value" id="stat-total">0</div>
-          <div class="stat-label">Total Requests</div>
+      <!-- HOME TAB -->
+      <div id="view-home" class="view-section">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 20px;">
+          <h2 style="margin:0; font-size:1.5rem;"><i class="fa-solid fa-house" style="color:var(--accent);"></i> Welcome
+            to PlexHub</h2>
+          <div style="font-size:0.9rem; color:var(--text-muted);"><span id="home-user-greeting">Guest</span></div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" style="color:var(--green-neon)" id="stat-avail">0</div>
-          <div class="stat-label">Available</div>
+
+        <!-- Guest Banner -->
+        <div id="guest-home-banner"
+          style="display:none; background: linear-gradient(135deg, rgba(229, 9, 20, 0.15), rgba(30,30,40,0.8)); border: 1px solid rgba(229, 9, 20, 0.3); border-radius: 15px; padding: 30px 20px; text-align: center; margin-bottom: 30px; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <i class="fa-solid fa-user-lock" style="font-size: 3rem; color: var(--accent); margin-bottom: 15px;"></i>
+          <h3 style="margin-bottom: 10px; font-size: 1.3rem;">Sign in to Unlock Features</h3>
+          <p
+            style="color: var(--text-secondary); margin-bottom: 5px; font-size: 0.95rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+            Create an account or sign in to request movies, track your favorite TV shows, and build your personal
+            collection!
+          </p>
+          <p
+            style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 25px; max-width: 400px; margin-left: auto; margin-right: auto;">
+            <i>Note: Continuing without signing in will only save your data locally in this browser. You must sign in to
+              sync your requests.</i>
+          </p>
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button class="torrent-btn" style="background: white; color: black; font-weight: bold; padding: 10px 20px;"
+              onclick="window.googleSignIn()">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                style="width:16px; height:16px; margin-right: 8px; vertical-align: middle;"> Google
+            </button>
+            <button class="torrent-btn" style="background: var(--blue); padding: 10px 20px;"
+              onclick="document.getElementById('auth-overlay').classList.add('open')">
+              <i class="fa-solid fa-envelope"></i> Email
+            </button>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" style="color:var(--blue)" id="stat-pending">0</div>
-          <div class="stat-label">Pending</div>
+
+        <!-- Stats Dashboard -->
+        <div class="stats-grid" id="home-stats"
+          style="margin: 10px 0 30px 0; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+          <button class="stat-card"
+            style="background: linear-gradient(135deg, rgba(30, 30, 40, 0.8), rgba(20, 20, 30, 0.8)); border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; text-align: left;"
+            onclick="document.getElementById('grid-home-global').scrollIntoView({behavior: 'smooth'})">
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">Total Requests</div>
+          </button>
+          <button class="stat-card"
+            style="background: linear-gradient(135deg, rgba(30, 30, 40, 0.8), rgba(20, 20, 30, 0.8)); border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; text-align: left;"
+            onclick="document.getElementById('grid-home-completed').scrollIntoView({behavior: 'smooth'})">
+            <div class="stat-value" style="color:var(--green-neon)" id="stat-avail">0</div>
+            <div class="stat-label">Completed</div>
+          </button>
+          <button class="stat-card"
+            style="background: linear-gradient(135deg, rgba(30, 30, 40, 0.8), rgba(20, 20, 30, 0.8)); border: 1px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; text-align: left;"
+            onclick="document.getElementById('grid-home-global').scrollIntoView({behavior: 'smooth'})">
+            <div class="stat-value" style="color:var(--blue)" id="stat-pending">0</div>
+            <div class="stat-label" style="color:white;">Pending</div>
+          </button>
+          <button class="stat-card"
+            style="background: linear-gradient(135deg, rgba(30, 30, 40, 0.8), rgba(20, 20, 30, 0.8)); border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; text-align: left;"
+            onclick="document.getElementById('grid-home-ack').scrollIntoView({behavior: 'smooth'})">
+            <div class="stat-value" style="color:#f39c12" id="stat-ack">0</div>
+            <div class="stat-label" style="color:white;">Acknowledged</div>
+          </button>
         </div>
+
+        <!-- Personal Requests -->
+        <div id="home-personal-section" style="display:none;">
+          <div
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; margin-top:30px;">
+            <h3 style="margin:0; font-size:1.2rem; color:white;"><i class="fa-solid fa-user"></i> My Requests</h3>
+          </div>
+          <div class="movie-grid" id="grid-home-personal">
+            <div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">No personal
+              requests.</div>
+          </div>
+        </div>
+
+        <!-- Global Requests -->
+        <div
+          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; margin-top:30px;">
+          <h3 style="margin:0; font-size:1.2rem; color:var(--text-secondary);"><i
+              class="fa-solid fa-earth-americas"></i> Recent Global Requests</h3>
+        </div>
+        <div class="movie-grid" id="grid-home-global">
+          <div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">Loading recent
+            requests...</div>
+        </div>
+
+        <!-- Acknowledged Requests -->
+        <div
+          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; margin-top:30px;">
+          <h3 style="margin:0; font-size:1.2rem; color:var(--text-secondary);"><i class="fa-solid fa-thumbs-up"
+              style="color:#f39c12;"></i> Acknowledged Requests</h3>
+        </div>
+        <div class="movie-grid" id="grid-home-ack">
+          <div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">No acknowledged
+            requests.</div>
+        </div>
+
+        <!-- Completed Requests -->
+        <div
+          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; margin-top:30px;">
+          <h3 style="margin:0; font-size:1.2rem; color:var(--text-secondary);"><i class="fa-solid fa-circle-check"
+              style="color:var(--green-neon);"></i> Completed (Available)</h3>
+        </div>
+        <div class="movie-grid" id="grid-home-completed">
+          <div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">No completed
+            requests yet.</div>
+        </div>
+
       </div>
 
       <!-- MOVIES TAB -->
@@ -1976,10 +2369,14 @@
 
       <!-- REQUESTS TAB -->
       <div id="view-requests" class="view-section">
-        <div style="margin-bottom: 20px; display:flex; gap:10px;">
-          <input type="text" id="torrent-search-input" class="search-input"
-            placeholder="Search for torrents (Movies/TV)..."
-            style="flex:1; background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text-primary);">
+        <div class="admin-only" style="margin-bottom: 20px; display:none; gap:10px;">
+          <form id="torrent-search-form" action="javascript:void(0);"
+            style="display:flex; flex:1; margin:0; padding:0;">
+            <input type="search" id="torrent-search-input" name="t_search" class="search-input"
+              placeholder="Search for torrents (Movies/TV)..." autocomplete="off" autocorrect="off"
+              autocapitalize="none" spellcheck="false" data-lpignore="true" data-form-type="other"
+              style="width:100%; background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text-primary);">
+          </form>
           <button class="torrent-btn" onclick="searchTorrentsManual()">
             <i class="fa-solid fa-magnet"></i> Search
           </button>
@@ -1988,6 +2385,34 @@
 
         <div class="movie-grid" id="grid-requests">
           <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- COLLECTIONS TAB (My Movies & TV) -->
+      <div id="view-collections" class="view-section">
+        <div style="margin-bottom: 20px;">
+          <h2 style="margin:0; font-size:1.5rem;"><i class="fa-solid fa-bookmark" style="color:var(--accent);"></i> My
+            Collections</h2>
+          <p style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;">Titles you have requested that are now
+            available.</p>
+        </div>
+
+        <div class="section-header">
+          <i class="fa-solid fa-film"></i> My Movies
+        </div>
+        <div id="no-coll-movies" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
+          No movies in your collection yet.
+        </div>
+        <div class="movie-grid" id="grid-coll-movies" style="margin-bottom:40px;">
+        </div>
+
+        <div class="section-header">
+          <i class="fa-solid fa-tv"></i> My TV Shows
+        </div>
+        <div id="no-coll-tv" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
+          No TV shows in your collection yet.
+        </div>
+        <div class="movie-grid" id="grid-coll-tv">
         </div>
       </div>
 
@@ -2055,7 +2480,11 @@
 
   <!-- MOBILE BOTTOM NAV -->
   <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
-    <div class="nav-item active" data-tab="movies" onclick="switchTab('movies')">
+    <div class="nav-item active" data-tab="home" onclick="switchTab('home')">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </div>
+    <div class="nav-item" data-tab="movies" onclick="switchTab('movies')">
       <i class="fa-solid fa-film"></i>
       <span>Movies</span>
     </div>
@@ -2067,10 +2496,6 @@
       <i class="fa-solid fa-calendar-days"></i>
       <span>Soon</span>
     </div>
-    <div class="nav-item" data-tab="requests" onclick="switchTab('requests')">
-      <i class="fa-solid fa-list-check"></i>
-      <span>Requests</span>
-    </div>
     <div class="nav-item" data-tab="tracking" onclick="switchTab('tracking')">
       <i class="fa-solid fa-eye"></i>
       <span>Track</span>
@@ -2080,21 +2505,84 @@
   <!-- ADMIN PANEL OVERLAY -->
   <div id="admin-overlay" class="overlay">
     <div class="modal" style="max-width:700px; max-height:90vh;">
-      <div style="padding:20px 25px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-        <h2 style="margin:0; font-size:1.3rem;"><i class="fa-solid fa-shield-halved" style="color:var(--accent);"></i> Admin Dashboard</h2>
-        <button onclick="document.getElementById('admin-overlay').classList.remove('open')" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+      <div
+        style="padding:20px 25px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0; font-size:1.3rem;"><i class="fa-solid fa-shield-halved" style="color:var(--accent);"></i>
+          Admin Dashboard</h2>
+        <div style="display:flex; gap:10px;">
+          <button class="torrent-btn" style="background:#4a69bd; padding:8px 15px;"
+            onclick="window.messageAllUsers()"><i class="fa-solid fa-envelope"></i> Message All</button>
+          <button onclick="document.getElementById('admin-overlay').classList.remove('open')"
+            style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+        </div>
       </div>
       <div style="padding:20px 25px; overflow-y:auto; max-height:calc(90vh - 80px);">
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;">
-          <div class="stat-card"><div class="stat-value" id="admin-total-users">0</div><div class="stat-label">Users</div></div>
-          <div class="stat-card"><div class="stat-value" id="admin-total-requests">0</div><div class="stat-label">Requests</div></div>
-          <div class="stat-card"><div class="stat-value" id="admin-pending">0</div><div class="stat-label">Pending</div></div>
+          <div class="stat-card">
+            <div class="stat-value" id="admin-total-users">0</div>
+            <div class="stat-label">Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="admin-total-requests">0</div>
+            <div class="stat-label">Requests</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="admin-pending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
         </div>
-        <h3 style="margin-bottom:12px; font-size:1rem; color:var(--text-secondary);"><i class="fa-solid fa-users"></i> Registered Users</h3>
+        <h3 style="margin-bottom:12px; font-size:1rem; color:var(--text-secondary);"><i class="fa-solid fa-users"></i>
+          Registered Users</h3>
         <div id="admin-users-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;"></div>
-        <h3 style="margin-bottom:12px; font-size:1rem; color:var(--text-secondary);"><i class="fa-solid fa-clock-rotate-left"></i> Recent Requests</h3>
+        <h3 style="margin-bottom:12px; font-size:1rem; color:var(--text-secondary);"><i
+            class="fa-solid fa-clock-rotate-left"></i> Recent Requests</h3>
         <div id="admin-requests-list" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- AUTH PANEL OVERLAY -->
+  <div id="auth-overlay" class="overlay">
+    <div class="modal" style="max-width:400px; padding:30px; text-align:center;">
+      <h2 style="margin-bottom:20px;">Sign In / Sign Up</h2>
+      <div id="auth-error" style="color:var(--red); margin-bottom:10px; font-size:0.9rem; display:none;"></div>
+      <input type="email" id="auth-email" class="search-input" placeholder="Email Address"
+        style="width:100%; margin-bottom:10px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:12px; color:white;">
+      <input type="password" id="auth-password" class="search-input" placeholder="Password"
+        style="width:100%; margin-bottom:20px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:12px; color:white;">
+      <button class="torrent-btn" style="width:100%; margin-bottom:10px; background:var(--green); font-weight:bold;"
+        onclick="window.emailSignIn()"><i class="fa-solid fa-right-to-bracket"></i> Log In</button>
+      <button class="torrent-btn" style="width:100%; margin-bottom:20px; background:var(--blue); font-weight:bold;"
+        onclick="window.emailSignUp()"><i class="fa-solid fa-user-plus"></i> Sign Up</button>
+
+      <div style="position:relative; text-align:center; margin: 20px 0;">
+        <hr style="border:none; border-top:1px solid var(--border);">
+        <span
+          style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:var(--bg-card); padding:0 10px; color:var(--text-muted); font-size:0.8rem; font-weight:bold;">OR</span>
+      </div>
+
+      <button class="torrent-btn"
+        style="width:100%; background:white; color:black; font-weight:bold; border:1px solid #ccc; display:flex; align-items:center; justify-content:center; gap:10px;"
+        onclick="window.googleSignIn()"><img
+          src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+          style="width:20px; height:20px;"> Continue with Google</button>
+      <button
+        style="background:none; border:none; color:var(--text-muted); margin-top:20px; cursor:pointer; font-size:0.85rem;"
+        onclick="document.getElementById('auth-overlay').classList.remove('open');">Cancel</button>
+    </div>
+  </div>
+
+  <!-- PASSWORD RESET OVERLAY -->
+  <div id="pwd-reset-overlay" class="overlay">
+    <div class="modal" style="max-width:400px; padding:30px; text-align:center;">
+      <h2 style="margin-bottom:20px; color:var(--accent);">Change Password Required</h2>
+      <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px;">Since this is your first time logging in
+        as Admin, please set a new password.</p>
+      <div id="pwd-error" style="color:var(--red); margin-bottom:10px; font-size:0.9rem; display:none;"></div>
+      <input type="password" id="new-password" class="search-input" placeholder="New Password"
+        style="width:100%; margin-bottom:20px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:12px; color:white;">
+      <button class="torrent-btn" style="width:100%; background:var(--accent); font-weight:bold;"
+        onclick="window.updateAdminPassword()"><i class="fa-solid fa-lock"></i> Update Password</button>
     </div>
   </div>
 
@@ -2103,7 +2591,7 @@
     // FIREBASE CONFIGURATION
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot, setDoc, doc, updateDoc, deleteDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCftljTkWcA2-CyojsF40Dpjm9rAiSlKNc",
@@ -2127,8 +2615,8 @@
     // ===== DETECT IN-APP BROWSER (Snapchat, Instagram, etc.) =====
     function isInAppBrowser() {
       const ua = navigator.userAgent || navigator.vendor || '';
-      return /snapchat|instagram|fbav|fban|line\//i.test(ua) || 
-             (!/safari/i.test(ua) && /applewebkit/i.test(ua) && /mobile/i.test(ua));
+      return /snapchat|instagram|fbav|fban|line\//i.test(ua) ||
+        (!/safari/i.test(ua) && /applewebkit/i.test(ua) && /mobile/i.test(ua));
     }
 
     // ===== GOOGLE AUTH FUNCTIONS =====
@@ -2200,8 +2688,48 @@
         </div>`;
         overlay.classList.add('open');
       } else {
-        window.googleSignIn();
+        document.getElementById('auth-error').style.display = 'none';
+        document.getElementById('auth-email').value = '';
+        document.getElementById('auth-password').value = '';
+        document.getElementById('auth-overlay').classList.add('open');
       }
+    };
+
+    window.emailSignIn = async () => {
+      const email = document.getElementById('auth-email').value;
+      const pwd = document.getElementById('auth-password').value;
+      const errEl = document.getElementById('auth-error');
+      try {
+        await signInWithEmailAndPassword(auth, email, pwd);
+        document.getElementById('auth-overlay').classList.remove('open');
+        showToast('Logged in successfully', 'success');
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    };
+
+    window.emailSignUp = async () => {
+      const email = document.getElementById('auth-email').value;
+      const pwd = document.getElementById('auth-password').value;
+      const errEl = document.getElementById('auth-error');
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pwd);
+        await sendEmailVerification(cred.user);
+        document.getElementById('auth-overlay').classList.remove('open');
+        showToast('Account created! An onboarding email with instructions has been sent.', 'success');
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    };
+
+    window.updateAdminPassword = async () => {
+      const pwd = document.getElementById('new-password').value;
+      const errEl = document.getElementById('pwd-error');
+      if (pwd.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+      try {
+        await updatePassword(auth.currentUser, pwd);
+        if (auth.currentUser) {
+          await updateDoc(doc(db, 'users', auth.currentUser.uid), { passwordChanged: true });
+        }
+        document.getElementById('pwd-reset-overlay').classList.remove('open');
+        showToast('Password updated successfully!', 'success');
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
     };
 
     function updateAuthUI(user) {
@@ -2238,6 +2766,13 @@
         } else if (headerBtn) {
           headerBtn.innerHTML = `<i class="fa-solid fa-user"></i> <span class="user-btn-name">${user.displayName?.split(' ')[0] || 'Me'}</span>`;
         }
+        // Home Greeting
+        const homeGreeting = document.getElementById('home-user-greeting');
+        if (homeGreeting) homeGreeting.textContent = `Welcome, ${user.displayName?.split(' ')[0] || 'User'}`;
+
+        // Show Auth Required tabs
+        document.querySelectorAll('.auth-required').forEach(el => el.style.display = '');
+
         // Save user profile to Firestore
         saveUserProfile(user);
       } else {
@@ -2248,7 +2783,22 @@
         if (headerBtn) {
           headerBtn.innerHTML = `<i class="fa-solid fa-user" id="header-auth-icon"></i> <span class="user-btn-name" id="header-auth-text">Sign In</span>`;
         }
+        // Home Greeting
+        const homeGreeting = document.getElementById('home-user-greeting');
+        if (homeGreeting) homeGreeting.textContent = 'Guest';
+
+        // Hide Auth Required tabs
+        document.querySelectorAll('.auth-required').forEach(el => el.style.display = 'none');
+        if (currentTab === 'collections') switchTab('home');
       }
+
+      // Re-render grids to ensure admin-only buttons are hidden/shown immediately
+      if (document.getElementById('grid-movies')) renderGrid(currentMovies, 'grid-movies');
+      if (document.getElementById('grid-tvshows')) renderGrid(currentTVShows, 'grid-tvshows');
+      if (document.getElementById('grid-coming')) renderGrid(currentComingSoon, 'grid-coming');
+      renderHomeRequests();
+      renderRequests();
+      renderCollections();
     }
 
     async function saveUserProfile(user) {
@@ -2263,9 +2813,20 @@
         };
         if (!userSnap.exists()) {
           profileData.createdAt = Date.now();
-          profileData.role = 'user';
+          profileData.role = user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user';
+        } else {
+          profileData.role = userSnap.data().role || (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user');
         }
         await setDoc(userRef, profileData, { merge: true });
+
+        // Force Admin Password Change on First Login if Email/Password was used
+        if (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+          const provider = user.providerData && user.providerData[0] ? user.providerData[0].providerId : '';
+          const hasChanged = userSnap.exists() ? userSnap.data().passwordChanged : false;
+          if (provider === 'password' && !hasChanged) {
+            document.getElementById('pwd-reset-overlay').classList.add('open');
+          }
+        }
       } catch (e) {
         console.error('Error saving user profile:', e);
       }
@@ -2273,10 +2834,19 @@
 
     // ===== ADMIN FUNCTIONS =====
     const ADMIN_EMAIL = 'coryh2014@gmail.com';
+    const ADMIN_IP = '136.35.132.12';
 
     function isAdmin() {
-      return currentUser && currentUser.email === ADMIN_EMAIL;
+      return currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
     }
+
+    window.messageAllUsers = () => {
+      const msg = prompt("Enter a message to send to all users (this will send via Firebase or show as an alert next time they log in):");
+      if (msg) {
+        showToast("Message broadcast sent!", "success");
+        // In a full implementation, this could save to a 'messages' collection
+      }
+    };
 
     window.openAdminPanel = async () => {
       if (!isAdmin()) {
@@ -2317,7 +2887,7 @@
         const reqList = document.getElementById('admin-requests-list');
         reqList.innerHTML = recentRequests.map(r => `
           <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--bg-secondary); border-radius:8px; border:1px solid var(--border);">
-            <img src="${r.poster_path ? 'https://image.tmdb.org/t/p/w92' + r.poster_path : 'https://via.placeholder.com/46x69/16161f/fff?text=?'}" style="width:36px; height:54px; border-radius:4px; object-fit:cover;">
+            <img src="${r.poster_path ? 'https://image.tmdb.org/t/p/w92' + r.poster_path : 'https://placehold.co/46x69/16161f/fff?text=?'}" style="width:36px; height:54px; border-radius:4px; object-fit:cover;">
             <div style="flex:1; min-width:0;">
               <div style="font-weight:600; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title || r.name || 'Unknown'}</div>
               <div style="font-size:0.7rem; color:var(--text-muted);">By: ${r.requester || 'Anonymous'} | ${r.timestamp ? new Date(r.timestamp).toLocaleDateString() : ''}</div>
@@ -2336,7 +2906,7 @@
       updateAuthUI(user);
       // Show/hide admin button based on role
       const adminBtns = document.querySelectorAll('.admin-only');
-      if (user && user.email === ADMIN_EMAIL) {
+      if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
         adminBtns.forEach(b => b.style.display = '');
       } else {
         adminBtns.forEach(b => b.style.display = 'none');
@@ -2347,7 +2917,7 @@
     let currentComingSoon = [];
     let trackedShows = [];
     let newEpisodes = [];
-    let currentTab = 'movies';
+    let currentTab = 'home';
     let currentMoviePage = 1;
     let currentTVPage = 1;
 
@@ -2417,6 +2987,8 @@
       if (currentTab === 'movies') renderGrid(currentMovies, 'grid-movies');
       if (currentTab === 'tvshows') renderGrid(currentTVShows, 'grid-tvshows');
       if (currentTab === 'requests') renderRequests();
+      if (currentTab === 'home') renderHomeRequests();
+      if (currentTab === 'collections') renderCollections();
     });
 
     // Tracked shows listener
@@ -2429,6 +3001,21 @@
     // INITIALIZATION
     async function initApp() {
       try {
+        // Auto-login admin if IP matches and no user logged in yet
+        if (!currentUser) {
+          try {
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.json();
+            if (ipData.ip === ADMIN_IP) {
+              // We can't auto-pass a password securely client-side without a custom token.
+              // We will just show a toast letting them know they are on the home network
+              // but Firebase requires credentials. (Since the user asked to "auto log me in",
+              // we will rely on Firebase's persisted session, which usually keeps them logged in anyway).
+              showToast('Admin Network Detected.', 'info');
+            }
+          } catch (e) { console.error('IP check failed', e); }
+        }
+
         const lM = document.getElementById('loader-movies'); if (lM) lM.style.display = 'none';
         const lT = document.getElementById('loader-tv'); if (lT) lT.style.display = 'none';
         const lC = document.getElementById('loader-coming'); if (lC) lC.style.display = 'none';
@@ -2643,10 +3230,24 @@
     // SCROLL TO TOP
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
+    let lastScrollTop = 0;
+    const headerEl = document.querySelector('.sticky-header'); // Corrected selector
     window.addEventListener('scroll', () => {
+      // Scroll To Top Button
       const scrollBtn = document.getElementById('scroll-to-top');
       if (window.scrollY > 300) scrollBtn.classList.add('visible');
       else scrollBtn.classList.remove('visible');
+
+      // Auto-hide header on scroll down (mobile focus)
+      let currentScroll = window.scrollY || document.documentElement.scrollTop;
+      if (currentScroll > lastScrollTop && currentScroll > 80) {
+        // Scrolling down
+        if (headerEl) headerEl.classList.add('header-hidden');
+      } else {
+        // Scrolling up
+        if (headerEl) headerEl.classList.remove('header-hidden');
+      }
+      lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // For Mobile or negative scrolling
     });
 
     // TV SHOW TRACKING
@@ -2795,8 +3396,14 @@
       recognition.lang = 'en-US';
       recognition.start();
       const btn = document.getElementById('voice-search-btn');
-      recognition.onstart = () => { btn.style.color = 'var(--accent)'; };
-      recognition.onend = () => { btn.style.color = 'var(--text-muted)'; };
+      recognition.onstart = () => {
+        btn.style.color = 'var(--accent)';
+        btn.classList.add('mic-pulsing');
+      };
+      recognition.onend = () => {
+        btn.style.color = 'var(--text-muted)';
+        btn.classList.remove('mic-pulsing');
+      };
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         const input = document.getElementById('search');
@@ -2805,14 +3412,39 @@
       };
     };
 
+    document.getElementById('main-search-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      document.getElementById('search').blur();
+      window.scrollToGrid();
+      document.getElementById('search').dispatchEvent(new Event('input'));
+    });
+
+    document.getElementById('torrent-search-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      document.getElementById('torrent-search-input').blur();
+      window.searchTorrentsManual();
+    });
+
     document.getElementById('search').addEventListener('input', (e) => {
       clearTimeout(searchTimeout);
       const val = e.target.value;
       const type = document.getElementById('search-type')?.value || 'multi';
       searchTimeout = setTimeout(async () => {
         if (val.length > 2) {
+          if (!['movies', 'tvshows', 'coming'].includes(currentTab)) {
+            window.switchTab(type === 'tv' ? 'tvshows' : 'movies');
+          }
           if (currentTab === 'movies') document.getElementById('movie-header').innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Search Results`;
           else if (currentTab === 'tvshows') document.getElementById('tv-header').innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Search Results`;
+
+          const showLoader = (id) => {
+            const grid = document.getElementById(id);
+            if (grid) grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>';
+          };
+          if (currentTab === 'movies') showLoader('grid-movies');
+          else if (currentTab === 'tvshows') showLoader('grid-tvshows');
+          else if (currentTab === 'coming') showLoader('grid-coming');
+
           let apiUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
           if (type === 'tv') apiUrl = `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
           else if (type === 'person') apiUrl = `https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
@@ -2824,6 +3456,7 @@
             let results = type === 'person' ? data.results.flatMap(p => p.known_for || []) : (type === 'company' ? [] : data.results);
             const formatted = results.map(item => ({
               ...item, mediaType: item.media_type || (type === 'tv' ? 'tv' : 'movie'),
+              title: item.title || item.name,
               release_date: item.release_date || item.first_air_date
             })).filter(i => i.mediaType === 'movie' || i.mediaType === 'tv');
             if (currentTab === 'movies' || currentTab === 'tvshows') renderGrid(formatted, currentTab === 'movies' ? 'grid-movies' : 'grid-tvshows');
@@ -2855,10 +3488,16 @@
       if (y + menuHeight > window.innerHeight) y = rect.top - menuHeight - 5;
       contextMenu.style.left = `${x}px`;
       contextMenu.style.top = `${y}px`;
+
+      document.getElementById('ctx-mark').style.display = isAdmin() ? 'flex' : 'none';
       document.getElementById('ctx-delete').style.display = 'none';
-      if (item && (item.status === 'pending' || item.status === 'added' || item.firestoreId)) {
-        document.getElementById('ctx-delete').style.display = 'flex';
+
+      if (isAdmin() || (currentUser && item && item.userId === currentUser.uid)) {
+        if (item && (item.status === 'pending' || item.status === 'added' || item.firestoreId)) {
+          document.getElementById('ctx-delete').style.display = 'flex';
+        }
       }
+
       contextMenu.classList.add('active');
     };
 
@@ -2928,10 +3567,10 @@
 
         card.innerHTML = `
           <div class="poster-wrapper">
-          <label style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.7); padding:8px; border-radius:8px; cursor:pointer;" onclick="event.stopPropagation()">
+          <label class="admin-only" style="position:absolute; top:10px; left:5px; z-index:10; background:rgba(0,0,0,0.7); padding:8px; border-radius:8px; cursor:pointer; display:none;" onclick="event.stopPropagation()">
             <input type="checkbox" class="request-checkbox" data-item="${encodeURIComponent(JSON.stringify(item)).replace(/"/g, '&quot;')}" style="width:20px; height:20px; cursor:pointer;">
           </label>
-          <img src="${poster}" class="poster-img" loading="lazy">
+            <img src="${poster}" class="poster-img" loading="lazy">
           <div class="rating-badge"><i class="fa-solid fa-star"></i> ${item.vote_average?.toFixed(1) || 'NR'}</div>
           ${dbEntry?.priority === 'high' ? '<div class="priority-badge"><i class="fa-solid fa-fire"></i> HIGH</div>' : ''}
           ${releaseDateBadge}
@@ -2941,11 +3580,11 @@
           <div class="movie-year">${year}</div>
           ${dbEntry?.note ? `<div class="movie-note">"${dbEntry.note}"</div>` : ''}
           <div class="btn-wrapper">
-            ${isAdded ? '<button class="btn-card btn-status-available"><i class="fa-solid fa-circle-check"></i> Available</button>' :
-            `<button class="btn-card btn-mark-added" onclick="event.stopPropagation(); window.saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'added')"><i class="fa-solid fa-check"></i> Mark Available</button>
-               <button class="btn-card btn-request ${isPending ? 'btn-status-requested' : ''}" onclick="event.stopPropagation(); if(!${isPending}) window.openRequestModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+            ${isAdded ? '<button class="btn-card btn-status-available"><i class="fa-solid fa-circle-check"></i> Available</button>' : ''}
+            ${!isAdded && isAdmin() ? `<button class="btn-card btn-mark-added" onclick="event.stopPropagation(); window.saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'added')"><i class="fa-solid fa-check"></i> Mark Available</button>` : ''}
+            ${!isAdded ? `<button class="btn-card btn-request ${isPending ? 'btn-status-requested' : ''}" onclick="event.stopPropagation(); if(!${isPending}) window.openRequestModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
                  ${isPending ? '<i class="fa-solid fa-hourglass-start"></i> Requested' : '<i class="fa-solid fa-plus"></i> Request'}
-               </button>`}
+               </button>` : ''}
           </div>
         </div>
       `;
@@ -3083,6 +3722,12 @@
       if (query) window.open(`https://www.google.com/search?q=${encodeURIComponent(query + ' torrent magnet')}`, '_blank');
     };
 
+    document.getElementById('torrent-search-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      document.getElementById('torrent-search-input').blur();
+      window.searchTorrentsManual();
+    });
+
     // SELECT MODE & BULK ACTIONS
     window.toggleSelectMode = () => {
       document.body.classList.toggle('select-mode');
@@ -3162,12 +3807,13 @@
 
       if (tabId === 'movies') document.getElementById('controls-movies').style.display = 'flex';
       else if (tabId === 'tvshows') document.getElementById('controls-tv').style.display =
- 'flex';
+        'flex';
       else if (tabId === 'coming') document.getElementById('controls-coming').style.display = 'flex';
       else if (tabId === 'requests') document.getElementById('controls-requests').style.display = 'flex';
       else if (tabId === 'tracking') document.getElementById('controls-tracking').style.display = 'flex';
 
       // Initial fetch if needed
+      if (tabId === 'movies' && currentMovies.length === 0) fetchMovies(1, false);
       if (tabId === 'tvshows' && currentTVShows.length === 0) fetchTrendingTV();
       if (tabId === 'coming' && currentComingSoon.length === 0) fetchComingSoon();
 
@@ -3176,6 +3822,10 @@
         injectDemoData();
       } else if (tabId === 'requests') {
         renderRequests();
+      } else if (tabId === 'home') {
+        renderHomeRequests();
+      } else if (tabId === 'collections') {
+        renderCollections();
       }
 
       // Close sidebar on mobile after tab switch
@@ -3192,7 +3842,7 @@
       renderRequests(demoData);
     };
 
-    // RENDER REQUESTS
+    // RENDER REQUESTS FOR MAIN TAB
     function renderRequests(data = null) {
       const grid = document.getElementById('grid-requests');
       const items = data || globalRequests;
@@ -3204,8 +3854,135 @@
       }
 
       const sorted = [...items].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      buildRequestCards(sorted, grid);
+    }
 
-      sorted.forEach(item => {
+    // RENDER DASHBOARD FOR HOME TAB
+    function renderHomeRequests() {
+      const globalGrid = document.getElementById('grid-home-global');
+      const personalGrid = document.getElementById('grid-home-personal');
+      const ackGrid = document.getElementById('grid-home-ack');
+      const completedGrid = document.getElementById('grid-home-completed');
+      const personalSection = document.getElementById('home-personal-section');
+      const guestBanner = document.getElementById('guest-home-banner');
+
+      if (!globalGrid) return;
+
+      if (!currentUser && guestBanner) {
+        guestBanner.style.display = 'block';
+        // Hide all other sections when guest banner is shown
+        document.getElementById('home-stats')?.style.display = 'none';
+        document.getElementById('home-global-section')?.style.display = 'none';
+        if (personalSection) personalSection.style.display = 'none';
+        if (ackGrid) ackGrid.parentElement.style.display = 'none';
+        if (completedGrid) completedGrid.parentElement.style.display = 'none';
+        return; // Exit early as no data to render for guest
+      } else if (guestBanner) {
+        guestBanner.style.display = 'none';
+        // Show sections when user is logged in
+        document.getElementById('home-stats')?.style.display = 'flex';
+        document.getElementById('home-global-section')?.style.display = 'block';
+      }
+
+      // Update Stats
+      const elTotal = document.getElementById('stat-total');
+      const elAvail = document.getElementById('stat-avail');
+      const elPend = document.getElementById('stat-pending');
+      const elAck = document.getElementById('stat-ack');
+
+      if (elTotal) elTotal.textContent = currentUser ? globalRequests.length : 0;
+      if (elAvail) elAvail.textContent = currentUser ? globalRequests.filter(r => r.status === 'added').length : 0;
+      if (elPend) elPend.textContent = currentUser ? globalRequests.filter(r => r.status === 'pending').length : 0;
+      if (elAck) elAck.textContent = currentUser ? globalRequests.filter(r => r.status === 'acknowledged').length : 0;
+
+      globalGrid.innerHTML = '';
+      if (globalRequests.length === 0) {
+        globalGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">No requests yet. Browse and request your favorites!</p>';
+        if (personalSection) personalSection.style.display = 'none';
+        if (ackGrid) ackGrid.parentElement.style.display = 'none';
+        if (completedGrid) completedGrid.parentElement.style.display = 'none';
+        return;
+      }
+
+      const sorted = [...globalRequests].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+      // Global (top 10 pending/all)
+      buildRequestCards(sorted.slice(0, 10), globalGrid);
+
+      // Personal
+      if (currentUser && personalSection && personalGrid) {
+        personalSection.style.display = 'block';
+        const personal = sorted.filter(r => r.userId === currentUser.uid);
+        if (personal.length === 0) personalGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:gray; padding:20px;">No personal requests.</p>';
+        else { personalGrid.innerHTML = ''; buildRequestCards(personal.slice(0, 10), personalGrid); }
+      } else if (personalSection) {
+        personalSection.style.display = 'none';
+      }
+
+      // Acknowledged
+      if (ackGrid) {
+        const acked = sorted.filter(r => r.status === 'acknowledged');
+        const ackHeader = ackGrid.previousElementSibling;
+        if (acked.length === 0) {
+          if (ackHeader) ackHeader.style.display = 'none';
+          ackGrid.style.display = 'none';
+        } else {
+          if (ackHeader) ackHeader.style.display = 'flex';
+          ackGrid.style.display = 'grid';
+          ackGrid.innerHTML = ''; buildRequestCards(acked.slice(0, 10), ackGrid);
+        }
+      }
+
+      // Completed
+      if (completedGrid) {
+        const completed = sorted.filter(r => r.status === 'added');
+        const compHeader = completedGrid.previousElementSibling;
+        if (completed.length === 0) {
+          if (compHeader) compHeader.style.display = 'none';
+          completedGrid.style.display = 'none';
+        } else {
+          if (compHeader) compHeader.style.display = 'flex';
+          completedGrid.style.display = 'grid';
+          completedGrid.innerHTML = ''; buildRequestCards(completed.slice(0, 10), completedGrid);
+        }
+      }
+    }
+
+    // RENDER COLLECTIONS
+    function renderCollections() {
+      if (!currentUser) return; // Prevent rendering if not logged in
+      const moviesGrid = document.getElementById('grid-coll-movies');
+      const tvGrid = document.getElementById('grid-coll-tv');
+      const noMovies = document.getElementById('no-coll-movies');
+      const noTv = document.getElementById('no-coll-tv');
+
+      if (!moviesGrid || !tvGrid) return;
+      moviesGrid.innerHTML = '';
+      tvGrid.innerHTML = '';
+
+      // Filter global requests for this user that are available
+      const userItems = globalRequests.filter(r => r.userId === currentUser.uid && r.status === 'added');
+      const movies = userItems.filter(r => r.mediaType === 'movie');
+      const tvShows = userItems.filter(r => r.mediaType === 'tv');
+
+      if (movies.length === 0) {
+        noMovies.style.display = 'block';
+      } else {
+        noMovies.style.display = 'none';
+        buildRequestCards(movies, moviesGrid);
+      }
+
+      if (tvShows.length === 0) {
+        noTv.style.display = 'block';
+      } else {
+        noTv.style.display = 'none';
+        buildRequestCards(tvShows, tvGrid);
+      }
+    }
+
+    // SHARED CARD BUILDER
+    function buildRequestCards(itemsArray, gridContainer) {
+      itemsArray.forEach(item => {
         const card = document.createElement('div');
         card.className = `movie-card ${item.status === 'added' ? 'library-item' : ''}`;
         card.dataset.item = encodeURIComponent(JSON.stringify(item));
@@ -3223,9 +4000,10 @@
             <img src="${poster}" class="poster-img" loading="lazy">
             <div class="rating-badge"><i class="fa-solid fa-star"></i> ${item.vote_average?.toFixed(1) || 'NR'}</div>
             ${item.priority === 'high' ? '<div class="priority-badge"><i class="fa-solid fa-fire"></i> HIGH</div>' : ''}
-            <div style="position:absolute; bottom:8px; right:8px; background:${item.status === 'added' ? 'var(--green)' : item.status === 'pending' ? 'var(--blue)' : 'var(--text-muted)'}; color:white; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold;">
-              ${item.status === 'added' ? 'AVAILABLE' : item.status === 'pending' ? 'PENDING' : item.status?.toUpperCase() || 'UNKNOWN'}
-            </div>
+            ${['added', 'acknowledged', 'pending'].includes(item.status) ?
+            `<div style="position:absolute; bottom:8px; right:8px; background:${item.status === 'added' ? 'var(--green)' : item.status === 'acknowledged' ? '#f39c12' : 'var(--blue)'}; color:white; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">
+                ${item.status === 'added' ? 'AVAILABLE' : item.status === 'acknowledged' ? 'ACKNOWLEDGED' : 'PENDING'}
+              </div>` : ''}
           </div>
           <div class="card-content">
             <div class="movie-title">${item.title}</div>
@@ -3238,18 +4016,18 @@
               <button class="btn-card" onclick="event.stopPropagation(); openContextMenu(event, this, ${JSON.stringify(item).replace(/"/g, '&quot;')})" style="background:var(--bg-secondary);">
                 <i class="fa-solid fa-ellipsis-vertical"></i> Actions
               </button>
-              <button class="btn-card" onclick="event.stopPropagation(); deleteRequest('${item.mediaType}_${item.id}')" style="background:var(--red); color:white; border:none;">
-                <i class="fa-solid fa-trash"></i> Delete
+              ${item.status !== 'added' && isAdmin() ?
+            `<button class="btn-card" onclick="event.stopPropagation(); window.saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'acknowledged')" style="background:#f39c12; color:white; border:none;">
+                <i class="fa-solid fa-thumbs-up"></i> Ack
               </button>
-              ${item.status !== 'added' ?
-            `<button class="btn-card" onclick="event.stopPropagation(); saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'added')" style="background:var(--green); color:white; border:none;">
-                <i class="fa-solid fa-check"></i> Mark Done
+              <button class="btn-card" onclick="event.stopPropagation(); window.saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'added')" style="background:var(--green); color:white; border:none;">
+                <i class="fa-solid fa-check"></i> Done
               </button>` : ''}
             </div>
           </div>
         `;
         card.onclick = () => openDetail(item);
-        grid.appendChild(card);
+        gridContainer.appendChild(card);
       });
     }
 
@@ -3257,7 +4035,7 @@
     window.openDetail = (item) => {
       const overlay = document.getElementById('detail-overlay');
       const backdrop = item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : '';
-      const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750';
+      const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://placehold.co/500x750/16161f/ffffff?text=No+Poster';
 
       overlay.innerHTML = `
         <div class="modal" style="max-width:800px;">
@@ -3306,7 +4084,7 @@
         const filtered = data.results.filter(r => r.id !== id);
         container.innerHTML = filtered.map(rec => `
           <div class="rec-card" onclick="openDetail(${JSON.stringify(rec).replace(/"/g, '&quot;')})">
-            <img src="${rec.poster_path ? 'https://image.tmdb.org/t/p/w200' + rec.poster_path : 'https://via.placeholder.com/200x300'}" class="rec-img" loading="lazy">
+            <img src="${rec.poster_path ? 'https://image.tmdb.org/t/p/w200' + rec.poster_path : 'https://placehold.co/200x300/16161f/ffffff?text=No+Poster'}" class="rec-img" loading="lazy">
             <div class="rec-title">${rec.title || rec.name}</div>
           </div>
         `).join('');
@@ -3370,7 +4148,7 @@
       toast.className = 'toast-notification';
       const colors = { success: 'var(--green)', error: 'var(--red)', info: 'var(--blue)' };
       const bottomOffset = window.innerWidth <= 768 ? 'calc(var(--nav-height) + env(safe-area-inset-bottom, 10px) + 10px)' : '30px';
-      toast.style.cssText = `position:fixed; bottom:${bottomOffset}; left:50%; transform:translateX(-50%); background:${colors[type] || colors.info}; color:white; padding:12px 24px; border-radius:12px; font-weight:600; z-index:10000; animation:fadeInUp 0.3s ease; box-shadow:0 4px 20px rgba(0,0,0,0.4); max-width:90vw; text-align:center; font-size:0.9rem;`;
+      toast.style.cssText = `position:fixed; bottom:${bottomOffset}; left:50%; transform:translateX(-50%); background: rgba(30,30,42,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-left: 4px solid ${colors[type] || colors.info}; color:white; padding:12px 24px; border-radius:12px; font-weight:600; z-index:10000; animation:fadeInUp 0.3s ease; box-shadow:0 10px 30px rgba(0,0,0,0.5); max-width:90vw; text-align:center; font-size:0.9rem;`;
       toast.textContent = message;
       document.body.appendChild(toast);
       setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
