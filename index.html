@@ -1357,18 +1357,6 @@
         overflow: hidden;
       }
 
-      /* Ensure animated ring works on mobile */
-      .search-container::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: conic-gradient(#e50914, #ff6b35, #f7c948, #39ff14, #00d4ff, #667eea, #764ba2, #e50914);
-        animation: searchRingSpin 3s linear infinite;
-        z-index: 0;
-      }
 
       /* --- [OPT 4] Shorter placeholder on mobile (handled via JS) --- */
 
@@ -1386,13 +1374,12 @@
       }
 
       /* --- [OPT 7] Controls bar: compact horizontal scroll --- */
+      /* --- [OPT 7] Controls bar: wrapped items --- */
       .controls-bar {
         padding: 6px 10px;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         gap: 6px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        overflow-x: visible;
       }
 
       .controls-bar::-webkit-scrollbar {
@@ -1409,6 +1396,16 @@
         font-size: 0.8rem !important;
         min-height: 36px;
         min-width: 0;
+      }
+
+      /* --- [OPT 8] Mobile Header Clutter Reduction --- */
+      .actions-area .control-btn[onclick="toggleTheme()"],
+      .actions-area #select-mode-btn {
+        display: none !important;
+      }
+
+      .header-user-btn .user-btn-name {
+        display: none !important;
       }
 
       /* --- Touch targets: min 44px for primary actions --- */
