@@ -283,11 +283,24 @@
       }
     }
 
+    @keyframes plexRingPulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 2px rgba(229, 160, 13, 0.35), 0 0 18px rgba(229, 160, 13, 0.12), inset 0 2px 6px rgba(0, 0, 0, 0.3);
+        border-color: rgba(229, 160, 13, 0.45);
+      }
+
+      50% {
+        box-shadow: 0 0 0 3.5px rgba(229, 160, 13, 0.65), 0 0 32px rgba(229, 160, 13, 0.28), inset 0 2px 6px rgba(0, 0, 0, 0.3);
+        border-color: rgba(229, 160, 13, 0.85);
+      }
+    }
+
     .search-container {
       width: 100%;
       position: relative;
       border-radius: 12px;
-      /* padding: 2px; removed */
       background: rgba(22, 22, 31, 0.5);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -297,9 +310,10 @@
       overflow: hidden;
       display: flex;
       align-items: center;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
+      border: 1px solid rgba(229, 160, 13, 0.45);
+      box-shadow: 0 0 0 2px rgba(229, 160, 13, 0.35), 0 0 18px rgba(229, 160, 13, 0.12), inset 0 2px 6px rgba(0, 0, 0, 0.3);
+      animation: plexRingPulse 3s ease-in-out infinite;
+      transition: animation 0.3s ease;
     }
 
     .search-input {
@@ -644,19 +658,20 @@
     }
 
     .stat-card {
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.07) 0%, rgba(30, 30, 42, 0.6) 100%);
+      border: 1px solid rgba(229, 160, 13, 0.35);
       border-radius: 16px;
       padding: 20px;
       text-align: center;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      transition: transform 0.2s;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 0 0 1px rgba(229, 160, 13, 0.15), 0 0 20px rgba(229, 160, 13, 0.1), 0 4px 20px rgba(0, 0, 0, 0.25);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .stat-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 0 0 1.5px rgba(229, 160, 13, 0.5), 0 0 28px rgba(229, 160, 13, 0.2), 0 8px 24px rgba(0, 0, 0, 0.3);
     }
 
     .stat-value {
@@ -1844,6 +1859,16 @@
       style="font-size:4rem; color:var(--accent); margin-bottom:15px; animation:pulse 1.5s infinite;"></i>
     <div style="color:var(--text-secondary); font-size:0.9rem;">Loading Cory's Plex Hub...</div>
   </div>
+  <script>
+    // Fail-safe to remove loader if main JS module fails (e.g., adblocker, CSP, Vercel down)
+    setTimeout(() => {
+      const loader = document.getElementById('app-loader');
+      if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 500);
+      }
+    }, 4500);
+  </script>
   <style>
     @keyframes pulse {
 
@@ -2283,230 +2308,261 @@
     <div class="container" style="margin-top: 20px; padding: 0 20px 80px 20px;">
 
       <!-- HOME TAB -->
-      <div id="view-home" class="view-section">
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 20px;">
-          <h2 style="margin:0; font-size:1.5rem;"><i class="fa-solid fa-house" style="color:var(--accent);"></i> Welcome
-            to PlexHub</h2>
-          <div style="font-size:0.9rem; color:var(--text-muted);"><span id="home-user-greeting">Guest</span></div>
+      <div id="view-home" class="view-section active">
+
+        <!-- Hero Banner -->
+        <div id="home-hero"
+          style="position:relative;border-radius:16px;overflow:hidden;margin-bottom:20px;min-height:230px;background:linear-gradient(135deg,#1a1a2e,#0d1117);display:flex;align-items:flex-end;">
+          <div id="home-hero-bg"
+            style="position:absolute;inset:0;background-size:cover;background-position:center top;opacity:0;transition:opacity 1.5s;">
+          </div>
+          <div
+            style="position:absolute;inset:0;background:linear-gradient(to right,rgba(8,8,18,0.93) 0%,rgba(8,8,18,0.2) 70%),linear-gradient(to top,rgba(8,8,18,0.97) 0%,transparent 55%);">
+          </div>
+          <div style="position:relative;padding:24px;z-index:2;width:100%;">
+            <div
+              style="font-size:1.4rem;font-weight:800;color:white;margin-bottom:6px;text-shadow:0 2px 10px rgba(0,0,0,0.8);">
+              <i class="fa-brands fa-plex" style="color:var(--accent);"></i> Cory's Plex Hub
+            </div>
+            <div id="home-user-greeting"
+              style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:18px;line-height:1.5;max-width:300px;">
+              Browse trending content &amp; request your favorites!
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button onclick="switchTab('movies')"
+                style="background:var(--accent);color:white;border:none;padding:9px 18px;border-radius:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-size:0.85rem;box-shadow:0 4px 15px rgba(229,160,13,0.4);font-family:inherit;">
+                <i class="fa-solid fa-film"></i> Movies
+              </button>
+              <button onclick="switchTab('tvshows')"
+                style="background:rgba(9,132,227,0.15);color:var(--blue);border:1px solid rgba(9,132,227,0.35);padding:9px 18px;border-radius:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-size:0.85rem;font-family:inherit;">
+                <i class="fa-solid fa-tv"></i> TV
+              </button>
+              <button id="home-auth-hero-btn"
+                onclick="currentUser?window.headerAuthAction():document.getElementById('auth-overlay').classList.add('open')"
+                style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(10px);padding:9px 18px;border-radius:10px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-size:0.85rem;font-family:inherit;">
+                <i class="fa-solid fa-right-to-bracket" id="home-hero-auth-icon"></i> <span
+                  id="home-hero-auth-label">Sign In</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Guest Banner -->
-        <div id="guest-home-banner"
-          style="display:none; background: linear-gradient(135deg, rgba(229, 9, 20, 0.15), rgba(30,30,40,0.8)); border: 1px solid rgba(229, 9, 20, 0.3); border-radius: 15px; padding: 30px 20px; text-align: center; margin-bottom: 30px; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-          <i class="fa-solid fa-user-lock" style="font-size: 3rem; color: var(--accent); margin-bottom: 15px;"></i>
-          <h3 style="margin-bottom: 10px; font-size: 1.3rem;">Sign in to Unlock Features</h3>
-          <p
-            style="color: var(--text-secondary); margin-bottom: 5px; font-size: 0.95rem; max-width: 400px; margin-left: auto; margin-right: auto;">
-            Create an account or sign in to request movies, track your favorite TV shows, and build your personal
-            collection!
-          </p>
-          <p
-            style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 25px; max-width: 400px; margin-left: auto; margin-right: auto;">
-            <i>Note: Continuing without signing in will only save your data locally in this browser. You must sign in to
-              sync your requests.</i>
-          </p>
-          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button class="torrent-btn" style="background: white; color: black; font-weight: bold; padding: 10px 20px;"
-              onclick="window.googleSignIn()">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-                style="width:16px; height:16px; margin-right: 8px; vertical-align: middle;"> Google
+        <!-- 3 Clickable Glass Stat Cards with gold glow ring -->
+        <div class="stats-grid" id="home-stats"
+          style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px;">
+          <button class="stat-card"
+            onclick="currentUser?switchTab('requests'):document.getElementById('auth-overlay').classList.add('open')"
+            style="cursor:pointer;text-align:center;padding:16px 8px;border:none;width:100%;font-family:inherit;">
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">Requests</div>
+          </button>
+          <button class="stat-card"
+            onclick="currentUser?switchTab('requests'):document.getElementById('auth-overlay').classList.add('open')"
+            style="cursor:pointer;text-align:center;padding:16px 8px;border:none;width:100%;font-family:inherit;">
+            <div class="stat-value" id="stat-avail" style="color:var(--green-neon);">0</div>
+            <div class="stat-label">Available</div>
+          </button>
+          <button class="stat-card"
+            onclick="currentUser?switchTab('requests'):document.getElementById('auth-overlay').classList.add('open')"
+            style="cursor:pointer;text-align:center;padding:16px 8px;border:none;width:100%;font-family:inherit;">
+            <div class="stat-value" id="stat-pending" style="color:var(--blue);">0</div>
+            <div class="stat-label">Pending</div>
+          </button>
+        </div>
+
+        <!-- Trending Now — no login needed -->
+        <div style="margin-bottom:26px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="margin:0;font-size:1rem;font-weight:700;color:white;display:flex;align-items:center;gap:8px;">
+              <i class="fa-solid fa-fire" style="color:var(--accent);"></i> Trending Now
+            </h3>
+            <button onclick="switchTab('movies')"
+              style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82rem;font-weight:600;padding:0;font-family:inherit;display:flex;align-items:center;gap:4px;">
+              See all <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;"></i>
             </button>
-            <button class="torrent-btn" style="background: var(--blue); padding: 10px 20px;"
-              onclick="document.getElementById('auth-overlay').classList.add('open')">
+          </div>
+          <div id="home-trending-scroll"
+            style="display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+            <style>
+              #home-trending-scroll::-webkit-scrollbar {
+                display: none
+              }
+            </style>
+            <div
+              style="flex-shrink:0;color:var(--text-muted);padding:20px 10px;font-size:0.88rem;display:flex;align-items:center;gap:8px;">
+              <i class="fa-solid fa-spinner fa-spin" style="color:var(--accent);"></i> Loading...
+            </div>
+          </div>
+        </div>
+
+        <!-- Guest CTA -->
+        <div id="guest-home-banner"
+          style="display:none;text-align:center;padding:26px 20px;background:linear-gradient(135deg,rgba(229,160,13,0.07),rgba(22,22,31,0.95));border:1px solid rgba(229,160,13,0.2);border-radius:16px;backdrop-filter:blur(10px);margin-bottom:22px;">
+          <i class="fa-solid fa-user-lock"
+            style="font-size:2.2rem;color:var(--accent);margin-bottom:12px;display:block;"></i>
+          <h3 style="margin-bottom:8px;font-size:1rem;">Sign In to Request &amp; Track</h3>
+          <p style="color:var(--text-secondary);margin-bottom:18px;font-size:0.88rem;line-height:1.5;">Sign in to
+            request movies, track TV shows, and build your collection.</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <button class="torrent-btn" onclick="window.googleSignIn()"
+              style="background:white;color:black;font-weight:bold;padding:10px 20px;display:inline-flex;align-items:center;gap:8px;">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                style="width:16px;height:16px;">Google
+            </button>
+            <button class="torrent-btn" onclick="document.getElementById('auth-overlay').classList.add('open')"
+              style="background:var(--blue);padding:10px 20px;">
               <i class="fa-solid fa-envelope"></i> Email
             </button>
           </div>
         </div>
 
-        <!-- Stats Dashboard -->
-        <div class="stats-grid" id="home-stats"
-          style="margin: 10px 0 30px 0; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-          <button class="stat-card"
-            style="background: linear-gradient(135deg, rgba(30, 30, 40, 0.8), rgba(20, 20, 30, 0.8)); border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; text-align: left;"
-            onclick="document.getElementById('grid-home-global').scrollIntoView({behavior: 'smooth'})">
-            <div class="stat-value" id="stat-total">0</div>
-            <div class="stat-label">Total Requests</div>
-          </button>
-          <button class="stat-card"
-            style="background: linear-gradient(135deg, rgba(30, 30, 40, 0.8), rgba(20, 20, 30, 0.8)); border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; text-align: left;"
-            onclick="document.getElementById('grid-home-completed').scrollIntoView({behavior: 'smooth'})">
-            <div class="stat-value" style="color:var(--green-neon)" id="stat-avail">0</div>
-            <div class="stat-label">Completed</div>
-          </button>
-          <button class="stat-card"
-            style="background: linear-gradient(135deg, rgba(30, 30, 40, 0.8), rgba(20, 20, 30, 0.8)); border: 1px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; text-align: left;"
-            onclick="document.getElementById('grid-home-global').scrollIntoView({behavior: 'smooth'})">
-            <div class="stat-value" style="color:var(--blue)" id="stat-pending">0</div>
-            <div class="stat-label" style="color:white;">Pending</div>
-          </button>
-          <button class="stat-card"
-            style="background: linear-gradient(135deg, rgba(30, 30, 40, 0.8), rgba(20, 20, 30, 0.8)); border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; text-align: left;"
-            onclick="document.getElementById('grid-home-ack').scrollIntoView({behavior: 'smooth'})">
-            <div class="stat-value" style="color:#f39c12" id="stat-ack">0</div>
-            <div class="stat-label" style="color:white;">Acknowledged</div>
-          </button>
-        </div>
-
-        <!-- Personal Requests -->
-        <div id="home-personal-section" style="display:none;">
-          <div
-            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; margin-top:30px;">
-            <h3 style="margin:0; font-size:1.2rem; color:white;"><i class="fa-solid fa-user"></i> My Requests</h3>
+        <!-- Signed-in personal/global content -->
+        <div id="home-global-section" style="display:none;">
+          <div id="home-personal-section" style="display:none;margin-bottom:25px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h3 style="margin:0;font-size:1rem;font-weight:700;color:white;display:flex;align-items:center;gap:8px;">
+                <i class="fa-solid fa-user" style="color:var(--accent);"></i> My Requests
+              </h3>
+              <button onclick="switchTab('requests')"
+                style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82rem;font-weight:600;padding:0;font-family:inherit;">View
+                all &rarr;</button>
+            </div>
+            <div class="movie-grid" id="grid-home-personal"></div>
           </div>
-          <div class="movie-grid" id="grid-home-personal">
-            <div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">No personal
-              requests.</div>
+          <div style="margin-bottom:25px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h3
+                style="margin:0;font-size:1rem;font-weight:700;color:var(--text-secondary);display:flex;align-items:center;gap:8px;">
+                <i class="fa-solid fa-earth-americas"></i> Recent Global Requests
+              </h3>
+            </div>
+            <div class="movie-grid" id="grid-home-global"></div>
+          </div>
+          <div style="display:none;">
+            <div id="grid-home-ack"></div>
+            <div id="grid-home-completed"></div>
           </div>
         </div>
 
-        <!-- Global Requests -->
-        <div
-          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; margin-top:30px;">
-          <h3 style="margin:0; font-size:1.2rem; color:var(--text-secondary);"><i
-              class="fa-solid fa-earth-americas"></i> Recent Global Requests</h3>
-        </div>
-        <div class="movie-grid" id="grid-home-global">
-          <div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">Loading recent
-            requests...</div>
-        </div>
-
-        <!-- Acknowledged Requests -->
-        <div
-          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; margin-top:30px;">
-          <h3 style="margin:0; font-size:1.2rem; color:var(--text-secondary);"><i class="fa-solid fa-thumbs-up"
-              style="color:#f39c12;"></i> Acknowledged Requests</h3>
-        </div>
-        <div class="movie-grid" id="grid-home-ack">
-          <div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">No acknowledged
-            requests.</div>
-        </div>
-
-        <!-- Completed Requests -->
-        <div
-          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; margin-top:30px;">
-          <h3 style="margin:0; font-size:1.2rem; color:var(--text-secondary);"><i class="fa-solid fa-circle-check"
-              style="color:var(--green-neon);"></i> Completed (Available)</h3>
-        </div>
-        <div class="movie-grid" id="grid-home-completed">
-          <div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">No completed
-            requests yet.</div>
-        </div>
-
+        <span id="stat-ack" style="display:none;">0</span>
       </div>
 
-      <!-- MOVIES TAB -->
-      <div id="view-movies" class="view-section active">
-        <div class="movie-grid" id="grid-movies">
-          <div class="loader" id="loader-movies"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
-        </div>
-        <div style="text-align:center; margin:40px 0;">
-          <button class="control-btn" onclick="loadMoreMovies()"
-            style="display:inline-flex; width:auto; padding:15px 40px; font-size:1.1rem; background:var(--accent); color:white; border:none; box-shadow:0 4px 15px rgba(229,9,20,0.4);">
-            <i class="fa-solid fa-circle-plus"></i> Load More Movies
-          </button>
-        </div>
+
+
+    </div>
+
+    <!-- MOVIES TAB -->
+    <div id="view-movies" class="view-section">
+      <div class="movie-grid" id="grid-movies">
+        <div class="loader" id="loader-movies"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+      </div>
+      <div style="text-align:center; margin:40px 0;">
+        <button class="control-btn" onclick="loadMoreMovies()"
+          style="display:inline-flex; width:auto; padding:15px 40px; font-size:1.1rem; background:var(--accent); color:white; border:none; box-shadow:0 4px 15px rgba(229,9,20,0.4);">
+          <i class="fa-solid fa-circle-plus"></i> Load More Movies
+        </button>
+      </div>
+    </div>
+
+    <!-- TV SHOWS TAB -->
+    <div id="view-tvshows" class="view-section">
+      <div class="movie-grid" id="grid-tvshows">
+        <div class="loader" id="loader-tv"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+      </div>
+      <div style="text-align:center; margin:40px 0;">
+        <button class="control-btn" onclick="loadMoreTV()"
+          style="display:inline-flex; width:auto; padding:15px 40px; font-size:1.1rem; background:var(--blue); color:white; border:none; box-shadow:0 4px 15px rgba(9,132,227,0.4);">
+          <i class="fa-solid fa-circle-plus"></i> Load More TV Shows
+        </button>
+      </div>
+    </div>
+
+    <!-- COMING SOON TAB -->
+    <div id="view-coming" class="view-section">
+      <div class="movie-grid" id="grid-coming">
+        <div class="loader" id="loader-coming"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
+      </div>
+    </div>
+
+    <!-- REQUESTS TAB -->
+    <div id="view-requests" class="view-section">
+      <div class="admin-only" style="margin-bottom: 20px; display:none; gap:10px;">
+        <form id="torrent-search-form" action="javascript:void(0);" style="display:flex; flex:1; margin:0; padding:0;">
+          <input type="search" id="torrent-search-input" name="t_search" class="search-input"
+            placeholder="Search for torrents (Movies/TV)..." autocomplete="off" autocorrect="off" autocapitalize="none"
+            spellcheck="false" data-lpignore="true" data-form-type="other"
+            style="width:100%; background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text-primary);">
+        </form>
+        <button class="torrent-btn" onclick="searchTorrentsManual()">
+          <i class="fa-solid fa-magnet"></i> Search
+        </button>
+      </div>
+      <div id="torrent-results-area" style="margin-bottom:30px;"></div>
+
+      <div class="movie-grid" id="grid-requests">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- COLLECTIONS TAB (My Movies & TV) -->
+    <div id="view-collections" class="view-section">
+      <div style="margin-bottom: 20px;">
+        <h2 style="margin:0; font-size:1.5rem;"><i class="fa-solid fa-bookmark" style="color:var(--accent);"></i> My
+          Collections</h2>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;">Titles you have requested that are now
+          available.</p>
       </div>
 
-      <!-- TV SHOWS TAB -->
-      <div id="view-tvshows" class="view-section">
-        <div class="movie-grid" id="grid-tvshows">
-          <div class="loader" id="loader-tv"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
-        </div>
-        <div style="text-align:center; margin:40px 0;">
-          <button class="control-btn" onclick="loadMoreTV()"
-            style="display:inline-flex; width:auto; padding:15px 40px; font-size:1.1rem; background:var(--blue); color:white; border:none; box-shadow:0 4px 15px rgba(9,132,227,0.4);">
-            <i class="fa-solid fa-circle-plus"></i> Load More TV Shows
-          </button>
-        </div>
+      <div class="section-header">
+        <i class="fa-solid fa-film"></i> My Movies
+      </div>
+      <div id="no-coll-movies" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
+        No movies in your collection yet.
+      </div>
+      <div class="movie-grid" id="grid-coll-movies" style="margin-bottom:40px;">
       </div>
 
-      <!-- COMING SOON TAB -->
-      <div id="view-coming" class="view-section">
-        <div class="movie-grid" id="grid-coming">
-          <div class="loader" id="loader-coming"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i></div>
-        </div>
+      <div class="section-header">
+        <i class="fa-solid fa-tv"></i> My TV Shows
+      </div>
+      <div id="no-coll-tv" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
+        No TV shows in your collection yet.
+      </div>
+      <div class="movie-grid" id="grid-coll-tv">
+      </div>
+    </div>
+
+    <!-- TRACKING TAB -->
+    <div id="view-tracking" class="view-section">
+      <div class="section-header">
+        <i class="fa-solid fa-eye"></i> Tracked TV Shows
+        <button class="control-btn" onclick="showAddShowModal()" style="margin-left:auto; font-size:0.9rem;">
+          <i class="fa-solid fa-plus"></i> Add Show
+        </button>
       </div>
 
-      <!-- REQUESTS TAB -->
-      <div id="view-requests" class="view-section">
-        <div class="admin-only" style="margin-bottom: 20px; display:none; gap:10px;">
-          <form id="torrent-search-form" action="javascript:void(0);"
-            style="display:flex; flex:1; margin:0; padding:0;">
-            <input type="search" id="torrent-search-input" name="t_search" class="search-input"
-              placeholder="Search for torrents (Movies/TV)..." autocomplete="off" autocorrect="off"
-              autocapitalize="none" spellcheck="false" data-lpignore="true" data-form-type="other"
-              style="width:100%; background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text-primary);">
-          </form>
-          <button class="torrent-btn" onclick="searchTorrentsManual()">
-            <i class="fa-solid fa-magnet"></i> Search
-          </button>
-        </div>
-        <div id="torrent-results-area" style="margin-bottom:30px;"></div>
-
-        <div class="movie-grid" id="grid-requests">
-          <!-- Populated by JS -->
-        </div>
+      <div id="no-tracking" style="text-align:center; padding:40px; display:none; color:var(--text-muted);">
+        <i class="fa-solid fa-tv fa-3x" style="margin-bottom:15px; opacity:0.3;"></i><br>
+        Not tracking any shows. Click "Add Show" to start.
       </div>
 
-      <!-- COLLECTIONS TAB (My Movies & TV) -->
-      <div id="view-collections" class="view-section">
-        <div style="margin-bottom: 20px;">
-          <h2 style="margin:0; font-size:1.5rem;"><i class="fa-solid fa-bookmark" style="color:var(--accent);"></i> My
-            Collections</h2>
-          <p style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;">Titles you have requested that are now
-            available.</p>
-        </div>
-
-        <div class="section-header">
-          <i class="fa-solid fa-film"></i> My Movies
-        </div>
-        <div id="no-coll-movies" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
-          No movies in your collection yet.
-        </div>
-        <div class="movie-grid" id="grid-coll-movies" style="margin-bottom:40px;">
-        </div>
-
-        <div class="section-header">
-          <i class="fa-solid fa-tv"></i> My TV Shows
-        </div>
-        <div id="no-coll-tv" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
-          No TV shows in your collection yet.
-        </div>
-        <div class="movie-grid" id="grid-coll-tv">
-        </div>
+      <div class="movie-grid" id="grid-tracking" style="margin-bottom:40px;">
       </div>
 
-      <!-- TRACKING TAB -->
-      <div id="view-tracking" class="view-section">
-        <div class="section-header">
-          <i class="fa-solid fa-eye"></i> Tracked TV Shows
-          <button class="control-btn" onclick="showAddShowModal()" style="margin-left:auto; font-size:0.9rem;">
-            <i class="fa-solid fa-plus"></i> Add Show
-          </button>
-        </div>
-
-        <div id="no-tracking" style="text-align:center; padding:40px; display:none; color:var(--text-muted);">
-          <i class="fa-solid fa-tv fa-3x" style="margin-bottom:15px; opacity:0.3;"></i><br>
-          Not tracking any shows. Click "Add Show" to start.
-        </div>
-
-        <div class="movie-grid" id="grid-tracking" style="margin-bottom:40px;">
-        </div>
-
-        <div class="section-header">
-          <i class="fa-solid fa-bell"></i> New Episodes Released Today
-          <button class="control-btn" onclick="checkForNewEpisodes()" style="margin-left:auto; font-size:0.9rem;">
-            <i class="fa-solid fa-rotate"></i> Check Now
-          </button>
-        </div>
-
-        <div id="no-episodes" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
-          No new episodes airing today for your tracked shows.
-        </div>
-
-        <div class="movie-grid" id="grid-episodes">
-        </div>
+      <div class="section-header">
+        <i class="fa-solid fa-bell"></i> New Episodes Released Today
+        <button class="control-btn" onclick="checkForNewEpisodes()" style="margin-left:auto; font-size:0.9rem;">
+          <i class="fa-solid fa-rotate"></i> Check Now
+        </button>
       </div>
+
+      <div id="no-episodes" style="text-align:center; padding:20px; display:none; color:var(--text-muted);">
+        No new episodes airing today for your tracked shows.
+      </div>
+
+      <div class="movie-grid" id="grid-episodes">
+      </div>
+    </div>
 
     </div>
   </main>
@@ -4037,95 +4093,105 @@
       buildRequestCards(sorted, grid);
     }
 
+    // FETCH TRENDING FOR HOME SCREEN (NETFLIX STYLE)
+    async function fetchHomeTrending() {
+      const scrollContainer = document.getElementById('home-trending-scroll');
+      if (!scrollContainer) return;
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_KEY}`);
+        const data = await res.json();
+
+        scrollContainer.innerHTML = '';
+        const items = data.results.filter(i => i.media_type === 'movie' || i.media_type === 'tv').slice(0, 15);
+
+        items.forEach(item => {
+          let poster = item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : 'https://via.placeholder.com/200x300/16161f/ffffff?text=No+Poster';
+          const title = item.title || item.name;
+          const routeType = item.media_type === 'movie' ? 'movies' : 'tvshows';
+
+          const el = document.createElement('div');
+          el.style.cssText = 'flex-shrink:0; width:130px; cursor:pointer; transition:transform 0.2s;';
+          el.innerHTML = `
+            <img src="${poster}" alt="${title}" title="${title}" style="width:100%; height:195px; object-fit:cover; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.5);">
+          `;
+          el.onmouseenter = () => el.style.transform = 'scale(1.05)';
+          el.onmouseleave = () => el.style.transform = 'scale(1)';
+          el.onclick = () => {
+            switchTab(routeType);
+          };
+          scrollContainer.appendChild(el);
+        });
+      } catch (e) {
+        console.error("Home Trending Error", e);
+        scrollContainer.innerHTML = '<div style="color:var(--red); padding:10px;">Failed to load trending.</div>';
+      }
+    }
+
     // RENDER DASHBOARD FOR HOME TAB
     function renderHomeRequests() {
       const globalGrid = document.getElementById('grid-home-global');
       const personalGrid = document.getElementById('grid-home-personal');
-      const ackGrid = document.getElementById('grid-home-ack');
-      const completedGrid = document.getElementById('grid-home-completed');
-      const personalSection = document.getElementById('home-personal-section');
       const guestBanner = document.getElementById('guest-home-banner');
+      const globalSection = document.getElementById('home-global-section');
+      const personalSection = document.getElementById('home-personal-section');
+
+      const authLabel = document.getElementById('home-hero-auth-label');
+      const authIcon = document.getElementById('home-hero-auth-icon');
+      const greeting = document.getElementById('home-user-greeting');
+      const statsGrid = document.getElementById('home-stats');
 
       if (!globalGrid) return;
 
-      if (!currentUser && guestBanner) {
-        guestBanner.style.display = 'block';
-        // Hide all other sections when guest banner is shown
-        document.getElementById('home-stats')?.style.display = 'none';
-        document.getElementById('home-global-section')?.style.display = 'none';
-        if (personalSection) personalSection.style.display = 'none';
-        if (ackGrid) ackGrid.parentElement.style.display = 'none';
-        if (completedGrid) completedGrid.parentElement.style.display = 'none';
-        return; // Exit early as no data to render for guest
-      } else if (guestBanner) {
-        guestBanner.style.display = 'none';
-        // Show sections when user is logged in
-        document.getElementById('home-stats')?.style.display = 'flex';
-        document.getElementById('home-global-section')?.style.display = 'block';
-      }
+      if (!currentUser) {
+        if (guestBanner) guestBanner.style.display = 'block';
+        if (globalSection) globalSection.style.display = 'none';
+        if (statsGrid) statsGrid.style.display = 'none';
+        if (authLabel) authLabel.textContent = 'Sign In';
+        if (authIcon) authIcon.className = 'fa-solid fa-right-to-bracket';
+        if (greeting) greeting.textContent = 'Browse trending content & request your favorites!';
+      } else {
+        if (guestBanner) guestBanner.style.display = 'none';
+        if (globalSection) globalSection.style.display = 'block';
+        if (statsGrid) statsGrid.style.display = 'grid';
+        if (authLabel) authLabel.textContent = 'My Profile';
+        if (authIcon) authIcon.className = 'fa-solid fa-user-circle';
+        if (greeting) greeting.textContent = `Welcome back, ${currentUser.displayName || 'User'}! Browse trending content & track your requests.`;
 
-      // Update Stats
-      const elTotal = document.getElementById('stat-total');
-      const elAvail = document.getElementById('stat-avail');
-      const elPend = document.getElementById('stat-pending');
-      const elAck = document.getElementById('stat-ack');
+        // Update Stats
+        const elTotal = document.getElementById('stat-total');
+        const elAvail = document.getElementById('stat-avail');
+        const elPend = document.getElementById('stat-pending');
+        if (elTotal) elTotal.textContent = globalRequests.length;
+        if (elAvail) elAvail.textContent = globalRequests.filter(r => r.status === 'added').length;
+        if (elPend) elPend.textContent = globalRequests.filter(r => r.status === 'pending').length;
 
-      if (elTotal) elTotal.textContent = currentUser ? globalRequests.length : 0;
-      if (elAvail) elAvail.textContent = currentUser ? globalRequests.filter(r => r.status === 'added').length : 0;
-      if (elPend) elPend.textContent = currentUser ? globalRequests.filter(r => r.status === 'pending').length : 0;
-      if (elAck) elAck.textContent = currentUser ? globalRequests.filter(r => r.status === 'acknowledged').length : 0;
-
-      globalGrid.innerHTML = '';
-      if (globalRequests.length === 0) {
-        globalGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">No requests yet. Browse and request your favorites!</p>';
-        if (personalSection) personalSection.style.display = 'none';
-        if (ackGrid) ackGrid.parentElement.style.display = 'none';
-        if (completedGrid) completedGrid.parentElement.style.display = 'none';
-        return;
-      }
-
-      const sorted = [...globalRequests].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-      // Global (top 10 pending/all)
-      buildRequestCards(sorted.slice(0, 10), globalGrid);
-
-      // Personal
-      if (currentUser && personalSection && personalGrid) {
-        personalSection.style.display = 'block';
-        const personal = sorted.filter(r => r.userId === currentUser.uid);
-        if (personal.length === 0) personalGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:gray; padding:20px;">No personal requests.</p>';
-        else { personalGrid.innerHTML = ''; buildRequestCards(personal.slice(0, 10), personalGrid); }
-      } else if (personalSection) {
-        personalSection.style.display = 'none';
-      }
-
-      // Acknowledged
-      if (ackGrid) {
-        const acked = sorted.filter(r => r.status === 'acknowledged');
-        const ackHeader = ackGrid.previousElementSibling;
-        if (acked.length === 0) {
-          if (ackHeader) ackHeader.style.display = 'none';
-          ackGrid.style.display = 'none';
+        // Render Global Requests (limit to 4)
+        const recentGlobal = [...globalRequests]
+          .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+          .slice(0, 4);
+        globalGrid.innerHTML = '';
+        if (recentGlobal.length === 0) {
+          globalGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:gray; padding:20px;">No recent global requests.</p>';
         } else {
-          if (ackHeader) ackHeader.style.display = 'flex';
-          ackGrid.style.display = 'grid';
-          ackGrid.innerHTML = ''; buildRequestCards(acked.slice(0, 10), ackGrid);
+          buildRequestCards(recentGlobal, globalGrid);
+        }
+
+        // Render Personal Requests
+        if (personalSection && personalGrid) {
+          const personalReqs = globalRequests.filter(r => r.userId === currentUser.uid)
+            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+            .slice(0, 4);
+          if (personalReqs.length > 0) {
+            personalSection.style.display = 'block';
+            personalGrid.innerHTML = '';
+            buildRequestCards(personalReqs, personalGrid);
+          } else {
+            personalSection.style.display = 'none';
+          }
         }
       }
 
-      // Completed
-      if (completedGrid) {
-        const completed = sorted.filter(r => r.status === 'added');
-        const compHeader = completedGrid.previousElementSibling;
-        if (completed.length === 0) {
-          if (compHeader) compHeader.style.display = 'none';
-          completedGrid.style.display = 'none';
-        } else {
-          if (compHeader) compHeader.style.display = 'flex';
-          completedGrid.style.display = 'grid';
-          completedGrid.innerHTML = ''; buildRequestCards(completed.slice(0, 10), completedGrid);
-        }
-      }
+      fetchHomeTrending();
     }
 
     // RENDER COLLECTIONS
