@@ -2050,6 +2050,12 @@
             <option value="person">People</option>
             <option value="company">Studio</option>
           </select>
+
+          <!-- LIVE SEARCH DROPDOWN -->
+          <div id="live-search-results"
+            style="display:none; position:absolute; top:100%; left:0; right:0; background:var(--bg-secondary); border:1px solid var(--border); border-top:none; border-radius:0 0 12px 12px; box-shadow:0 10px 20px rgba(0,0,0,0.5); z-index:1000; overflow-y:auto; max-height:400px; margin-top:5px; padding:5px 0;">
+            <!-- Results injected here -->
+          </div>
         </div>
 
         <!-- ACTIONS -->
@@ -3504,7 +3510,64 @@
       };
     };
 
-    document.getElementById('main-search-form').addEventListener('submit', (e) => {
+    // LIVE SEARCH LOGIC (Debounced)
+    let liveSearchTimeout = null;
+    const searchInput = document.getElementById('search');
+    const liveResultsContainer = document.getElementById('live-search-results');
+
+
+
+    // Close live search if clicking outside
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('search-box').contains(e.target)) {
+        liveResultsContainer.style.display = 'none';
+      }
+    });
+
+    window.renderLiveResults = (results) => {
+      if (results.length === 0) {
+        liveResultsContainer.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-muted); font-size:0.9rem;">No results found.</div>';
+        return;
+      }
+
+      const validResults = results.filter(item => item.media_type === 'movie' || item.media_type === 'tv' || (!item.media_type && (document.getElementById('search-type').value === 'movie' || document.getElementById('search-type').value === 'tv'))).slice(0, 6);
+
+      if (validResults.length === 0) {
+        liveResultsContainer.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-muted); font-size:0.9rem;">No playable media found.</div>';
+        return;
+      }
+
+      liveResultsContainer.innerHTML = validResults.map(item => {
+        const title = item.title || item.name;
+        const year = (item.release_date || item.first_air_date || '').split('-')[0];
+        const mediaType = item.media_type || document.getElementById('search-type').value || 'movie';
+        // Need to normalize for openDetail
+        const normalizedItem = {
+          ...item,
+          mediaType: mediaType
+        };
+
+        let imgUrl = 'https://placehold.co/40x60/16161f/ffffff?text=?';
+        if (item.poster_path) imgUrl = `https://image.tmdb.org/t/p/w92${item.poster_path}`;
+        else if (item.profile_path) imgUrl = `https://image.tmdb.org/t/p/w92${item.profile_path}`;
+
+        return `
+          <div onclick="document.getElementById('live-search-results').style.display='none'; window.openDetail(${JSON.stringify(normalizedItem).replace(/"/g, '&quot;')})" style="display:flex; align-items:center; gap:12px; padding:10px 15px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.2s;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
+            <img src="${imgUrl}" style="width:40px; height:60px; object-fit:cover; border-radius:4px; flex-shrink:0;">
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:600; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-primary);">${title}</div>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">
+                <span style="text-transform:capitalize;">${mediaType}</span> ${year ? '• ' + year : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // MAIN SEARCH LOGIC (Pressing Enter)
+    const searchForm = document.getElementById('main-search-form');
+    searchForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       document.getElementById('search').blur();
       window.scrollToGrid();
@@ -3518,9 +3581,34 @@
     });
 
     document.getElementById('search').addEventListener('input', (e) => {
+      // 1. CLEAR TIMEOUTS
       clearTimeout(searchTimeout);
-      const val = e.target.value;
+      if (liveSearchTimeout) clearTimeout(liveSearchTimeout);
+
+      const val = e.target.value.trim();
       const type = document.getElementById('search-type')?.value || 'multi';
+
+      // 2. LIVE SEARCH DROPDOWN LOGIC
+      if (val.length < 2) {
+        liveResultsContainer.style.display = 'none';
+      } else {
+        liveResultsContainer.style.display = 'block';
+        liveResultsContainer.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-muted); font-size:0.9rem;"><i class="fa-solid fa-spinner fa-spin"></i> Searching...</div>';
+
+        liveSearchTimeout = setTimeout(async () => {
+          try {
+            const url = `https://api.themoviedb.org/3/search/${type}?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}&page=1`;
+            const res = await fetch(url);
+            const data = await res.json();
+            window.renderLiveResults(data.results || []);
+          } catch (e) {
+            console.error("Live search error:", e);
+            liveResultsContainer.innerHTML = '<div style="padding:15px; text-align:center; color:var(--red); font-size:0.9rem;">Search failed.</div>';
+          }
+        }, 400); // 400ms debounce
+      }
+
+      // 3. MAIN GRID SEARCH LOGIC
       searchTimeout = setTimeout(async () => {
         if (val.length > 2) {
           if (!['movies', 'tvshows', 'coming'].includes(currentTab)) {
