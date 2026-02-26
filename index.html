@@ -4222,45 +4222,32 @@
           year = item.release_date ? item.release_date.split('-')[0] : 'N/A';
         }
 
+        const isBookmarked = currentUser && userPlaylists.some(p => p.items.some(i => i.id === item.id));
+
         card.innerHTML = `
           <div class="poster-wrapper">
-          <label class="admin-only" style="position:absolute; top:10px; left:5px; z-index:10; background:rgba(0,0,0,0.7); padding:8px; border-radius:8px; cursor:pointer; display:none;" onclick="event.stopPropagation()">
-            <input type="checkbox" class="request-checkbox" data-item="${encodeURIComponent(JSON.stringify(item)).replace(/"/g, '&quot;')}" style="width:20px; height:20px; cursor:pointer;">
-          </label>
             <img src="${poster}" class="poster-img fade-in-img" loading="lazy" onload="this.classList.add('loaded')">
-          <div class="rating-badge"><i class="fa-solid fa-star"></i> ${item.vote_average?.toFixed(1) || 'NR'}</div>
-          ${dbEntry?.priority === 'high' ? '<div class="priority-badge"><i class="fa-solid fa-fire"></i> HIGH</div>' : ''}
-          ${releaseDateBadge}
-          
-          <!-- Playlist Toggle Button (Top Right) -->
-          <button class="playlist-toggle-btn" 
-                  style="position:absolute; top:10px; right:10px; z-index:10; background:rgba(0,0,0,0.6); backdrop-filter:blur(10px); color:white; border:none; width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: all 0.2s;"
-                  onclick="event.stopPropagation(); window.openPlaylistManager(${JSON.stringify(item).replace(/"/g, '&quot;')})">
-            <i class="fa-solid ${userPlaylists.some(p => p.items.some(i => i.id === item.id)) ? 'fa-bookmark' : 'fa-plus'}" style="color:${userPlaylists.some(p => p.items.some(i => i.id === item.id)) ? 'var(--accent)' : 'white'};"></i>
-          </button>
-          
-          <!-- Admin Delete Button (Top Left) -->
-          ${isAdmin() ? `
-          <button class="admin-delete-btn" 
-                  style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(229,9,20,0.8); color:white; border:none; width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;"
-                  onclick="event.stopPropagation(); window.deleteItem('${item.id}', '${item.mediaType}')">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-          ` : ''}
-        </div>
-        <div class="card-content">
-          <div class="movie-title">${item.title}</div>
-          <div class="movie-year">${year}</div>
-          ${dbEntry?.note ? `<div class="movie-note">"${dbEntry.note}"</div>` : ''}
-          <div class="btn-wrapper">
-            ${isAdded ? '<button class="btn-card btn-status-available"><i class="fa-solid fa-circle-check"></i> Available</button>' : ''}
-            ${!isAdded && isAdmin() ? `<button class="btn-card btn-mark-added" onclick="event.stopPropagation(); window.saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, 'added')"><i class="fa-solid fa-check"></i> Mark Available</button>` : ''}
-            ${!isAdded ? `<button class="btn-card btn-request ${isPending ? 'btn-status-requested' : ''}" onclick="event.stopPropagation(); if(navigator.vibrate) navigator.vibrate(50); if(!${isPending}) window.openRequestModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
-                 ${isPending ? '<i class="fa-solid fa-hourglass-start"></i> Requested' : '<i class="fa-solid fa-plus"></i> Request'}
-               </button>` : ''}
+            <!-- Rating badge: always top-left -->
+            <div class="rating-badge"><i class="fa-solid fa-star"></i> ${item.vote_average?.toFixed(1) || 'NR'}</div>
+            ${dbEntry?.priority === 'high' ? '<div class="priority-badge"><i class="fa-solid fa-fire"></i> HIGH</div>' : ''}
+            ${releaseDateBadge}
+            <!-- Bookmark: top-right — only for signed-in users, never overlaps rating -->
+            ${currentUser ? `<button class="playlist-toggle-btn" style="position:absolute;top:8px;right:8px;z-index:10;background:${isBookmarked ? 'rgba(229,160,13,0.9)' : 'rgba(0,0,0,0.65)'};backdrop-filter:blur(8px);border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;touch-action:manipulation;" onclick="event.stopPropagation();window.openPlaylistManager(${JSON.stringify(item).replace(/"/g, '&quot;')})"><i class="fa-solid fa-bookmark" style="color:white;font-size:0.8rem;"></i></button>` : ''}
           </div>
-        </div>
-      `;
+          <div class="card-content">
+            <div class="movie-title">${item.title}</div>
+            <div class="movie-year">${year}</div>
+            ${dbEntry?.note ? `<div class="movie-note">"${dbEntry.note}"</div>` : ''}
+            <div class="btn-wrapper">
+              ${isAdded ? '<button class="btn-card btn-status-available"><i class="fa-solid fa-circle-check"></i> Available</button>' : ''}
+              ${!isAdded && isAdmin() ? `<button class="btn-card btn-mark-added" onclick="event.stopPropagation();window.saveItemFromObject(${JSON.stringify(item).replace(/"/g, '&quot;')},'added')"><i class="fa-solid fa-check"></i> Mark Available</button>` : ''}
+              ${!isAdded ? `<button class="btn-card btn-request ${isPending ? 'btn-status-requested' : ''}" onclick="event.stopPropagation();if(navigator.vibrate)navigator.vibrate(50);${!isPending ? `window.openRequestModal(${JSON.stringify(item).replace(/"/g, '&quot;')})` : ''}">
+                ${isPending ? '<i class="fa-solid fa-hourglass-start"></i> Requested' : '<i class="fa-solid fa-plus"></i> Request'}
+              </button>` : ''}
+            </div>
+          </div>
+        `;
+
 
         let tapCount = 0;
         card.onclick = () => {
@@ -4299,7 +4286,7 @@
 
       // If not signed in, prompt to sign in first
       overlay.innerHTML = `
-        <div class="modal" style="max-width: 420px; padding: 40px; text-align:center;">
+          < div class="modal" style = "max-width: 420px; padding: 40px; text-align:center;" >
           <i class="fa-solid fa-user-lock" style="font-size:3rem; color:var(--accent); margin-bottom:15px;"></i>
           <h2 style="margin-bottom: 10px;">Sign In to Request</h2>
           <p style="color:var(--text-secondary); margin-bottom:25px; line-height:1.6;">Sign in with your Google account to request <strong>${item.title || item.name}</strong> and track your requests.</p>
@@ -4311,10 +4298,11 @@
             Cancel
           </button>
           <p style="font-size:0.75rem; color:var(--text-muted); margin-top:15px;">Or continue as guest below</p>
-          <button class="torrent-btn" style="background:transparent; border:1px solid var(--border); color:var(--text-secondary); width:100%; font-size:0.8rem;" onclick="window.openRequestModalGuest(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+          <button class="torrent-btn" style="background:transparent; border:1px solid var(--border); color:var(--text-secondary); width:100%; font-size:0.8rem;" onclick="window.openRequestModalGuest(${JSON.stringify(item).replace(/"/g, '&quot;')
+        }) ">
             Continue without signing in
-          </button>
-        </div>`;
+          </button >
+        </div > `;
       overlay.classList.add('open');
     };
 
@@ -4332,7 +4320,7 @@
       const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
       const overlay = document.getElementById('detail-overlay');
       overlay.innerHTML = `
-      <div class="modal" style="max-width: 500px; padding: 40px;">
+      < div class="modal" style = "max-width: 500px; padding: 40px;" >
         <h2 style="margin-bottom: 20px;">Request: ${item.title || item.name}</h2>
         <input type="text" id="requester-name" class="modal-note-input" placeholder="Your name" style="height: 45px;">
         <textarea id="request-note" class="modal-note-input" placeholder="Add a note (optional)" rows="3"></textarea>
@@ -4344,7 +4332,7 @@
             Cancel
           </button>
         </div>
-      </div>`;
+      </div > `;
       overlay.classList.add('open');
     };
 
@@ -4356,7 +4344,7 @@
         const noteToSave = note || (existingItem ? existingItem.note : '');
         const requesterToSave = requester || (existingItem ? existingItem.requester : '');
         const priorityToSave = priority || (existingItem ? existingItem.priority : 'normal');
-        const docId = `${item.mediaType || 'movie'}_${item.id}`;
+        const docId = `${item.mediaType || 'movie'}_${item.id} `;
         const timestamp = existingItem ? existingItem.timestamp : Date.now();
         const requestData = {
           ...item, mediaType: item.mediaType || 'movie', timestamp: timestamp,
