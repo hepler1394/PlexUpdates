@@ -1223,86 +1223,6 @@
         padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 20px));
       }
 
-      /* --- MOBILE BOTTOM NAV & FAB --- */
-      .mobile-bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: var(--bottom-nav-height);
-        background: rgba(18, 18, 26, 0.95);
-        /* Slightly more opaque */
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-top: 1px solid var(--border);
-        display: none;
-        justify-content: space-around;
-        align-items: center;
-        z-index: 999;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
-        flex-wrap: nowrap;
-        /* Prevent items from wrapping and overlapping */
-        overflow: hidden;
-      }
-
-      .bottom-nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-muted);
-        font-size: 0.62rem;
-        font-weight: 600;
-        text-decoration: none;
-        gap: 3px;
-        flex: 1;
-        min-width: 0;
-        height: 100%;
-        transition: color 0.15s;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .bottom-nav-item span {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
-        text-align: center;
-      }
-
-      .bottom-nav-item.active {
-        color: var(--accent);
-      }
-
-      .bottom-nav-item i {
-        font-size: 1.3rem;
-      }
-
-      .fab-search {
-        position: fixed;
-        bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 10px) + 20px);
-        right: 20px;
-        width: 56px;
-        height: 56px;
-        background: var(--accent);
-        color: #fff;
-        border-radius: 50%;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        box-shadow: 0 4px 15px rgba(229, 160, 13, 0.4);
-        z-index: 1000;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-      }
-
-      .fab-search:active {
-        transform: scale(0.9);
-      }
-
       .sidebar-toggle-desktop {
         display: flex;
       }
@@ -1332,19 +1252,126 @@
         top: 0;
         margin: 0;
         z-index: 1100;
-        /* Above hero and sidebar toggles */
         transition: transform 0.3s ease;
       }
 
       .hero-section {
         margin-top: 20px;
-        /* Give space for the header */
       }
 
       .header-main-row {
         padding-left: 60px !important;
-        /* Avoid overlap with sidebar toggle */
       }
+    }
+
+    /* --- MOBILE BOTTOM NAV & FAB (Base styles) --- */
+    .mobile-bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: var(--bottom-nav-height);
+      background: rgba(10, 10, 18, 0.55);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: none;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 999;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      flex-wrap: nowrap;
+      overflow: hidden;
+      box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-decoration: none;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      position: relative;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .bottom-nav-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      width: 28px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 0 0 4px 4px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(229, 160, 13, 0.5);
+    }
+
+    .bottom-nav-item.active::before {
+      transform: translateX(-50%) scaleX(1);
+    }
+
+    .bottom-nav-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      text-align: center;
+    }
+
+    .bottom-nav-item.active {
+      color: var(--accent);
+    }
+
+    .bottom-nav-item:not(.active):hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .bottom-nav-item i {
+      font-size: 1.2rem;
+      transition: transform 0.2s ease;
+    }
+
+    .bottom-nav-item.active i {
+      transform: translateY(-1px);
+    }
+
+    .fab-search {
+      position: fixed;
+      bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 10px) + 20px);
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 15px rgba(229, 160, 13, 0.4);
+      z-index: 1000;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .fab-search:active {
+      transform: scale(0.9);
     }
 
     /* ===========================================
@@ -1451,6 +1478,14 @@
 
       .update-time-row {
         display: none;
+      }
+
+      .sidebar-close-btn {
+        display: block !important;
+      }
+
+      .sidebar-close-btn:hover {
+        color: var(--accent) !important;
       }
 
       .sidebar-toggle-btn {
@@ -2026,7 +2061,14 @@
   <header>
     <div class="container">
       <div class="header-content">
-        <h1><i class="fa-brands fa-plex" style="color: var(--accent);"></i> PlexHub</h1>
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+          <h1><i class="fa-brands fa-plex" style="color: var(--accent);"></i> PlexHub</h1>
+          <button class="sidebar-close-btn" onclick="document.body.classList.remove('sidebar-open')"
+            title="Close Sidebar"
+            style="background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer; padding:8px; display:none; transition: color 0.2s;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
         <button class="tab-btn active" id="tab-home" onclick="switchTab('home')">
           <i class="fa-solid fa-house"></i> Home
         </button>
@@ -5229,15 +5271,16 @@
     </div>
     <div class="bottom-nav-item" onclick="switchTab('tvshows')">
       <i class="fa-solid fa-tv"></i>
-      <span>TV Shows</span>
+      <span>TV</span>
     </div>
-    <div class="bottom-nav-item" onclick="switchTab('playlist')">
-      <i class="fa-solid fa-bookmark"></i>
-      <span>Playlist</span>
+    <div class="bottom-nav-item" onclick="switchTab('requests')">
+      <i class="fa-solid fa-list-check"></i>
+      <span>Requests</span>
     </div>
-    <div class="bottom-nav-item" onclick="switchTab('tracking')">
-      <i class="fa-solid fa-eye"></i>
-      <span>Tracking</span>
+    <div class="bottom-nav-item"
+      onclick="currentUser ? window.headerAuthAction() : document.getElementById('auth-overlay').classList.add('open')">
+      <i class="fa-solid fa-user"></i>
+      <span>Account</span>
     </div>
   </nav>
 
