@@ -836,6 +836,32 @@
       }
     }
 
+    @keyframes pulseGlow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 20px rgba(229, 160, 13, 0.3);
+        transform: scale(1);
+      }
+
+      50% {
+        box-shadow: 0 0 35px rgba(229, 160, 13, 0.5);
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
     .modal-content {
       padding: 30px;
       display: flex;
@@ -866,15 +892,23 @@
       width: 100%;
       background: var(--bg-secondary);
       border: 1px solid var(--border);
-      color: white;
+      color: var(--text-primary);
       padding: 12px;
       border-radius: 8px;
       margin-bottom: 15px;
       font-family: inherit;
+      font-weight: 500;
+    }
+
+    .modal-note-input::placeholder {
+      color: var(--text-muted);
+      font-weight: 400;
     }
 
     .modal-note-input:focus {
       border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(229, 160, 13, 0.15);
     }
 
     .loader {
@@ -2952,7 +2986,15 @@
       const pwd = document.getElementById('auth-password').value;
       const errEl = document.getElementById('auth-error');
       try {
-        await signInWithEmailAndPassword(auth, email, pwd);
+        const cred = await signInWithEmailAndPassword(auth, email, pwd);
+        // Check if email is verified
+        if (!cred.user.emailVerified) {
+          // Show verification pending overlay
+          document.getElementById('auth-overlay').classList.remove('open');
+          document.getElementById('verify-email-address').textContent = cred.user.email;
+          document.getElementById('verify-email-overlay').classList.add('open');
+          return;
+        }
         document.getElementById('auth-overlay').classList.remove('open');
         showToast('Logged in successfully', 'success');
       } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
@@ -2964,10 +3006,102 @@
       const errEl = document.getElementById('auth-error');
       try {
         const cred = await createUserWithEmailAndPassword(auth, email, pwd);
-        await sendEmailVerification(cred.user);
+        // Send verification email with action code settings
+        const actionCodeSettings = {
+          url: window.location.origin + '?verified=true',
+          handleCodeInApp: false
+        };
+        await sendEmailVerification(cred.user, actionCodeSettings);
+        // Show verification pending overlay instead of proceeding
         document.getElementById('auth-overlay').classList.remove('open');
-        showToast('Account created! An onboarding email with instructions has been sent.', 'success');
+        document.getElementById('verify-email-address').textContent = cred.user.email;
+        document.getElementById('verify-email-overlay').classList.add('open');
+        showToast('Verification email sent! Please check your inbox.', 'success');
       } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    };
+
+    // ===== EMAIL VERIFICATION HELPERS =====
+    let resendCooldown = 0;
+    let resendTimer = null;
+
+    window.resendVerification = async () => {
+      if (resendCooldown > 0) return;
+      const user = auth.currentUser;
+      if (!user) { showToast('No user session found. Please sign up again.', 'error'); return; }
+      try {
+        const actionCodeSettings = {
+          url: window.location.origin + '?verified=true',
+          handleCodeInApp: false
+        };
+        await sendEmailVerification(user, actionCodeSettings);
+        showToast('Verification email resent!', 'success');
+        // Start 60s cooldown
+        resendCooldown = 60;
+        const btn = document.getElementById('resend-verify-btn');
+        const textEl = document.getElementById('resend-verify-text');
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        resendTimer = setInterval(() => {
+          resendCooldown--;
+          textEl.textContent = `Resend in ${resendCooldown}s`;
+          if (resendCooldown <= 0) {
+            clearInterval(resendTimer);
+            textEl.textContent = 'Resend Verification Email';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+          }
+        }, 1000);
+      } catch (e) {
+        console.error('Resend error:', e);
+        showToast('Failed to resend. Try again later.', 'error');
+      }
+    };
+
+    window.checkVerificationStatus = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        showToast('Please sign in again.', 'info');
+        document.getElementById('verify-email-overlay').classList.remove('open');
+        return;
+      }
+      try {
+        await user.reload(); // Refresh user data from Firebase
+        if (user.emailVerified) {
+          document.getElementById('verify-email-overlay').classList.remove('open');
+          showToast('Email verified! Welcome aboard! 🎉', 'success');
+          updateAuthUI(user);
+          currentUser = user;
+          // Show welcome overlay
+          const welcomeShown = localStorage.getItem('plexhub_welcome_shown_' + user.uid);
+          if (!welcomeShown) {
+            setTimeout(() => {
+              document.getElementById('welcome-overlay').classList.add('open');
+            }, 300);
+          }
+        } else {
+          showToast('Email not yet verified. Check your inbox and click the link!', 'info');
+        }
+      } catch (e) {
+        console.error('Verification check error:', e);
+        showToast('Error checking verification. Please try signing in again.', 'error');
+      }
+    };
+
+    window.cancelVerification = async () => {
+      document.getElementById('verify-email-overlay').classList.remove('open');
+      try { await signOut(auth); } catch (e) { /* ignore */ }
+      if (resendTimer) clearInterval(resendTimer);
+      resendCooldown = 0;
+    };
+
+    window.dismissWelcome = () => {
+      document.getElementById('welcome-overlay').classList.remove('open');
+      const user = auth.currentUser;
+      if (user) {
+        localStorage.setItem('plexhub_welcome_shown_' + user.uid, 'true');
+      }
+      // Trigger onboarding if profile not set
+      if (user) checkUserOnboarding(user);
     };
 
     window.updateAdminPassword = async () => {
@@ -3192,8 +3326,47 @@
 
     // Listen for auth state changes
     onAuthStateChanged(auth, (user) => {
+      // Email verification gate: block unverified email/password users
+      if (user && !user.emailVerified) {
+        const isEmailProvider = user.providerData.some(p => p.providerId === 'password');
+        if (isEmailProvider) {
+          // Don't fully authenticate — show verification pending
+          currentUser = null;
+          updateAuthUI(null);
+          document.getElementById('verify-email-address').textContent = user.email;
+          document.getElementById('verify-email-overlay').classList.add('open');
+          return;
+        }
+      }
+
       updateAuthUI(user);
       currentUser = user;
+
+      // Check for welcome overlay trigger (first verified login or ?verified=true)
+      if (user && user.emailVerified) {
+        const isEmailProvider = user.providerData.some(p => p.providerId === 'password');
+        const welcomeShown = localStorage.getItem('plexhub_welcome_shown_' + user.uid);
+        if (isEmailProvider && !welcomeShown) {
+          // Show welcome overlay on first verified login
+          setTimeout(() => {
+            document.getElementById('welcome-overlay').classList.add('open');
+          }, 500);
+        }
+      }
+
+      // Also check URL param for ?verified=true
+      if (user && new URLSearchParams(window.location.search).get('verified') === 'true') {
+        const welcomeShown = localStorage.getItem('plexhub_welcome_shown_' + user.uid);
+        if (!welcomeShown) {
+          setTimeout(() => {
+            document.getElementById('welcome-overlay').classList.add('open');
+          }, 500);
+        }
+        // Clean up URL param
+        const url = new URL(window.location);
+        url.searchParams.delete('verified');
+        window.history.replaceState({}, '', url);
+      }
 
       const updateAdminUI = () => {
         const adminBtns = document.querySelectorAll('.admin-only');
@@ -5087,6 +5260,136 @@
         </label>
         <button class="torrent-btn" style="width:100%; height:50px; font-size:1rem;" onclick="window.saveOnboarding()">
           Save and Continue
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL VERIFICATION PENDING OVERLAY -->
+  <div id="verify-email-overlay" class="overlay">
+    <div class="modal" style="max-width: 460px; padding: 40px; text-align:center;">
+      <div
+        style="width:80px; height:80px; margin:0 auto 20px; background:linear-gradient(135deg, var(--accent), #f0c040); border-radius:50%; display:flex; align-items:center; justify-content:center; animation: pulseGlow 2s ease-in-out infinite;">
+        <i class="fa-solid fa-envelope-open-text" style="font-size:2rem; color:white;"></i>
+      </div>
+      <h2 style="margin-bottom:10px; font-size:1.5rem;">Check Your Email</h2>
+      <p style="color:var(--text-secondary); margin-bottom:8px; font-size:0.95rem; line-height:1.6;">
+        We sent a verification link to
+      </p>
+      <p id="verify-email-address" style="color:var(--accent); font-weight:700; font-size:1.05rem; margin-bottom:20px;">
+        you@example.com</p>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:25px; line-height:1.5;">
+        Click the link in your email to activate your account.<br>
+        The link expires in <strong style="color:var(--text-secondary);">72 hours</strong>.
+      </p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button id="resend-verify-btn" class="torrent-btn"
+          style="width:100%; background:var(--bg-secondary); border:1px solid var(--border);"
+          onclick="window.resendVerification()">
+          <i class="fa-solid fa-rotate-right"></i> <span id="resend-verify-text">Resend Verification Email</span>
+        </button>
+        <button class="torrent-btn" style="width:100%; background:var(--green);"
+          onclick="window.checkVerificationStatus()">
+          <i class="fa-solid fa-circle-check"></i> I've Verified — Continue
+        </button>
+        <button class="torrent-btn"
+          style="width:100%; background:transparent; border:1px solid var(--border); color:var(--text-muted);"
+          onclick="window.cancelVerification()">
+          Cancel
+        </button>
+      </div>
+      <p style="color:var(--text-muted); font-size:0.75rem; margin-top:15px;">
+        <i class="fa-solid fa-circle-info"></i> Check your spam folder if you don't see the email.
+      </p>
+    </div>
+  </div>
+
+  <!-- WELCOME OVERLAY (Post-Verification) -->
+  <div id="welcome-overlay" class="overlay">
+    <div class="modal" style="max-width: 550px; padding: 0; overflow:hidden;">
+      <!-- Hero Banner -->
+      <div
+        style="position:relative; height:180px; background:linear-gradient(135deg, #0a0a14 0%, #1a1a2e 50%, #16213e 100%); overflow:hidden;">
+        <div
+          style="position:absolute; inset:0; background:linear-gradient(45deg, rgba(229,160,13,0.15), rgba(229,160,13,0.05)); display:flex; flex-direction:column; align-items:center; justify-content:center;">
+          <div
+            style="font-size:2.5rem; font-weight:800; background:linear-gradient(135deg, var(--accent), #f0c040); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:5px;">
+            Cory's Plex Hub</div>
+          <div style="font-size:0.85rem; color:var(--text-muted); letter-spacing:2px; text-transform:uppercase;">Your
+            Personal Streaming Dashboard</div>
+        </div>
+        <!-- Decorative floating icons -->
+        <i class="fa-solid fa-film"
+          style="position:absolute; top:20px; left:30px; font-size:1.5rem; color:rgba(229,160,13,0.15); animation: float 6s ease-in-out infinite;"></i>
+        <i class="fa-solid fa-tv"
+          style="position:absolute; bottom:25px; right:40px; font-size:1.3rem; color:rgba(229,160,13,0.1); animation: float 8s ease-in-out infinite 1s;"></i>
+        <i class="fa-solid fa-star"
+          style="position:absolute; top:30px; right:60px; font-size:1rem; color:rgba(229,160,13,0.12); animation: float 5s ease-in-out infinite 0.5s;"></i>
+        <i class="fa-solid fa-clapperboard"
+          style="position:absolute; bottom:20px; left:50px; font-size:1.2rem; color:rgba(229,160,13,0.1); animation: float 7s ease-in-out infinite 2s;"></i>
+      </div>
+
+      <!-- Content -->
+      <div style="padding:30px 35px;">
+        <h2 style="margin-bottom:6px; font-size:1.4rem;">Welcome aboard! 🎉</h2>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;">Your account is verified. Here's what
+          you can do:</p>
+
+        <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:30px;">
+          <div
+            style="display:flex; align-items:center; gap:14px; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+            <div
+              style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, #e50914, #ff4757); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i class="fa-solid fa-magnifying-glass" style="color:white; font-size:0.9rem;"></i>
+            </div>
+            <div>
+              <div style="font-weight:600; font-size:0.9rem;">Browse & Discover</div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">Search trending movies & TV shows from TMDB</div>
+            </div>
+          </div>
+
+          <div
+            style="display:flex; align-items:center; gap:14px; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+            <div
+              style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, var(--accent), #f0c040); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i class="fa-solid fa-paper-plane" style="color:white; font-size:0.9rem;"></i>
+            </div>
+            <div>
+              <div style="font-weight:600; font-size:0.9rem;">Request Titles</div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">Ask Cory to add movies & shows to Plex</div>
+            </div>
+          </div>
+
+          <div
+            style="display:flex; align-items:center; gap:14px; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+            <div
+              style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, var(--blue), #74b9ff); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i class="fa-solid fa-bookmark" style="color:white; font-size:0.9rem;"></i>
+            </div>
+            <div>
+              <div style="font-weight:600; font-size:0.9rem;">Playlists & Watch Later</div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">Save titles and organize your watchlist</div>
+            </div>
+          </div>
+
+          <div
+            style="display:flex; align-items:center; gap:14px; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+            <div
+              style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, var(--green), #55efc4); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i class="fa-solid fa-bell" style="color:white; font-size:0.9rem;"></i>
+            </div>
+            <div>
+              <div style="font-weight:600; font-size:0.9rem;">Track & Get Notified</div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">Follow TV shows & see when requests are fulfilled
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="torrent-btn"
+          style="width:100%; height:50px; font-size:1rem; font-weight:700; background:linear-gradient(135deg, var(--accent), #f0c040); border:none;"
+          onclick="window.dismissWelcome()">
+          <i class="fa-solid fa-rocket"></i> Get Started
         </button>
       </div>
     </div>
