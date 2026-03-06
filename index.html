@@ -66,6 +66,308 @@
       /* Increased for better touch targets */
     }
 
+    /* ===========================================
+       LIGHT THEME
+       =========================================== */
+    body.light-theme {
+      --bg-primary: #f0f2f5;
+      --bg-secondary: #e4e6eb;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f5f5f7;
+      --border: #d1d5db;
+      --border-hover: #b0b3b8;
+      --text-primary: #1c1e21;
+      --text-secondary: #606770;
+      --text-muted: #8a8d91;
+      --accent: #cc8800;
+      --accent-glow: rgba(204, 136, 0, 0.3);
+    }
+
+    body.light-theme .mobile-bottom-nav {
+      background: rgba(255, 255, 255, 0.65);
+      border-top-color: rgba(0, 0, 0, 0.08);
+    }
+
+    body.light-theme .bottom-nav-item {
+      color: rgba(0, 0, 0, 0.4);
+    }
+
+    body.light-theme .bottom-nav-item:not(.active):hover {
+      color: rgba(0, 0, 0, 0.65);
+    }
+
+    body.light-theme header {
+      background: rgba(255, 255, 255, 0.75) !important;
+    }
+
+    body.light-theme .sticky-header {
+      background: rgba(255, 255, 255, 0.85) !important;
+      border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+    }
+
+    body.light-theme .modal {
+      background: rgba(255, 255, 255, 0.92) !important;
+      color: var(--text-primary);
+    }
+
+    body.light-theme .stat-card {
+      background: var(--bg-card) !important;
+      border-color: var(--border) !important;
+    }
+
+    body.light-theme .controls-bar {
+      background: var(--bg-secondary) !important;
+    }
+
+    body.light-theme .search-container {
+      background: rgba(0, 0, 0, 0.05) !important;
+      border-color: var(--border) !important;
+    }
+
+    body.light-theme .search-input {
+      color: var(--text-primary) !important;
+    }
+
+    body.light-theme .tab-btn {
+      color: var(--text-secondary);
+    }
+
+    body.light-theme .control-select,
+    body.light-theme .control-btn {
+      background: var(--bg-card) !important;
+      color: var(--text-primary) !important;
+      border-color: var(--border) !important;
+    }
+
+    /* ===========================================
+       SWIPE ANIMATION KEYFRAMES
+       =========================================== */
+    @keyframes slideInLeft {
+      from {
+        transform: translateX(-30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .view-section.swipe-left {
+      animation: slideInLeft 0.3s ease forwards;
+    }
+
+    .view-section.swipe-right {
+      animation: slideInRight 0.3s ease forwards;
+    }
+
+    /* ===========================================
+       NOTIFICATION BELL
+       =========================================== */
+    .notif-bell-wrapper {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .notif-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--red);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 800;
+      min-width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      box-shadow: 0 2px 6px rgba(229, 9, 20, 0.5);
+    }
+
+    .notif-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 320px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: rgba(30, 30, 40, 0.92);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      display: none;
+      padding: 0;
+    }
+
+    body.light-theme .notif-dropdown {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: var(--border);
+    }
+
+    .notif-dropdown.open {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .notif-dropdown-header {
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notif-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .notif-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .notif-item.unread {
+      background: rgba(229, 160, 13, 0.06);
+    }
+
+    .notif-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+
+    .notif-text {
+      flex: 1;
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .notif-time {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .notif-empty {
+      padding: 30px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ===========================================
+       ACTIVITY FEED
+       =========================================== */
+    .activity-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .activity-card {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      animation: fadeInUp 0.4s ease backwards;
+    }
+
+    .activity-card:hover {
+      border-color: rgba(229, 160, 13, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .activity-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .activity-desc {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .activity-time {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Theme toggle button */
+    .theme-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-toggle-btn:hover {
+      color: var(--accent);
+      background: rgba(229, 160, 13, 0.1);
+    }
+
     /* GLOBAL MOBILE UX OVERRIDES */
     * {
       -webkit-tap-highlight-color: transparent;
@@ -2286,6 +2588,24 @@
             style="display:none; padding:8px 12px; color:var(--accent); background:rgba(229,160,13,0.1); border-color:var(--accent);">
             <i class="fa-solid fa-toolbox"></i>
           </button>
+          <!-- Notification Bell -->
+          <div class="notif-bell-wrapper" id="notif-bell" onclick="toggleNotifDropdown()" style="display:none;">
+            <i class="fa-solid fa-bell" style="font-size:1.1rem; color:var(--text-muted); transition:color 0.2s;"></i>
+            <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+            <div class="notif-dropdown" id="notif-dropdown">
+              <div class="notif-dropdown-header">
+                <span>Notifications</span>
+                <button onclick="event.stopPropagation(); clearAllNotifications()"
+                  style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; font-weight:600;">Clear
+                  All</button>
+              </div>
+              <div id="notif-list">
+                <div class="notif-empty"><i class="fa-solid fa-bell-slash"
+                    style="display:block; font-size:1.5rem; margin-bottom:8px; opacity:0.4;"></i>No notifications yet
+                </div>
+              </div>
+            </div>
+          </div>
           <!-- Header Auth Button -->
           <button class="header-user-btn" id="header-auth-btn" onclick="window.headerAuthAction()">
             <i class="fa-solid fa-user" id="header-auth-icon"></i>
@@ -2549,6 +2869,23 @@
             <div class="stat-value" id="stat-pending" style="color:var(--blue);">0</div>
             <div class="stat-label">Pending</div>
           </button>
+        </div>
+
+        <!-- ACTIVITY FEED: What's New -->
+        <div id="activity-feed-section" style="margin-bottom:22px; display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3
+              style="margin:0;font-size:1rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+              <i class="fa-solid fa-bolt" style="color:var(--accent);"></i> What's New
+            </h3>
+            <button onclick="loadActivityFeed()"
+              style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82rem;font-weight:600;padding:0;font-family:inherit;display:flex;align-items:center;gap:4px;">
+              Refresh <i class="fa-solid fa-rotate" style="font-size:0.7rem;"></i>
+            </button>
+          </div>
+          <div class="activity-feed" id="activity-feed-list">
+            <!-- Activity cards injected here -->
+          </div>
         </div>
 
         <!-- Trending Now — no login needed -->
@@ -2830,6 +3167,8 @@
         <div style="display:flex; gap:10px;">
           <button class="torrent-btn" style="background:#4a69bd; padding:8px 15px;"
             onclick="window.messageAllUsers()"><i class="fa-solid fa-envelope"></i> Message All</button>
+          <button class="torrent-btn" style="background:#e17055; padding:8px 15px;"
+            onclick="window.cleanupTrailingSpaceDocs()"><i class="fa-solid fa-broom"></i> Cleanup DB</button>
           <button onclick="document.getElementById('admin-overlay').classList.remove('open')"
             style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
         </div>
@@ -2908,7 +3247,7 @@
   <script type="module">
     // FIREBASE CONFIGURATION
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, setDoc, doc, updateDoc, deleteDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, setDoc, doc, updateDoc, deleteDoc, getDoc, getDocs, addDoc, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -3158,6 +3497,41 @@
         document.getElementById('pwd-reset-overlay').classList.remove('open');
         showToast('Password updated successfully!', 'success');
       } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    };
+
+    // ===== FIRESTORE CLEANUP: Trailing-space doc IDs =====
+    window.cleanupTrailingSpaceDocs = async () => {
+      if (!currentUser || !window.isAdmin || !window.isAdmin()) {
+        showToast('Admin access required.', 'error');
+        return;
+      }
+      showToast('Scanning requests collection...', 'info');
+      try {
+        const snapshot = await getDocs(collection(db, 'requests'));
+        let cleaned = 0;
+        const batch = [];
+        snapshot.forEach(docSnap => {
+          const id = docSnap.id;
+          if (id !== id.trim()) {
+            batch.push({ oldId: id, newId: id.trim(), data: docSnap.data() });
+          }
+        });
+        if (batch.length === 0) {
+          showToast('✅ No trailing-space documents found. DB is clean!', 'success');
+          return;
+        }
+        for (const item of batch) {
+          // Write clean doc
+          await setDoc(doc(db, 'requests', item.newId), item.data);
+          // Delete old doc with trailing space
+          await deleteDoc(doc(db, 'requests', item.oldId));
+          cleaned++;
+        }
+        showToast(`🧹 Cleaned ${cleaned} document(s) with trailing-space IDs.`, 'success');
+      } catch (e) {
+        console.error('Cleanup error:', e);
+        showToast('Cleanup failed: ' + e.message, 'error');
+      }
     };
 
     // Global helper for UI clicks requiring auth context
@@ -5256,6 +5630,289 @@
     });
     const gridMovies = document.getElementById('grid-movies');
     if (gridMovies) heroObserver.observe(gridMovies, { childList: true });
+
+    // ===========================================
+    // FEATURE: DARK/LIGHT THEME TOGGLE
+    // ===========================================
+    window.toggleTheme = () => {
+      const isLight = document.body.classList.toggle('light-theme');
+      localStorage.setItem('plexhub_theme', isLight ? 'light' : 'dark');
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.className = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+      // Update meta theme color
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = isLight ? '#f0f2f5' : '#0a0a0f';
+    };
+
+    // Initialize theme on load
+    (function initTheme() {
+      const saved = localStorage.getItem('plexhub_theme');
+      if (saved === 'light' || (!saved && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+        document.body.classList.add('light-theme');
+        const icon = document.getElementById('theme-icon');
+        if (icon) icon.className = 'fa-solid fa-sun';
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.content = '#f0f2f5';
+      }
+    })();
+
+    // ===========================================
+    // FEATURE: NOTIFICATION BELL
+    // ===========================================
+    let notifUnsubscribe = null;
+    let userNotifications = [];
+
+    function initNotificationBell(user) {
+      const bell = document.getElementById('notif-bell');
+      if (!bell || !user) return;
+      bell.style.display = 'flex';
+
+      // Listen for notifications
+      if (notifUnsubscribe) notifUnsubscribe();
+      try {
+        const notifRef = collection(db, 'users', user.uid, 'notifications');
+        const q = query(notifRef, orderBy('createdAt', 'desc'), limit(20));
+        notifUnsubscribe = onSnapshot(q, (snapshot) => {
+          userNotifications = [];
+          snapshot.forEach(d => userNotifications.push({ id: d.id, ...d.data() }));
+          updateNotifBadge();
+          renderNotifList();
+        });
+      } catch (e) {
+        console.log('Notifications not available:', e.message);
+      }
+    }
+
+    function updateNotifBadge() {
+      const badge = document.getElementById('notif-badge');
+      const unread = userNotifications.filter(n => !n.read).length;
+      if (badge) {
+        badge.textContent = unread > 9 ? '9+' : unread;
+        badge.style.display = unread > 0 ? 'flex' : 'none';
+      }
+    }
+
+    function renderNotifList() {
+      const list = document.getElementById('notif-list');
+      if (!list) return;
+      if (userNotifications.length === 0) {
+        list.innerHTML = '<div class="notif-empty"><i class="fa-solid fa-bell-slash" style="display:block;font-size:1.5rem;margin-bottom:8px;opacity:0.4;"></i>No notifications yet</div>';
+        return;
+      }
+      list.innerHTML = userNotifications.map(n => {
+        const statusColors = { available: '#00d26a', done: '#a29bfe', pending: '#0984e3', rejected: '#e50914' };
+        const statusIcons = { available: 'fa-check-circle', done: 'fa-flag-checkered', pending: 'fa-clock', rejected: 'fa-times-circle' };
+        const bgColor = statusColors[n.status] || '#e5a00d';
+        const icon = statusIcons[n.status] || 'fa-bell';
+        const timeAgo = n.createdAt ? formatTimeAgo(n.createdAt.toDate ? n.createdAt.toDate() : new Date(n.createdAt)) : '';
+        return `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}')">
+          <div class="notif-icon" style="background:${bgColor}22;color:${bgColor};"><i class="fa-solid ${icon}"></i></div>
+          <div class="notif-text">
+            <div>${n.message || 'Status updated'}</div>
+            <div class="notif-time">${timeAgo}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    window.toggleNotifDropdown = () => {
+      const dropdown = document.getElementById('notif-dropdown');
+      if (dropdown) dropdown.classList.toggle('open');
+    };
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      const bell = document.getElementById('notif-bell');
+      const dropdown = document.getElementById('notif-dropdown');
+      if (dropdown && bell && !bell.contains(e.target)) {
+        dropdown.classList.remove('open');
+      }
+    });
+
+    window.markNotifRead = async (notifId) => {
+      if (!currentUser) return;
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid, 'notifications', notifId), { read: true });
+      } catch (e) { console.log('Mark read error:', e); }
+    };
+
+    window.clearAllNotifications = async () => {
+      if (!currentUser) return;
+      try {
+        for (const n of userNotifications) {
+          await deleteDoc(doc(db, 'users', currentUser.uid, 'notifications', n.id));
+        }
+        showToast('Notifications cleared', 'success');
+      } catch (e) { showToast('Error clearing notifications', 'error'); }
+    };
+
+    // Helper: Create notification when admin changes request status
+    window.createNotificationForUser = async (userId, title, status) => {
+      if (!userId) return;
+      try {
+        const notifRef = collection(db, 'users', userId, 'notifications');
+        await addDoc(notifRef, {
+          message: `🎬 "${title}" is now ${status}!`,
+          status: status,
+          createdAt: serverTimestamp(),
+          read: false
+        });
+      } catch (e) { console.log('Create notification error:', e); }
+    };
+
+    function formatTimeAgo(date) {
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000);
+      if (diff < 60) return 'Just now';
+      if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+      if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+      return date.toLocaleDateString();
+    }
+
+    // ===========================================
+    // FEATURE: MOBILE SWIPE GESTURES
+    // ===========================================
+    (function initSwipeNavigation() {
+      if (window.innerWidth > 768) return; // Desktop doesn't need swipe
+
+      const tabOrder = ['home', 'movies', 'tvshows', 'requests'];
+      let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
+      const mainEl = document.querySelector('main');
+      if (!mainEl) return;
+
+      mainEl.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+
+      mainEl.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+      }, { passive: true });
+
+      function handleSwipe() {
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = Math.abs(touchEndY - touchStartY);
+
+        // Min 60px horizontal, max 40px vertical
+        if (Math.abs(deltaX) < 60 || deltaY > 40) return;
+
+        // Find current active tab
+        const activeSection = document.querySelector('.view-section.active');
+        if (!activeSection) return;
+        const currentTab = activeSection.id.replace('view-', '');
+        const currentIndex = tabOrder.indexOf(currentTab);
+        if (currentIndex === -1) return;
+
+        let nextIndex;
+        let direction;
+        if (deltaX < 0) {
+          // Swipe left → next tab
+          nextIndex = currentIndex + 1;
+          direction = 'swipe-left';
+        } else {
+          // Swipe right → previous tab
+          nextIndex = currentIndex - 1;
+          direction = 'swipe-right';
+        }
+
+        if (nextIndex < 0 || nextIndex >= tabOrder.length) return;
+
+        const nextTab = tabOrder[nextIndex];
+        window.switchTab(nextTab);
+
+        // Add slide animation
+        const newSection = document.getElementById('view-' + nextTab);
+        if (newSection) {
+          newSection.classList.remove('swipe-left', 'swipe-right');
+          void newSection.offsetWidth; // force reflow
+          newSection.classList.add(direction);
+          setTimeout(() => newSection.classList.remove(direction), 350);
+        }
+
+        // Update bottom nav active state
+        updateBottomNavActiveState(nextTab);
+      }
+    })();
+
+    function updateBottomNavActiveState(tabName) {
+      const navItems = document.querySelectorAll('.bottom-nav-item');
+      const tabMap = { home: 0, movies: 1, tvshows: 2, requests: 3 };
+      navItems.forEach((item, i) => {
+        item.classList.toggle('active', i === tabMap[tabName]);
+      });
+    }
+
+    // ===========================================
+    // FEATURE: ACTIVITY FEED
+    // ===========================================
+    window.loadActivityFeed = async () => {
+      const section = document.getElementById('activity-feed-section');
+      const list = document.getElementById('activity-feed-list');
+      if (!section || !list) return;
+
+      try {
+        const requestsRef = collection(db, 'requests');
+        const q = query(requestsRef, orderBy('updatedAt', 'desc'), limit(8));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          section.style.display = 'none';
+          return;
+        }
+
+        section.style.display = 'block';
+        let html = '';
+        let i = 0;
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          const statusConfig = {
+            available: { icon: 'fa-check-circle', color: '#00d26a', bg: 'rgba(0,210,106,0.12)', label: 'Now Available' },
+            done: { icon: 'fa-flag-checkered', color: '#a29bfe', bg: 'rgba(162,155,254,0.12)', label: 'Completed' },
+            pending: { icon: 'fa-clock', color: '#0984e3', bg: 'rgba(9,132,227,0.12)', label: 'Requested' },
+            rejected: { icon: 'fa-times-circle', color: '#e50914', bg: 'rgba(229,9,20,0.12)', label: 'Not Available' }
+          };
+          const s = statusConfig[data.status] || statusConfig.pending;
+          const title = data.title || 'Unknown';
+          const requester = data.requester || 'Someone';
+          const timeAgo = data.updatedAt ? formatTimeAgo(data.updatedAt.toDate ? data.updatedAt.toDate() : new Date(data.updatedAt)) : '';
+
+          html += `<div class="activity-card" style="animation-delay:${i * 0.08}s;">
+            <div class="activity-icon" style="background:${s.bg};color:${s.color};"><i class="fa-solid ${s.icon}"></i></div>
+            <div class="activity-content">
+              <div class="activity-title">${title}</div>
+              <div class="activity-desc">${s.label} · Requested by ${requester}</div>
+              <div class="activity-time">${timeAgo}</div>
+            </div>
+          </div>`;
+          i++;
+        });
+        list.innerHTML = html;
+      } catch (e) {
+        console.log('Activity feed error:', e.message);
+        // Silently fail - activity feed is optional
+      }
+    };
+
+    // ===========================================
+    // INIT: Hook into auth state for notifications + activity
+    // ===========================================
+    const origOnAuthStateChanged = auth.onAuthStateChanged;
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        initNotificationBell(user);
+        loadActivityFeed();
+      } else {
+        const bell = document.getElementById('notif-bell');
+        if (bell) bell.style.display = 'none';
+        if (notifUnsubscribe) { notifUnsubscribe(); notifUnsubscribe = null; }
+      }
+    });
+
+    // Load activity feed on page load regardless of auth
+    document.addEventListener('DOMContentLoaded', () => { setTimeout(loadActivityFeed, 2000); });
 
   </script>
 
