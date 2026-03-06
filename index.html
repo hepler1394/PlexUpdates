@@ -1809,11 +1809,14 @@
         flex-shrink: 0;
       }
 
+      /* Hide theme toggle + select mode on mobile — accessible via sidebar */
       .actions-area .control-btn {
-        padding: 6px 8px !important;
-        min-height: 36px;
-        min-width: 36px;
-        font-size: 0.85rem;
+        display: none !important;
+      }
+
+      /* Show notification bell in sidebar on mobile */
+      .notif-bell-wrapper {
+        display: none !important;
       }
 
       .header-user-btn {
@@ -2392,6 +2395,21 @@
         </button>
         <button class="tab-btn" id="tab-tracking" onclick="switchTab('tracking')">
           <i class="fa-solid fa-eye"></i> Track Shows
+        </button>
+      </div>
+
+      <!-- Sidebar Utility Row (Theme + Notifications) -->
+      <div class="sidebar-utils"
+        style="display:flex; gap:8px; padding:8px 10px; border-top:1px solid var(--border); border-bottom:1px solid var(--border); margin:4px 0;">
+        <button class="tab-btn" onclick="toggleTheme(); return false;"
+          style="flex:1; text-align:center; padding:10px; border-radius:8px;">
+          <i class="fa-solid fa-moon" id="sidebar-theme-icon"></i> Theme
+        </button>
+        <button class="tab-btn sidebar-notif-btn" id="sidebar-notif-btn" onclick="toggleNotifDropdown(); return false;"
+          style="flex:1; text-align:center; padding:10px; border-radius:8px; display:none; position:relative;">
+          <i class="fa-solid fa-bell"></i> Alerts
+          <span class="notif-badge" id="sidebar-notif-badge"
+            style="display:none; position:absolute; top:2px; right:10px;">0</span>
         </button>
       </div>
 
@@ -5637,8 +5655,12 @@
     window.toggleTheme = () => {
       const isLight = document.body.classList.toggle('light-theme');
       localStorage.setItem('plexhub_theme', isLight ? 'light' : 'dark');
+      // Sync both header and sidebar icons
+      const iconClass = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
       const icon = document.getElementById('theme-icon');
-      if (icon) icon.className = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+      const sidebarIcon = document.getElementById('sidebar-theme-icon');
+      if (icon) icon.className = iconClass;
+      if (sidebarIcon) sidebarIcon.className = iconClass;
       // Update meta theme color
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.content = isLight ? '#f0f2f5' : '#0a0a0f';
@@ -5649,8 +5671,11 @@
       const saved = localStorage.getItem('plexhub_theme');
       if (saved === 'light' || (!saved && window.matchMedia('(prefers-color-scheme: light)').matches)) {
         document.body.classList.add('light-theme');
+        const iconClass = 'fa-solid fa-sun';
         const icon = document.getElementById('theme-icon');
-        if (icon) icon.className = 'fa-solid fa-sun';
+        const sidebarIcon = document.getElementById('sidebar-theme-icon');
+        if (icon) icon.className = iconClass;
+        if (sidebarIcon) sidebarIcon.className = iconClass;
         const meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.content = '#f0f2f5';
       }
@@ -5664,8 +5689,10 @@
 
     function initNotificationBell(user) {
       const bell = document.getElementById('notif-bell');
-      if (!bell || !user) return;
-      bell.style.display = 'flex';
+      const sidebarBtn = document.getElementById('sidebar-notif-btn');
+      if (!user) return;
+      if (bell) bell.style.display = 'flex';
+      if (sidebarBtn) sidebarBtn.style.display = 'flex';
 
       // Listen for notifications
       if (notifUnsubscribe) notifUnsubscribe();
@@ -5685,11 +5712,12 @@
 
     function updateNotifBadge() {
       const badge = document.getElementById('notif-badge');
+      const sidebarBadge = document.getElementById('sidebar-notif-badge');
       const unread = userNotifications.filter(n => !n.read).length;
-      if (badge) {
-        badge.textContent = unread > 9 ? '9+' : unread;
-        badge.style.display = unread > 0 ? 'flex' : 'none';
-      }
+      const text = unread > 9 ? '9+' : String(unread);
+      const show = unread > 0 ? 'flex' : 'none';
+      if (badge) { badge.textContent = text; badge.style.display = show; }
+      if (sidebarBadge) { sidebarBadge.textContent = text; sidebarBadge.style.display = show; }
     }
 
     function renderNotifList() {
