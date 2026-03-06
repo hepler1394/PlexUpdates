@@ -4278,15 +4278,34 @@
       const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
       const overlay = document.getElementById('detail-overlay');
 
-      // 1. ONE-CLICK REQUEST (If signed in, just do it)
+      // If signed in, show a quick request modal with note + priority
       if (currentUser) {
-        saveItemFromObject(item, 'pending');
-        return; // Modal not needed
+        const displayName = currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+        overlay.innerHTML = `
+        <div class="modal" style="max-width: 500px; padding: 40px;">
+          <h2 style="margin-bottom: 20px;">Request: ${item.title || item.name}</h2>
+          <p style="color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">Requesting as <strong style="color:var(--accent);">${displayName}</strong></p>
+          <textarea id="request-note" class="modal-note-input" placeholder="Add a note (optional)" rows="3"></textarea>
+          <select id="request-priority" class="control-select" style="width:100%; margin-bottom:15px; padding:10px 14px; background:var(--bg-secondary); border:1px solid var(--border); color:var(--text-primary); border-radius:8px;">
+            <option value="normal">Normal Priority</option>
+            <option value="high">🔥 High Priority</option>
+          </select>
+          <div style="display: flex; gap: 10px;">
+            <button class="torrent-btn" style="flex: 1;" onclick="window.submitRequestAuth(${JSON.stringify(item).replace(/\"/g, '&quot;')})">
+              <i class="fa-solid fa-paper-plane"></i> Submit Request
+            </button>
+            <button class="torrent-btn" style="background: #333;" onclick="document.getElementById('detail-overlay').classList.remove('open')">
+              Cancel
+            </button>
+          </div>
+        </div>`;
+        overlay.classList.add('open');
+        return;
       }
 
       // If not signed in, prompt to sign in first
       overlay.innerHTML = `
-          < div class="modal" style = "max-width: 420px; padding: 40px; text-align:center;" >
+          <div class="modal" style="max-width: 420px; padding: 40px; text-align:center;">
           <i class="fa-solid fa-user-lock" style="font-size:3rem; color:var(--accent); margin-bottom:15px;"></i>
           <h2 style="margin-bottom: 10px;">Sign In to Request</h2>
           <p style="color:var(--text-secondary); margin-bottom:25px; line-height:1.6;">Sign in with your Google account to request <strong>${item.title || item.name}</strong> and track your requests.</p>
@@ -4294,16 +4313,22 @@
             <svg class="google-icon-svg" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Sign in with Google
           </button>
-          <button class="torrent-btn" style="background:#333; width:100%;" onclick="document.getElementById('detail-overlay').classList.remove('open')">
-            Cancel
-          </button>
+          <button class="torrent-btn" style="background:#333; width:100%;" onclick="document.getElementById('detail-overlay').classList.remove('open')">Cancel</button>
           <p style="font-size:0.75rem; color:var(--text-muted); margin-top:15px;">Or continue as guest below</p>
-          <button class="torrent-btn" style="background:transparent; border:1px solid var(--border); color:var(--text-secondary); width:100%; font-size:0.8rem;" onclick="window.openRequestModalGuest(${JSON.stringify(item).replace(/"/g, '&quot;')
-        }) ">
+          <button class="torrent-btn" style="background:transparent; border:1px solid var(--border); color:var(--text-secondary); width:100%; font-size:0.8rem;" onclick="window.openRequestModalGuest(${JSON.stringify(item).replace(/\"/g, '&quot;')})">
             Continue without signing in
-          </button >
-        </div > `;
+          </button>
+        </div>`;
       overlay.classList.add('open');
+    };
+
+    window.submitRequestAuth = async (itemObj) => {
+      const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
+      const note = document.getElementById('request-note')?.value || '';
+      const priority = document.getElementById('request-priority')?.value || 'normal';
+      const requester = currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+      await saveItemFromObject(item, 'pending', note, requester, priority);
+      document.getElementById('detail-overlay').classList.remove('open');
     };
 
     window.submitRequest = async (itemObj) => {
@@ -4344,7 +4369,7 @@
         const noteToSave = note || (existingItem ? existingItem.note : '');
         const requesterToSave = requester || (existingItem ? existingItem.requester : '');
         const priorityToSave = priority || (existingItem ? existingItem.priority : 'normal');
-        const docId = `${item.mediaType || 'movie'}_${item.id} `;
+        const docId = `${item.mediaType || 'movie'}_${item.id}`;
         const timestamp = existingItem ? existingItem.timestamp : Date.now();
         const requestData = {
           ...item, mediaType: item.mediaType || 'movie', timestamp: timestamp,
@@ -4354,7 +4379,11 @@
         if (currentUser) {
           requestData.userId = currentUser.uid;
           requestData.userEmail = currentUser.email || '';
-          if (!requesterToSave) requestData.requester = currentUser.displayName || '';
+          if (!requesterToSave) {
+            // Use email username as fallback for email/password users
+            // whose Firebase Auth displayName may be null
+            requestData.requester = currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+          }
         }
         await setDoc(doc(db, "requests", docId), requestData);
         if (!silent) {
@@ -4465,6 +4494,12 @@
 
       // Auto-scroll to top for smooth transition
       window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Clear search input to prevent text doubling on re-navigation
+      const searchEl = document.getElementById('search');
+      if (searchEl) searchEl.value = '';
+      const liveRes = document.getElementById('live-search-results');
+      if (liveRes) liveRes.style.display = 'none';
 
       if (tabId === 'playlist') renderPlaylist();
       if (tabId === 'home') {
