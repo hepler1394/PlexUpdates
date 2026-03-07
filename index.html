@@ -153,6 +153,25 @@
       min-width: 200px;
     }
 
+    /* Mic pulsing animation for voice search */
+    .mic-pulsing {
+      animation: micPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes micPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+      }
+    }
+
     body.light-theme .context-menu-item:hover {
       background: var(--bg-secondary);
     }
@@ -4726,25 +4745,54 @@
     let searchTimeout;
 
     window.startVoiceSearch = () => {
-      if (!('webkitSpeechRecognition' in window)) { alert("Voice search not supported (try Chrome)."); return; }
-      const recognition = new webkitSpeechRecognition();
+      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognitionAPI) {
+        showToast('Voice search not supported in this browser. Try Chrome or Edge.', 'error');
+        return;
+      }
+      const recognition = new SpeechRecognitionAPI();
       recognition.lang = 'en-US';
-      recognition.start();
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
       const btn = document.getElementById('voice-search-btn');
+
       recognition.onstart = () => {
         btn.style.color = 'var(--accent)';
         btn.classList.add('mic-pulsing');
+        showToast('🎤 Listening...', 'info');
       };
+
       recognition.onend = () => {
         btn.style.color = 'var(--text-muted)';
         btn.classList.remove('mic-pulsing');
       };
+
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         const input = document.getElementById('search');
         input.value = transcript;
         input.dispatchEvent(new Event('input'));
+        showToast(`Searched: "${transcript}"`, 'success');
       };
+
+      recognition.onerror = (event) => {
+        btn.style.color = 'var(--text-muted)';
+        btn.classList.remove('mic-pulsing');
+        if (event.error === 'not-allowed') {
+          showToast('Microphone access denied. Check browser permissions.', 'error');
+        } else if (event.error === 'no-speech') {
+          showToast('No speech detected. Try again.', 'info');
+        } else {
+          showToast(`Voice search error: ${event.error}`, 'error');
+        }
+      };
+
+      try {
+        recognition.start();
+      } catch (e) {
+        showToast('Could not start voice search. Check microphone permissions.', 'error');
+      }
     };
 
     // LIVE SEARCH LOGIC (Debounced)
@@ -5237,6 +5285,25 @@
           if (status === 'added') showToast(`"${item.title}" marked as available!`, 'success');
           else showToast(`Request for "${item.title}" submitted!`, 'success');
           document.getElementById('detail-overlay').classList.remove('open');
+        }
+
+        // Create notification for the original requester when admin changes status
+        if (isAdmin() && existingItem && existingItem.userId && existingItem.userId !== currentUser?.uid) {
+          try {
+            const statusLabels = { added: 'is now available', acknowledged: 'has been acknowledged', pending: 'is pending' };
+            const notifMessage = `"${item.title}" ${statusLabels[status] || 'status updated'}!`;
+            await addDoc(collection(db, 'users', existingItem.userId, 'notifications'), {
+              message: notifMessage,
+              status: status === 'added' ? 'available' : status,
+              mediaType: item.mediaType || 'movie',
+              mediaId: item.id,
+              title: item.title,
+              read: false,
+              createdAt: serverTimestamp()
+            });
+          } catch (notifErr) {
+            console.log('Could not send notification:', notifErr.message);
+          }
         }
       } catch (e) {
         console.error("Error adding request: ", e);
@@ -5865,11 +5932,7 @@
 
     document.getElementById('ctx-delete')?.addEventListener('click', () => {
       if (contextItem) {
-        const title = contextItem.title || contextItem.name || 'this item';
-        if (confirm(`Delete "${title}" from requests?`)) {
-          deleteRequest(`${contextItem.mediaType}_${contextItem.id}`);
-          showToast(`"${title}" deleted`, 'info');
-        }
+        deleteRequest(`${contextItem.mediaType}_${contextItem.id}`);
       }
       contextMenu.classList.remove('active');
     });
