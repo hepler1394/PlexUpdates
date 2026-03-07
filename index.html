@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  <title>Cory's Plex Hub</title>
+  <title>Cory's Plex Hub — Request Movies & TV Shows</title>
 
   <!-- Cache Busting to ensure users always get the latest version without Hard Refresh -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -28,8 +28,7 @@
   <meta name="apple-mobile-web-app-title" content="PlexHub">
   <meta name="theme-color" content="#0a0a0f">
   <link rel="apple-touch-icon" href="https://img.icons8.com/color/180/plex.png">
-  <link rel="manifest"
-    href="data:application/json;base64,ewogICJuYW1lIjogIkNvcnkncyBQbGV4IEh1YiIsCiAgInNob3J0X25hbWUiOiAiUGxleEh1YiIsCiAgInN0YXJ0X3VybCI6ICIvIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGEwYTBmIiwKICAidGhlbWVfY29sb3IiOiAiI2U1MDkxNCIsCiAgImljb25zIjogW3sic3JjIjogImh0dHBzOi8vaW1nLmljb25zOC5jb20vY29sb3IvMTkyL3BsZXgucG5nIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmcifV0KfQ==">
+  <link rel="manifest" href="/manifest.json">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -137,6 +136,21 @@
       background: var(--bg-card) !important;
       color: var(--text-primary) !important;
       border-color: var(--border) !important;
+    }
+
+    body.light-theme .activity-card {
+      background: var(--bg-card);
+      border-color: var(--border);
+    }
+
+    body.light-theme .context-menu {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: var(--border);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    body.light-theme .context-menu-item:hover {
+      background: var(--bg-secondary);
     }
 
     /* ===========================================
@@ -369,16 +383,6 @@
     }
 
     /* GLOBAL MOBILE UX OVERRIDES */
-    * {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    input,
-    select,
-    textarea {
-      font-size: 16px !important;
-      /* Prevents iOS auto-zoom */
-    }
 
     .control-btn:active,
     .stat-card:active,
@@ -388,6 +392,120 @@
     .torrent-btn:active {
       transform: scale(0.96);
       transition: transform 0.1s ease;
+    }
+
+    /* SWIPE-TO-DELETE */
+    .swipe-card-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    .swipe-delete-bg {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 80px;
+      background: var(--red, #e74c3c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+      border-radius: 0 12px 12px 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .swipe-card-wrapper.swiping .swipe-delete-bg {
+      opacity: 1;
+    }
+
+    .swipe-card-inner {
+      position: relative;
+      z-index: 2;
+      transition: transform 0.3s ease;
+      background: var(--bg-card);
+    }
+
+    .swipe-card-wrapper.removing .swipe-card-inner {
+      transform: translateX(-100%) !important;
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .swipe-card-wrapper.removing {
+      max-height: 0;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease 0.15s;
+    }
+
+    /* PULL-TO-REFRESH */
+    @media (max-width: 768px) {
+      html {
+        overscroll-behavior-y: contain;
+      }
+    }
+
+    .pull-refresh-indicator {
+      position: fixed;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: top 0.2s ease, opacity 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+    }
+
+    .pull-refresh-indicator.visible {
+      opacity: 1;
+    }
+
+    .pull-refresh-indicator.refreshing i {
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* BOTTOM NAV NOTIFICATION BADGE */
+    .bottom-nav-item {
+      position: relative;
+    }
+
+    .bottom-nav-badge {
+      position: absolute;
+      top: 2px;
+      right: 50%;
+      transform: translateX(14px);
+      min-width: 16px;
+      height: 16px;
+      background: var(--red, #e74c3c);
+      color: white;
+      font-size: 0.55rem;
+      font-weight: 800;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      line-height: 1;
+      box-shadow: 0 2px 6px rgba(231, 76, 60, 0.5);
     }
 
     /* Global Yellow Scrollbar */
@@ -672,7 +790,7 @@
       align-items: center;
       border: 1px solid rgba(229, 160, 13, 0.45);
       box-shadow: 0 0 0 2px rgba(229, 160, 13, 0.35), 0 0 18px rgba(229, 160, 13, 0.12), inset 0 2px 6px rgba(0, 0, 0, 0.3);
-      animation: plexRingPulse 3s ease-in-out infinite;
+      animation: plexRingPulse 3s ease-in-out 2;
       transition: animation 0.3s ease;
     }
 
@@ -891,42 +1009,7 @@
       max-width: 600px;
     }
 
-    /* ===========================================
-       STATS GRID
-       =========================================== */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 15px;
-    }
-
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 15px;
-      text-align: center;
-      transition: transform 0.2s;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .stat-value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 5px;
-    }
-
-    .stat-label {
-      font-size: 0.8rem;
-      color: #dfdfdf;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+    /* STATS GRID — see main definition below */
 
     /* ===========================================
        BADGES
@@ -995,16 +1078,6 @@
 
     .fade-in-img.loaded {
       opacity: 1;
-    }
-
-    @keyframes shimmer {
-      0% {
-        background-position: -400px 0;
-      }
-
-      100% {
-        background-position: 400px 0;
-      }
     }
 
     .skeleton-card {
@@ -1186,7 +1259,7 @@
     }
 
     .torrent-btn:hover {
-      background: #f00;
+      background: #cc8800;
       transform: translateY(-2px);
     }
 
@@ -1278,7 +1351,7 @@
       height: 50px;
       border-radius: 50%;
       border: none;
-      box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+      box-shadow: 0 4px 15px rgba(229, 160, 13, 0.4);
       font-size: 1.2rem;
       cursor: pointer;
       display: flex;
@@ -1298,7 +1371,7 @@
     }
 
     #scroll-to-top:hover {
-      background: #f00;
+      background: #cc8800;
       transform: translateY(-5px);
     }
 
@@ -1481,11 +1554,6 @@
         background-position: -200% 0;
       }
     }
-
-    /* ===========================================
-       MOBILE BOTTOM NAV
-       =========================================== */
-    /* REDUNDANT MOBILE NAV CSS REMOVED */
   </style>
   <style>
     /* ===========================================
@@ -2367,7 +2435,10 @@
     <div class="container">
       <div class="header-content">
         <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-          <h1><i class="fa-brands fa-plex" style="color: var(--accent);"></i> PlexHub</h1>
+          <div
+            style="font-size:2.2rem; font-weight:800; background:linear-gradient(135deg, #fff 0%, #888 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;">
+            <i class="fa-brands fa-plex" style="color: var(--accent);"></i> PlexHub
+          </div>
           <button class="sidebar-close-btn" onclick="document.body.classList.remove('sidebar-open')"
             title="Close Sidebar"
             style="background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer; padding:8px; display:none; transition: color 0.2s;">
@@ -2525,8 +2596,13 @@
     <!-- PULL DOWN HANDLE (Mobile) -->
     <div id="header-pull-handle"
       style="display:none; position:fixed; top:0; left:50%; transform:translateX(-50%); z-index:2000; background:var(--accent); color:white; padding:5px 20px; border-radius:0 0 15px 15px; cursor:pointer; font-size:1.2rem; box-shadow:0 4px 10px rgba(0,0,0,0.3);"
-      onclick="document.querySelector('.sticky-header').classList.remove('header-hidden'); this.style.display='none';">
+      onclick="document.querySelector('.sticky-header').classList.remove('header-hidden'); this.style.display='none'; if(typeof headerManuallyHidden!=='undefined') headerManuallyHidden=false;">
       <i class="fa-solid fa-chevron-down"></i>
+    </div>
+
+    <!-- PULL-TO-REFRESH INDICATOR -->
+    <div class="pull-refresh-indicator" id="pull-refresh-indicator">
+      <i class="fa-solid fa-arrow-rotate-right" style="color:var(--accent); font-size:1rem;"></i>
     </div>
 
     <!-- UNIFIED STICKY HEADER -->
@@ -2664,8 +2740,8 @@
           </select>
           <select id="movie-year-filter" class="control-select">
             <option value="all">Any Year</option>
-            <option value="2024">2024</option>
-            <option value="2020">2020-2023</option>
+            <option value="2025">2025+</option>
+            <option value="2020">2020-2024</option>
             <option value="2010">2010s</option>
             <option value="2000">2000s</option>
             <option value="classic">Classic</option>
@@ -2800,7 +2876,7 @@
       <div
         style="display: flex; justify-content: center; width: 100%; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 5px; margin-top: 5px;">
         <div style="cursor:pointer; padding: 5px 40px; color: var(--text-muted);"
-          onclick="document.querySelector('.sticky-header').classList.add('header-hidden'); document.getElementById('header-pull-handle').style.display='flex';">
+          onclick="document.querySelector('.sticky-header').classList.add('header-hidden'); document.getElementById('header-pull-handle').style.display='flex'; if(typeof headerManuallyHidden!=='undefined') headerManuallyHidden=true;">
           <i class="fa-solid fa-chevron-up"></i>
         </div>
       </div>
@@ -3050,7 +3126,7 @@
     <!-- WATCH LATER (PLAYLIST) TAB -->
     <div id="view-playlist" class="view-section">
       <div
-        style="padding: 20px; text-align: center; background: rgba(229, 160, 13, 0.05); border: 1px dashed rgba(229, 160, 13, 0.3); border-radius: 16px; margin-bottom: 30px;">
+        style="padding: 20px; text-align: center; background: rgba(229, 160, 13, 0.05); border: 1px dashed rgba(229, 160, 13, 0.3); border-radius: 16px; margin-bottom: 30px; overflow: visible;">
         <i class="fa-solid fa-bookmark"
           style="font-size: 2.5rem; color: var(--accent); margin-bottom: 10px; display: block;"></i>
         <h2 style="margin-bottom: 5px;">My Watch Later</h2>
@@ -3076,6 +3152,27 @@
       </div>
       <div id="torrent-results-area" style="margin-bottom:30px;"></div>
 
+      <!-- My Requests (shown when signed in) -->
+      <div id="my-requests-section" style="display:none; margin-bottom:30px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3
+            style="margin:0; font-size:1rem; font-weight:700; color:white; display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-user" style="color:var(--accent);"></i> My Requests
+          </h3>
+        </div>
+        <div class="movie-grid" id="grid-my-requests"></div>
+        <div id="no-my-requests"
+          style="display:none; text-align:center; padding:20px; color:var(--text-muted); font-size:0.9rem;">
+          You haven't made any requests yet.
+        </div>
+      </div>
+
+      <!-- Global Requests -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="margin:0; font-size:1rem; font-weight:700; color:white; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-earth-americas" style="color:var(--text-secondary);"></i> All Requests
+        </h3>
+      </div>
       <div class="movie-grid" id="grid-requests">
         <!-- Populated by JS -->
       </div>
@@ -3150,6 +3247,9 @@
 
   <!-- CONTEXT MENU (Right Click) -->
   <div class="context-menu" id="context-menu">
+    <div class="context-menu-item" id="ctx-watchlater" style="display:none;">
+      <i class="fa-solid fa-bookmark"></i> Add to Watch Later
+    </div>
     <div class="context-menu-item" id="ctx-request">
       <i class="fa-solid fa-plus"></i> Request
     </div>
@@ -3167,12 +3267,11 @@
   </div>
 
   <!-- SCROLL TO TOP BTN -->
-  <button id="scroll-to-top" onclick="scrollToTop()">
+  <button id="scroll-to-top" onclick="scrollToTop()" aria-label="Scroll to top">
     <i class="fa-solid fa-arrow-up"></i>
   </button>
 
   <!-- MOBILE BOTTOM NAV -->
-  <!-- REDUNDANT BOTTOM NAV REMOVED -->
 
 
   <!-- ADMIN PANEL OVERLAY -->
@@ -3403,6 +3502,24 @@
       const email = document.getElementById('auth-email').value;
       const pwd = document.getElementById('auth-password').value;
       const errEl = document.getElementById('auth-error');
+
+      // Password requirements validation
+      if (pwd.length < 8) {
+        errEl.textContent = 'Password must be at least 8 characters.';
+        errEl.style.display = 'block';
+        return;
+      }
+      if (!/[A-Z]/.test(pwd)) {
+        errEl.textContent = 'Password must contain at least 1 uppercase letter.';
+        errEl.style.display = 'block';
+        return;
+      }
+      if (!/[0-9]/.test(pwd)) {
+        errEl.textContent = 'Password must contain at least 1 number.';
+        errEl.style.display = 'block';
+        return;
+      }
+
       try {
         const cred = await createUserWithEmailAndPassword(auth, email, pwd);
         // Send verification email with action code settings
@@ -3415,6 +3532,7 @@
         document.getElementById('auth-overlay').classList.remove('open');
         document.getElementById('verify-email-address').textContent = cred.user.email;
         document.getElementById('verify-email-overlay').classList.add('open');
+        startVerificationPolling();
         showToast('Verification email sent! Please check your inbox.', 'success');
       } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
     };
@@ -3486,8 +3604,36 @@
       }
     };
 
+    // Auto-poll for email verification every 5 seconds
+    let verifyPollTimer = null;
+    function startVerificationPolling() {
+      if (verifyPollTimer) clearInterval(verifyPollTimer);
+      verifyPollTimer = setInterval(async () => {
+        const user = auth.currentUser;
+        if (!user) { clearInterval(verifyPollTimer); return; }
+        try {
+          await user.reload();
+          if (user.emailVerified) {
+            clearInterval(verifyPollTimer);
+            verifyPollTimer = null;
+            document.getElementById('verify-email-overlay').classList.remove('open');
+            showToast('Email verified! Welcome aboard! 🎉', 'success');
+            updateAuthUI(user);
+            currentUser = user;
+            const welcomeShown = localStorage.getItem('plexhub_welcome_shown_' + user.uid);
+            if (!welcomeShown) {
+              setTimeout(() => {
+                document.getElementById('welcome-overlay').classList.add('open');
+              }, 300);
+            }
+          }
+        } catch (e) { /* silent retry */ }
+      }, 5000);
+    }
+
     window.cancelVerification = async () => {
       document.getElementById('verify-email-overlay').classList.remove('open');
+      if (verifyPollTimer) { clearInterval(verifyPollTimer); verifyPollTimer = null; }
       try { await signOut(auth); } catch (e) { /* ignore */ }
       if (resendTimer) clearInterval(resendTimer);
       resendCooldown = 0;
@@ -4053,6 +4199,7 @@
     let currentTVShows = [];
     let currentComingSoon = [];
     let trackedShows = [];
+    let userWatched = [];
     let newEpisodes = [];
     let currentTab = 'home';
     let currentMoviePage = 1;
@@ -4264,8 +4411,8 @@
       else if (rating === 'low') params.append('vote_average.lte', '5.9');
 
       const currentYear = new Date().getFullYear();
-      if (year === '2024') { params.append('primary_release_date.gte', '2024-01-01'); params.append('primary_release_date.lte', `${currentYear}-12-31`); }
-      else if (year === '2020') { params.append('primary_release_date.gte', '2020-01-01'); params.append('primary_release_date.lte', '2023-12-31'); }
+      if (year === '2025') { params.append('primary_release_date.gte', '2025-01-01'); params.append('primary_release_date.lte', `${currentYear}-12-31`); }
+      else if (year === '2020') { params.append('primary_release_date.gte', '2020-01-01'); params.append('primary_release_date.lte', '2024-12-31'); }
       else if (year === '2010') { params.append('primary_release_date.gte', '2010-01-01'); params.append('primary_release_date.lte', '2019-12-31'); }
       else if (year === '2000') { params.append('primary_release_date.gte', '2000-01-01'); params.append('primary_release_date.lte', '2009-12-31'); }
       else if (year === 'classic') params.append('primary_release_date.lte', '1999-12-31');
@@ -4381,6 +4528,8 @@
       document.getElementById('movie-sort').value = 'trending';
       document.getElementById('movie-rating-filter').value = 'all';
       document.getElementById('movie-year-filter').value = 'all';
+      document.getElementById('movie-runtime-filter').value = 'all';
+      document.getElementById('movie-votes-filter').value = 'all';
       fetchMovies(1, false);
     };
 
@@ -4389,6 +4538,8 @@
       document.getElementById('movie-sort').value = 'trending';
       document.getElementById('movie-rating-filter').value = 'all';
       document.getElementById('movie-year-filter').value = 'all';
+      document.getElementById('movie-runtime-filter').value = 'all';
+      document.getElementById('movie-votes-filter').value = 'all';
       fetchMovies(1, false);
     };
 
@@ -4434,7 +4585,7 @@
         .then(res => res.json())
         .then(data => {
           if (data.results && data.results.length > 0) addShowToTracking(data.results[0]);
-          else alert("Show not found!");
+          else showToast("Show not found!", "error");
         });
     };
 
@@ -4445,7 +4596,7 @@
           first_air_date: show.first_air_date, last_checked: Date.now(),
           last_episode_date: null, auto_request: false
         });
-        alert(`Now tracking: ${show.name}`);
+        showToast(`Now tracking: ${show.name}`, "success");
       } catch (e) { console.error("Error tracking show:", e); }
     }
 
@@ -4548,7 +4699,7 @@
         backdrop_path: show.backdrop_path, overview: episode.overview || show.overview,
         release_date: episode.air_date, vote_average: show.vote_average
       }, 'pending', `Episode: ${episode.name}`, 'User', 'normal');
-      alert(`Requested: ${title}`);
+      showToast(`Requested: ${title}`, "success");
     };
 
     window.toggleAutoRequest = async (docId, enabled) => {
@@ -4754,6 +4905,7 @@
       contextMenu.style.top = `${y}px`;
 
       document.getElementById('ctx-mark').style.display = isAdmin() ? 'flex' : 'none';
+      document.getElementById('ctx-watchlater').style.display = currentUser ? 'flex' : 'none';
       document.getElementById('ctx-delete').style.display = 'none';
 
       if (isAdmin() || (currentUser && item && item.userId === currentUser.uid)) {
@@ -4765,10 +4917,13 @@
       contextMenu.classList.add('active');
     };
 
-    // GENRE/SORT FILTERS
+    // GENRE/SORT FILTERS — auto-hide header on filter change
     ['movie-sort', 'movie-genre', 'movie-rating-filter', 'movie-year-filter', 'movie-runtime-filter', 'movie-votes-filter'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.addEventListener('change', () => fetchMovies(1, false));
+      if (el) el.addEventListener('change', () => {
+        fetchMovies(1, false);
+        mobileAutoHideHeader();
+      });
     });
 
     document.getElementById('tv-sort').addEventListener('change', async (e) => {
@@ -4788,7 +4943,23 @@
         currentTVShows = data.results.map(tv => ({ ...tv, mediaType: 'tv', title: tv.name, release_date: tv.first_air_date }));
         renderGrid(currentTVShows, 'grid-tvshows');
       }
+      mobileAutoHideHeader();
     });
+
+    // Helper: auto-hide header and scroll to content on mobile
+    function mobileAutoHideHeader() {
+      if (window.innerWidth <= 768) {
+        const header = document.querySelector('.sticky-header');
+        const pullHandle = document.getElementById('header-pull-handle');
+        if (header) {
+          header.classList.add('header-hidden');
+          if (typeof headerManuallyHidden !== 'undefined') headerManuallyHidden = true;
+        }
+        if (pullHandle) pullHandle.style.display = 'flex';
+        // Scroll to top of content (below header)
+        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+      }
+    }
 
     // RENDERING CARDS
     function renderGrid(items, targetId, append = false) {
@@ -4876,6 +5047,46 @@
           }
         });
 
+        // Long-press context menu (500ms hold)
+        let longPressTimer = null;
+        card.addEventListener('touchstart', (e) => {
+          longPressTimer = setTimeout(() => {
+            e.preventDefault();
+            if (navigator.vibrate) navigator.vibrate(50);
+            // Open context menu at touch position
+            const touch = e.changedTouches[0];
+            contextItem = item;
+            const menuWidth = 180, menuHeight = 200;
+            let x = touch.clientX - menuWidth / 2;
+            let y = touch.clientY - menuHeight - 10;
+            if (x < 10) x = 10;
+            if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 10;
+            if (y < 10) y = touch.clientY + 20;
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+
+            // Show/hide context menu items based on context
+            document.getElementById('ctx-mark').style.display = isAdmin() ? 'flex' : 'none';
+            document.getElementById('ctx-watchlater').style.display = currentUser ? 'flex' : 'none';
+            document.getElementById('ctx-delete').style.display = 'none';
+            if (isAdmin() || (currentUser && item && item.userId === currentUser.uid)) {
+              if (item && (item.status === 'pending' || item.status === 'added' || item.firestoreId)) {
+                document.getElementById('ctx-delete').style.display = 'flex';
+              }
+            }
+            contextMenu.classList.add('active');
+            longPressTimer = null;
+          }, 500);
+        }, { passive: false });
+
+        card.addEventListener('touchend', () => {
+          if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+        });
+
+        card.addEventListener('touchmove', () => {
+          if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+        });
+
         grid.appendChild(card);
       });
     }
@@ -4952,7 +5163,7 @@
       const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
       const overlay = document.getElementById('detail-overlay');
       overlay.innerHTML = `
-      < div class="modal" style = "max-width: 500px; padding: 40px;" >
+      <div class="modal" style="max-width: 500px; padding: 40px;">
         <h2 style="margin-bottom: 20px;">Request: ${item.title || item.name}</h2>
         <input type="text" id="requester-name" class="modal-note-input" placeholder="Your name" style="height: 45px;">
         <textarea id="request-note" class="modal-note-input" placeholder="Add a note (optional)" rows="3"></textarea>
@@ -4964,7 +5175,7 @@
             Cancel
           </button>
         </div>
-      </div > `;
+      </div>`;
       overlay.classList.add('open');
     };
 
@@ -5018,11 +5229,7 @@
       if (query) window.open(`https://www.google.com/search?q=${encodeURIComponent(query + ' torrent magnet')}`, '_blank');
     };
 
-    document.getElementById('torrent-search-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      document.getElementById('torrent-search-input').blur();
-      window.searchTorrentsManual();
-    });
+
 
     // SELECT MODE & BULK ACTIONS
     window.toggleSelectMode = () => {
@@ -5078,6 +5285,8 @@
     // TAB SWITCHING
     window.switchTab = (tabId) => {
       currentTab = tabId;
+      // Persist tab so browser refresh restores it
+      localStorage.setItem('plexhub_current_tab', tabId);
 
       // Update sidebar tab buttons
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -5128,8 +5337,10 @@
       else if (tabId === 'requests') document.getElementById('controls-requests').style.display = 'flex';
       else if (tabId === 'tracking') document.getElementById('controls-tracking').style.display = 'flex';
 
-      // Initial fetch if needed
-      if (tabId === 'movies' && currentMovies.length === 0) fetchMovies(1, false);
+      // Initial fetch if needed — clear filters on tab switch
+      if (tabId === 'movies') {
+        clearMovieFilters(); // Always reset filters when switching to movies
+      }
       if (tabId === 'tvshows' && currentTVShows.length === 0) fetchTrendingTV();
       if (tabId === 'coming' && currentComingSoon.length === 0) fetchComingSoon();
 
@@ -5161,19 +5372,48 @@
       renderRequests(demoData);
     };
 
-    // RENDER REQUESTS FOR MAIN TAB
+    // RENDER REQUESTS FOR MAIN TAB — split into My Requests + All Requests
     function renderRequests(data = null) {
-      const grid = document.getElementById('grid-requests');
+      const allGrid = document.getElementById('grid-requests');
+      const myGrid = document.getElementById('grid-my-requests');
+      const mySection = document.getElementById('my-requests-section');
+      const noMyReqs = document.getElementById('no-my-requests');
       const items = data || globalRequests;
-      grid.innerHTML = '';
+      allGrid.innerHTML = '';
 
       if (items.length === 0) {
-        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">No requests yet. Browse Movies or TV and click Request!</p>';
+        allGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">No requests yet. Browse Movies or TV and click Request!</p>';
+        if (mySection) mySection.style.display = 'none';
         return;
       }
 
       const sorted = [...items].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      buildRequestCards(sorted, grid);
+
+      // If signed in, split into user's requests and all others
+      if (currentUser && myGrid && mySection) {
+        const myItems = sorted.filter(r => r.userId === currentUser.uid);
+        const otherItems = sorted.filter(r => r.userId !== currentUser.uid);
+
+        mySection.style.display = 'block';
+        myGrid.innerHTML = '';
+
+        if (myItems.length === 0) {
+          if (noMyReqs) noMyReqs.style.display = 'block';
+        } else {
+          if (noMyReqs) noMyReqs.style.display = 'none';
+          buildRequestCards(myItems, myGrid);
+        }
+
+        if (otherItems.length === 0) {
+          allGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:gray; padding:20px;">No other requests.</p>';
+        } else {
+          buildRequestCards(otherItems, allGrid);
+        }
+      } else {
+        // Not signed in — show all in one grid
+        if (mySection) mySection.style.display = 'none';
+        buildRequestCards(sorted, allGrid);
+      }
     }
 
     // FETCH TRENDING FOR HOME SCREEN (NETFLIX STYLE)
@@ -5204,6 +5444,17 @@
           };
           scrollContainer.appendChild(el);
         });
+
+        // Set home hero background from first trending item
+        if (items.length > 0 && items[0].backdrop_path) {
+          const heroBg = document.getElementById('home-hero-bg');
+          if (heroBg) {
+            heroBg.style.backgroundImage = `url(https://image.tmdb.org/t/p/w1280${items[0].backdrop_path})`;
+            heroBg.style.backgroundSize = 'cover';
+            heroBg.style.backgroundPosition = 'center';
+            heroBg.style.opacity = '0.3';
+          }
+        }
       } catch (e) {
         console.error("Home Trending Error", e);
         scrollContainer.innerHTML = '<div style="color:var(--red); padding:10px;">Failed to load trending.</div>';
@@ -5232,6 +5483,9 @@
         if (authLabel) authLabel.textContent = 'Sign In';
         if (authIcon) authIcon.className = 'fa-solid fa-right-to-bracket';
         if (greeting) greeting.textContent = 'Browse trending content & request your favorites!';
+        // Re-show home hero for guests
+        const homeHero = document.getElementById('home-hero');
+        if (homeHero) homeHero.style.display = '';
       } else {
         if (guestBanner) guestBanner.style.display = 'none';
         if (globalSection) globalSection.style.display = 'block';
@@ -5239,6 +5493,10 @@
         if (authLabel) authLabel.textContent = 'My Profile';
         if (authIcon) authIcon.className = 'fa-solid fa-user-circle';
         if (greeting) greeting.textContent = `Welcome back, ${currentUser.displayName || 'User'}! Browse trending content & track your requests.`;
+
+        // Hide home hero for signed-in users — more room for content
+        const homeHero = document.getElementById('home-hero');
+        if (homeHero) homeHero.style.display = 'none';
 
         // Update Stats
         const elTotal = document.getElementById('stat-total');
@@ -5474,24 +5732,6 @@
     const origRenderGrid = renderGrid;
     // We'll call updateHero in the observer instead
 
-    // THEME TOGGLE
-    window.toggleTheme = () => {
-      document.body.classList.toggle('light-mode');
-      const icon = document.getElementById('theme-icon');
-      if (document.body.classList.contains('light-mode')) {
-        icon.className = 'fa-solid fa-sun';
-        localStorage.setItem('theme', 'light');
-      } else {
-        icon.className = 'fa-solid fa-moon';
-        localStorage.setItem('theme', 'dark');
-      }
-    };
-
-    if (localStorage.getItem('theme') === 'light') {
-      document.body.classList.add('light-mode');
-      document.getElementById('theme-icon').className = 'fa-solid fa-sun';
-    }
-
     // TOAST NOTIFICATION
     function showToast(message, type = 'info') {
       // Remove existing toast if any
@@ -5548,6 +5788,15 @@
     }
 
     // CONTEXT MENU HANDLERS
+    document.getElementById('ctx-watchlater')?.addEventListener('click', () => {
+      if (contextItem && currentUser) {
+        window.toggleInPlaylist('Watch Later', contextItem);
+      } else if (!currentUser) {
+        showToast('Sign in to save to Watch Later', 'info');
+      }
+      contextMenu.classList.remove('active');
+    });
+
     document.getElementById('ctx-request')?.addEventListener('click', () => {
       if (contextItem) openRequestModal(contextItem);
       contextMenu.classList.remove('active');
@@ -5599,9 +5848,10 @@
         });
       });
 
-      // [OPT 1] Auto-hide header on scroll down, show on scroll up
+      // [OPT 1] Auto-hide header on scroll down — stays hidden until pull handle or absolute top
       let lastScrollY = 0;
       let scrollTicking = false;
+      let headerManuallyHidden = false;
       const stickyHeader = document.querySelector('.sticky-header');
 
       window.addEventListener('scroll', () => {
@@ -5612,16 +5862,17 @@
               const pullHandle = document.getElementById('header-pull-handle');
 
               if (currentScrollY > lastScrollY && currentScrollY > 50) {
-                // Scrolling down past 50px — auto-hide header
+                // Scrolling down past 50px — hide header, keep it hidden
                 stickyHeader.classList.add('header-hidden');
+                headerManuallyHidden = true;
                 if (pullHandle) pullHandle.style.display = 'flex';
-              } else if (currentScrollY <= 20) {
-                // Keep header visible at the very top
+              } else if (currentScrollY <= 0) {
+                // Only auto-show at absolute top of page
                 stickyHeader.classList.remove('header-hidden');
+                headerManuallyHidden = false;
                 if (pullHandle) pullHandle.style.display = 'none';
               }
-              // Notice we DO NOT auto-show on scroll up anymore, unless at the very top.
-              // The user must click the pull handle to show it manually.
+              // Otherwise: header stays hidden regardless of scroll direction
 
               lastScrollY = currentScrollY;
             }
@@ -5632,10 +5883,10 @@
       }, { passive: true });
 
       // [OPT 4] Shorter search placeholder on mobile
-      const searchInput = document.getElementById('search');
+      const mobileSearchInput = document.getElementById('search');
       function updateSearchPlaceholder() {
-        if (searchInput) {
-          searchInput.placeholder = window.innerWidth <= 768 ? 'Search...' : 'Search movies, TV, people...';
+        if (mobileSearchInput) {
+          mobileSearchInput.placeholder = window.innerWidth <= 768 ? 'Search...' : 'Search movies, TV, people...';
         }
       }
       updateSearchPlaceholder();
@@ -5713,11 +5964,13 @@
     function updateNotifBadge() {
       const badge = document.getElementById('notif-badge');
       const sidebarBadge = document.getElementById('sidebar-notif-badge');
+      const navBadge = document.getElementById('nav-notif-badge');
       const unread = userNotifications.filter(n => !n.read).length;
       const text = unread > 9 ? '9+' : String(unread);
       const show = unread > 0 ? 'flex' : 'none';
       if (badge) { badge.textContent = text; badge.style.display = show; }
       if (sidebarBadge) { sidebarBadge.textContent = text; sidebarBadge.style.display = show; }
+      if (navBadge) { navBadge.textContent = text; navBadge.style.display = show; }
     }
 
     function renderNotifList() {
@@ -5859,9 +6112,7 @@
           newSection.classList.add(direction);
           setTimeout(() => newSection.classList.remove(direction), 350);
         }
-
-        // Update bottom nav active state
-        updateBottomNavActiveState(nextTab);
+        // switchTab already handles bottom nav active state
       }
     })();
 
@@ -5940,12 +6191,111 @@
     });
 
     // Load activity feed on page load regardless of auth
-    document.addEventListener('DOMContentLoaded', () => { setTimeout(loadActivityFeed, 2000); });
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(loadActivityFeed, 2000);
+      // Restore last active tab from localStorage
+      const savedTab = localStorage.getItem('plexhub_current_tab');
+      if (savedTab && savedTab !== 'home') {
+        switchTab(savedTab);
+      }
+    });
+
+    // ===========================================
+    // FEATURE: REFRESH CURRENT TAB
+    // ===========================================
+    window.refreshCurrentTab = async () => {
+      const tab = currentTab || 'home';
+      showToast('Refreshing...', 'info');
+      if (tab === 'movies') { clearMovieFilters(); }
+      else if (tab === 'tvshows') { forceRefreshTV(); }
+      else if (tab === 'requests') { renderRequests(); }
+      else if (tab === 'home') { await fetchHomeTrending(); renderHomeRequests(); renderHomePlaylists(); }
+      else if (tab === 'collections') { renderCollections(); }
+      else if (tab === 'playlist') { renderPlaylist(); }
+      else if (tab === 'coming') { fetchComingSoon(); }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // ===========================================
+    // FEATURE: PULL-TO-REFRESH (Mobile)
+    // ===========================================
+    (function initPullToRefresh() {
+      if (window.innerWidth > 768) return;
+
+      const indicator = document.getElementById('pull-refresh-indicator');
+      if (!indicator) return;
+
+      let pullStartY = 0;
+      let pulling = false;
+      let isRefreshing = false;
+      const threshold = 80;
+
+      document.addEventListener('touchstart', (e) => {
+        if (window.scrollY <= 5 && !isRefreshing) {
+          pullStartY = e.touches[0].clientY;
+          pulling = true;
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchmove', (e) => {
+        if (!pulling || isRefreshing) return;
+        const pullDistance = e.touches[0].clientY - pullStartY;
+        if (pullDistance <= 0) { pulling = false; return; }
+
+        const progress = Math.min(pullDistance / threshold, 1);
+        const topPos = -50 + (progress * 70);
+        indicator.style.top = `${topPos}px`;
+        indicator.classList.add('visible');
+
+        // Rotate arrow based on progress
+        const icon = indicator.querySelector('i');
+        if (icon) icon.style.transform = `rotate(${progress * 180}deg)`;
+      }, { passive: true });
+
+      document.addEventListener('touchend', async () => {
+        if (!pulling || isRefreshing) return;
+        pulling = false;
+
+        const currentTop = parseFloat(indicator.style.top) || -50;
+        if (currentTop >= 15) {
+          // Trigger refresh
+          isRefreshing = true;
+          indicator.classList.add('refreshing');
+          indicator.style.top = '20px';
+          const icon = indicator.querySelector('i');
+          if (icon) icon.style.transform = '';
+
+          if (navigator.vibrate) navigator.vibrate(30);
+          await refreshCurrentTab();
+
+          setTimeout(() => {
+            indicator.style.top = '-50px';
+            indicator.classList.remove('visible', 'refreshing');
+            isRefreshing = false;
+          }, 500);
+        } else {
+          // Snap back
+          indicator.style.top = '-50px';
+          indicator.classList.remove('visible');
+        }
+      });
+    })();
+
+    // ===========================================
+    // SERVICE WORKER REGISTRATION
+    // ===========================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+          // SW registration fails on file:// or localhost without HTTPS, that's fine
+        });
+      });
+    }
 
   </script>
 
   <!-- MOBILE PERSISTENT BOTTOM NAV -->
-  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav" role="navigation" aria-label="Main navigation">
     <div class="bottom-nav-item active" onclick="switchTab('home')">
       <i class="fa-solid fa-house"></i>
       <span>Home</span>
@@ -5965,6 +6315,7 @@
     <div class="bottom-nav-item"
       onclick="currentUser ? window.headerAuthAction() : document.getElementById('auth-overlay').classList.add('open')">
       <i class="fa-solid fa-user"></i>
+      <span class="bottom-nav-badge" id="nav-notif-badge">0</span>
       <span>Account</span>
     </div>
   </nav>
@@ -6016,10 +6367,10 @@
           onclick="window.resendVerification()">
           <i class="fa-solid fa-rotate-right"></i> <span id="resend-verify-text">Resend Verification Email</span>
         </button>
-        <button class="torrent-btn" style="width:100%; background:var(--green);"
-          onclick="window.checkVerificationStatus()">
-          <i class="fa-solid fa-circle-check"></i> I've Verified — Continue
-        </button>
+        <div id="verify-polling-status"
+          style="display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; color:var(--text-secondary); font-size:0.9rem;">
+          <i class="fa-solid fa-spinner fa-spin" style="color:var(--accent);"></i> Waiting for verification...
+        </div>
         <button class="torrent-btn"
           style="width:100%; background:transparent; border:1px solid var(--border); color:var(--text-muted);"
           onclick="window.cancelVerification()">
@@ -6124,8 +6475,8 @@
   </div>
 
   <!-- FLOATING ACTION BUTTON (SEARCH) -->
-  <div class="fab-search"
-    onclick="document.querySelector('.sticky-header').classList.remove('header-hidden'); document.getElementById('search').focus(); window.scrollToTop();">
+  <div class="fab-search" role="button" aria-label="Open search"
+    onclick="document.querySelector('.sticky-header').classList.remove('header-hidden'); if(typeof headerManuallyHidden!=='undefined') headerManuallyHidden=false; document.getElementById('header-pull-handle').style.display='none'; document.getElementById('search').focus(); window.scrollToTop();">
     <i class="fa-solid fa-magnifying-glass"></i>
   </div>
 
