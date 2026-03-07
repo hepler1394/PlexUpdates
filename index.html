@@ -4046,7 +4046,7 @@
 
       // Add Playlist Manager UI at top of section
       const managerHtml = `
-        <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; padding-bottom:10px; scrollbar-width:none;">
+        <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; padding-bottom:10px; scrollbar-width:none; -webkit-overflow-scrolling:touch;">
           ${userPlaylists.map(p => `
             <button class="control-btn ${p.name === playlistName ? 'active' : ''}" 
                     style="background:${p.name === playlistName ? 'var(--accent)' : 'rgba(255,255,255,0.05)'}; color:${p.name === playlistName ? 'white' : 'var(--text-muted)'}; padding:8px 16px; border-color:${p.name === playlistName ? 'var(--accent)' : 'var(--border)'}"
@@ -4054,7 +4054,7 @@
               ${p.name}
             </button>
           `).join('')}
-          <button class="control-btn" style="background:rgba(255,255,255,0.1); padding:8px 16px;" onclick="window.createPlaylist()">
+          <button class="control-btn" style="background:rgba(255,255,255,0.1); padding:8px 16px; flex-shrink:0; white-space:nowrap;" onclick="window.createPlaylist()">
             <i class="fa-solid fa-plus"></i> New Playlist
           </button>
         </div>
@@ -5032,6 +5032,27 @@
           if (navigator.vibrate) navigator.vibrate(20);
           openDetail(item);
         };
+
+        // Right-click context menu
+        card.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          contextItem = item;
+          const menuWidth = 180, menuHeight = 200;
+          let x = e.clientX, y = e.clientY;
+          if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 10;
+          if (y + menuHeight > window.innerHeight) y = window.innerHeight - menuHeight - 10;
+          contextMenu.style.left = `${x}px`;
+          contextMenu.style.top = `${y}px`;
+          document.getElementById('ctx-mark').style.display = isAdmin() ? 'flex' : 'none';
+          document.getElementById('ctx-watchlater').style.display = currentUser ? 'flex' : 'none';
+          document.getElementById('ctx-delete').style.display = 'none';
+          if (isAdmin() || (currentUser && item && item.userId === currentUser.uid)) {
+            if (item && (item.status === 'pending' || item.status === 'added' || item.firestoreId)) {
+              document.getElementById('ctx-delete').style.display = 'flex';
+            }
+          }
+          contextMenu.classList.add('active');
+        });
 
         // Double Tap logic for Quick Request
         card.addEventListener('touchstart', (e) => {
