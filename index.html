@@ -149,6 +149,10 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     }
 
+    .context-menu {
+      min-width: 200px;
+    }
+
     body.light-theme .context-menu-item:hover {
       background: var(--bg-secondary);
     }
@@ -4049,7 +4053,7 @@
         <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; padding-bottom:10px; scrollbar-width:none; -webkit-overflow-scrolling:touch;">
           ${userPlaylists.map(p => `
             <button class="control-btn ${p.name === playlistName ? 'active' : ''}" 
-                    style="background:${p.name === playlistName ? 'var(--accent)' : 'rgba(255,255,255,0.05)'}; color:${p.name === playlistName ? 'white' : 'var(--text-muted)'}; padding:8px 16px; border-color:${p.name === playlistName ? 'var(--accent)' : 'var(--border)'}"
+                    style="background:${p.name === playlistName ? 'var(--accent)' : 'rgba(255,255,255,0.05)'}; color:${p.name === playlistName ? 'white' : 'var(--text-muted)'}; padding:8px 16px; border-color:${p.name === playlistName ? 'var(--accent)' : 'var(--border)'}; flex-shrink:0; white-space:nowrap;"
                     onclick="renderPlaylist('${p.name}')">
               ${p.name}
             </button>
@@ -4189,7 +4193,11 @@
           playlists: newPlaylists,
           playlist: newPlaylists[0].items
         });
-        window.openPlaylistManager(item); // Refresh modal
+        // Auto-close modal after toggle
+        const playlistOverlay = document.getElementById('playlist-overlay');
+        if (playlistOverlay) {
+          setTimeout(() => playlistOverlay.classList.remove('open'), 600);
+        }
       } catch (e) {
         console.error(e);
         showToast("Failed to update", "error");
@@ -5639,6 +5647,28 @@
           </div>
         `;
         card.onclick = () => openDetail(item);
+
+        // Right-click context menu on request cards
+        card.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          contextItem = item;
+          const menuWidth = 200, menuHeight = 200;
+          let x = e.clientX, y = e.clientY;
+          if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 10;
+          if (y + menuHeight > window.innerHeight) y = window.innerHeight - menuHeight - 10;
+          contextMenu.style.left = `${x}px`;
+          contextMenu.style.top = `${y}px`;
+          document.getElementById('ctx-mark').style.display = isAdmin() ? 'flex' : 'none';
+          document.getElementById('ctx-watchlater').style.display = currentUser ? 'flex' : 'none';
+          document.getElementById('ctx-delete').style.display = 'none';
+          if (isAdmin() || (currentUser && item && item.userId === currentUser.uid)) {
+            if (item && (item.status === 'pending' || item.status === 'added' || item.firestoreId)) {
+              document.getElementById('ctx-delete').style.display = 'flex';
+            }
+          }
+          contextMenu.classList.add('active');
+        });
+
         gridContainer.appendChild(card);
       });
     }
@@ -5834,7 +5864,13 @@
     });
 
     document.getElementById('ctx-delete')?.addEventListener('click', () => {
-      if (contextItem) deleteRequest(`${contextItem.mediaType}_${contextItem.id}`);
+      if (contextItem) {
+        const title = contextItem.title || contextItem.name || 'this item';
+        if (confirm(`Delete "${title}" from requests?`)) {
+          deleteRequest(`${contextItem.mediaType}_${contextItem.id}`);
+          showToast(`"${title}" deleted`, 'info');
+        }
+      }
       contextMenu.classList.remove('active');
     });
 
