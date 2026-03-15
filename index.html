@@ -531,6 +531,29 @@
       box-shadow: 0 2px 6px rgba(231, 76, 60, 0.5);
     }
 
+    /* Bottom Nav User Avatar */
+    .bottom-nav-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--accent);
+    }
+
+    .bottom-nav-initial {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #000;
+      font-size: 0.65rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
     /* Global Yellow Scrollbar */
     ::-webkit-scrollbar {
       width: 10px;
@@ -565,16 +588,7 @@
       }
     }
 
-    body.light-mode {
-      --bg-primary: #f0f2f5;
-      --bg-secondary: #ffffff;
-      --bg-card: #ffffff;
-      --bg-card-hover: #f8f9fa;
-      --text-primary: #1a1a1a;
-      --text-secondary: #555555;
-      --text-muted: #888888;
-      --border: #e1e4e8;
-    }
+    /* body.light-mode removed — use body.light-theme instead (defined above) */
 
     /* ===========================================
        RESET & BASE
@@ -814,7 +828,7 @@
       border: 1px solid rgba(229, 160, 13, 0.45);
       box-shadow: 0 0 0 2px rgba(229, 160, 13, 0.35), 0 0 18px rgba(229, 160, 13, 0.12), inset 0 2px 6px rgba(0, 0, 0, 0.3);
       animation: plexRingPulse 3s ease-in-out 2;
-      transition: animation 0.3s ease;
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
     }
 
     .search-input {
@@ -861,20 +875,7 @@
     /* ===========================================
        CONTROLS BAR
        =========================================== */
-    .controls-bar {
-      display: flex;
-      gap: 12px;
-      padding: 5px 20px;
-      /* Reduced vertical padding */
-      background: transparent;
-      align-items: center;
-      position: relative;
-      z-index: 900;
-      overflow-x: auto;
-      scrollbar-width: none;
-      min-height: 60px;
-      /* Ensure consistent height */
-    }
+    /* First .controls-bar definition removed — consolidated into single definition below */
 
     .controls-bar::-webkit-scrollbar {
       display: none;
@@ -1767,6 +1768,84 @@
       transform: scale(0.9);
     }
 
+    /* Smart Assistant FAB */
+    .fab-assistant {
+      position: fixed;
+      bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 10px) + 20px);
+      left: 20px;
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      color: #fff;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+      z-index: 1000;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .fab-assistant:active {
+      transform: scale(0.9);
+    }
+
+    .fab-assistant.open {
+      background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+      box-shadow: 0 4px 20px rgba(108, 92, 231, 0.6);
+    }
+
+    .assistant-menu {
+      position: fixed;
+      bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 10px) + 80px);
+      left: 20px;
+      background: rgba(30, 30, 42, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(108, 92, 231, 0.3);
+      border-radius: 16px;
+      padding: 8px;
+      z-index: 1001;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 200px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      animation: fadeInUp 0.25s ease;
+    }
+
+    .assistant-menu.open {
+      display: flex;
+    }
+
+    .assistant-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .assistant-menu-item:hover {
+      background: rgba(108, 92, 231, 0.15);
+    }
+
+    .assistant-menu-item i {
+      width: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
     /* ===========================================
        MOBILE LAYOUT (max-width: 768px)
        =========================================== */
@@ -2151,6 +2230,11 @@
       .mobile-bottom-nav {
         display: flex;
         padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      .fab-search,
+      .fab-assistant {
+        display: flex;
       }
 
       body {
@@ -2793,12 +2877,12 @@
 
           <div style="height:20px; width:1px; background:var(--border); margin:0 5px;"></div>
           <button class="control-btn admin-only"
-            onclick="window.open('https://thepiratebay.org/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/99/0', '_blank')"
+            onclick="var q=prompt('Search Torrent:'); if(q&&q.trim()) window.open('https://thepiratebay.org/search/' + encodeURIComponent(q.trim()) + '/1/99/0', '_blank');"
             title="Search Pirate Bay" style="display:none;">
             <i class="fa-solid fa-magnet"></i>
           </button>
           <button class="control-btn admin-only"
-            onclick="window.open('https://1337x.to/search/' + encodeURIComponent(prompt('Search Torrent:')) + '/1/', '_blank')"
+            onclick="var q=prompt('Search Torrent:'); if(q&&q.trim()) window.open('https://1337x.to/search/' + encodeURIComponent(q.trim()) + '/1/', '_blank');"
             title="Search 1337x" style="display:none;">
             <i class="fa-solid fa-download"></i>
           </button>
@@ -3304,9 +3388,11 @@
         style="padding:20px 25px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
         <h2 style="margin:0; font-size:1.3rem;"><i class="fa-solid fa-shield-halved" style="color:var(--accent);"></i>
           Admin Dashboard</h2>
-        <div style="display:flex; gap:10px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="torrent-btn" style="background:#4a69bd; padding:8px 15px;"
             onclick="window.messageAllUsers()"><i class="fa-solid fa-envelope"></i> Message All</button>
+          <button class="torrent-btn" style="background:var(--green); padding:8px 15px; color:#000;"
+            onclick="window.batchAcknowledge()"><i class="fa-solid fa-check-double"></i> Batch Ack</button>
           <button class="torrent-btn" style="background:#e17055; padding:8px 15px;"
             onclick="window.cleanupTrailingSpaceDocs()"><i class="fa-solid fa-broom"></i> Cleanup DB</button>
           <button onclick="document.getElementById('admin-overlay').classList.remove('open')"
@@ -3746,6 +3832,7 @@
 
     function updateAuthUI(user) {
       currentUser = user;
+      window.currentUser = user; // Expose globally for inline HTML handlers (e.g., bottom nav)
       // Sidebar UI
       const signedOut = document.getElementById('sidebar-signed-out');
       const signedIn = document.getElementById('sidebar-signed-in');
@@ -3811,6 +3898,19 @@
       renderHomeRequests();
       renderRequests();
       renderCollections();
+
+      // Update mobile bottom-nav Account icon with avatar or initial
+      const navAccountIcon = document.getElementById('nav-account-icon');
+      if (navAccountIcon) {
+        if (user && user.photoURL) {
+          navAccountIcon.innerHTML = `<img src="${user.photoURL}" class="bottom-nav-avatar" alt="">`;
+        } else if (user) {
+          const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
+          navAccountIcon.innerHTML = `<span class="bottom-nav-initial">${initial}</span>`;
+        } else {
+          navAccountIcon.innerHTML = `<i class="fa-solid fa-user"></i>`;
+        }
+      }
     }
 
     async function saveUserProfile(user) {
@@ -3866,6 +3966,53 @@
           console.error("Error sending broadcast:", e);
           showToast("Failed to send message.", "error");
         }
+      }
+    };
+
+    // Batch acknowledge all pending requests
+    window.batchAcknowledge = async () => {
+      if (!isAdmin()) { showToast('Admin access only.', 'error'); return; }
+      const pendingReqs = globalRequests.filter(r => r.status === 'pending');
+      if (pendingReqs.length === 0) { showToast('No pending requests to acknowledge.', 'info'); return; }
+      try {
+        for (const req of pendingReqs) {
+          const docId = `${req.mediaType || 'movie'}_${req.id}`;
+          await updateDoc(doc(db, 'requests', docId), { status: 'acknowledged' });
+        }
+        showToast(`✅ Acknowledged ${pendingReqs.length} request(s).`, 'success');
+      } catch (e) {
+        console.error('Batch acknowledge error:', e);
+        showToast('Failed to acknowledge some requests.', 'error');
+      }
+    };
+
+    // One-click status update for admin (cycle: pending → acknowledged → added)
+    window.updateRequestStatus = async (itemId, mediaType, currentStatus) => {
+      if (!isAdmin()) return;
+      const nextStatus = currentStatus === 'pending' ? 'acknowledged' : currentStatus === 'acknowledged' ? 'added' : 'added';
+      const docId = `${mediaType || 'movie'}_${itemId}`;
+      try {
+        await updateDoc(doc(db, 'requests', docId), { status: nextStatus });
+        const item = globalRequests.find(r => r.id === itemId);
+        const title = item ? (item.title || item.name) : 'Request';
+
+        // Send notification to requester if status changed to 'added'
+        if (nextStatus === 'added' && item && item.userId) {
+          try {
+            await addDoc(collection(db, 'users', item.userId, 'notifications'), {
+              type: 'request_fulfilled',
+              title: `🎬 ${title} is now available!`,
+              message: `Your request for "${title}" has been added to Plex.`,
+              timestamp: Date.now(),
+              read: false
+            });
+          } catch (notifErr) { console.error('Notification error:', notifErr); }
+        }
+
+        showToast(`"${title}" → ${nextStatus}`, 'success');
+      } catch (e) {
+        console.error('Status update error:', e);
+        showToast('Failed to update status.', 'error');
       }
     };
 
@@ -3945,6 +4092,16 @@
       updateAuthUI(user);
       currentUser = user;
 
+      // Init notifications + activity (merged from removed duplicate listener)
+      if (user) {
+        initNotificationBell(user);
+        loadActivityFeed();
+      } else {
+        const bell = document.getElementById('notif-bell');
+        if (bell) bell.style.display = 'none';
+        if (notifUnsubscribe) { notifUnsubscribe(); notifUnsubscribe = null; }
+      }
+
       // Check for welcome overlay trigger (first verified login or ?verified=true)
       if (user && user.emailVerified) {
         const isEmailProvider = user.providerData.some(p => p.providerId === 'password');
@@ -3996,7 +4153,7 @@
             if (currentTab === 'playlist') renderPlaylist();
             if (currentTab === 'home') renderHomePlaylists();
           } else {
-            userWatched = [];
+            userWatched = []; // uses hoisted let from line below declarations block
             userPlaylist = [];
             userPlaylists = [{ name: 'Watch Later', items: [] }];
             if (currentTab === 'home') renderHomePlaylists();
@@ -4014,6 +4171,10 @@
         userPlaylists = [];
         if (currentTab === 'playlist') renderPlaylist();
         updateAdminUI();
+        // Notification cleanup for logged-out state
+        const bell = document.getElementById('notif-bell');
+        if (bell) bell.style.display = 'none';
+        if (notifUnsubscribe) { notifUnsubscribe(); notifUnsubscribe = null; }
       }
     });
 
@@ -4222,11 +4383,11 @@
         showToast("Failed to update", "error");
       }
     };
+    let userWatched = []; // Declared before first use (was previously used at line ~3999)
     let currentMovies = [];
     let currentTVShows = [];
     let currentComingSoon = [];
     let trackedShows = [];
-    let userWatched = [];
     let newEpisodes = [];
     let currentTab = 'home';
     let currentMoviePage = 1;
@@ -4286,6 +4447,8 @@
       });
       document.getElementById('stat-total').innerText = globalRequests.length;
       document.getElementById('stat-avail').innerText = globalRequests.filter(r => r.status === 'added').length;
+      const pendingStat = document.getElementById('stat-pending');
+      if (pendingStat) pendingStat.innerText = globalRequests.filter(r => r.status === 'pending').length;
       // Home Playlists Section
       const homePlaylistsContainer = document.getElementById('home-playlists-section');
       const homePlaylistsList = document.getElementById('home-playlists-list');
@@ -4314,6 +4477,12 @@
         b.innerText = pendingCount;
         b.style.display = pendingCount > 0 ? 'inline-block' : 'none';
       });
+      // Also update mobile bottom nav badge
+      const navBadge = document.getElementById('req-count-nav');
+      if (navBadge) {
+        navBadge.textContent = pendingCount;
+        navBadge.style.display = pendingCount > 0 ? 'flex' : 'none';
+      }
 
       if (currentTab === 'movies') renderGrid(currentMovies, 'grid-movies');
       if (currentTab === 'tvshows') renderGrid(currentTVShows, 'grid-tvshows');
@@ -4584,24 +4753,11 @@
     // SCROLL TO TOP
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
-    let lastScrollTop = 0;
-    const headerEl = document.querySelector('.sticky-header'); // Corrected selector
+    // Scroll-to-top button visibility (standalone — no header logic here to avoid conflicts)
     window.addEventListener('scroll', () => {
-      // Scroll To Top Button
       const scrollBtn = document.getElementById('scroll-to-top');
       if (window.scrollY > 300) scrollBtn.classList.add('visible');
       else scrollBtn.classList.remove('visible');
-
-      // Auto-hide header on scroll down (mobile focus)
-      let currentScroll = window.scrollY || document.documentElement.scrollTop;
-      if (currentScroll > lastScrollTop && currentScroll > 80) {
-        // Scrolling down
-        if (headerEl) headerEl.classList.add('header-hidden');
-      } else {
-        // Scrolling up
-        if (headerEl) headerEl.classList.remove('header-hidden');
-      }
-      lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // For Mobile or negative scrolling
     });
 
     // TV SHOW TRACKING
@@ -4628,7 +4784,7 @@
     }
 
     window.checkForNewEpisodes = async () => {
-      if (trackedShows.length === 0) { alert("You're not tracking any shows yet!"); return; }
+      if (trackedShows.length === 0) { showToast("You're not tracking any shows yet!", "info"); return; }
       document.getElementById('grid-episodes').innerHTML = '<div style="text-align:center; padding:40px;"><i class="fa-solid fa-spinner fa-spin fa-3x"></i></div>';
       newEpisodes = [];
       const today = new Date().toISOString().split('T')[0];
@@ -5009,7 +5165,7 @@
         const pullHandle = document.getElementById('header-pull-handle');
         if (header) {
           header.classList.add('header-hidden');
-          if (typeof headerManuallyHidden !== 'undefined') headerManuallyHidden = true;
+          window.headerManuallyHidden = true;
         }
         if (pullHandle) pullHandle.style.display = 'flex';
         // Scroll to top of content (below header)
@@ -5172,6 +5328,39 @@
     window.openRequestModal = (itemObj) => {
       const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
       const overlay = document.getElementById('detail-overlay');
+
+      // Check for existing request (duplicate prevention)
+      const existingReq = globalRequests.find(r => r.id === item.id && r.mediaType === (item.mediaType || 'movie'));
+      if (existingReq) {
+        if (existingReq.status === 'added') {
+          showToast(`"${item.title || item.name}" is already available on Plex! 🎉`, 'success');
+          return;
+        }
+        const isOwnRequest = currentUser && existingReq.userId === currentUser.uid;
+        if (isOwnRequest) {
+          showToast(`You already requested "${item.title || item.name}"! It's ${existingReq.status}.`, 'info');
+          return;
+        }
+        // Someone else requested it — show "already requested" with upvote option
+        overlay.innerHTML = `
+        <div class="modal" style="max-width: 420px; padding: 40px; text-align:center;">
+          <i class="fa-solid fa-circle-check" style="font-size:3rem; color:var(--blue); margin-bottom:15px; display:block;"></i>
+          <h2 style="margin-bottom: 10px;">Already Requested!</h2>
+          <p style="color:var(--text-secondary); margin-bottom:8px; font-size:0.95rem; line-height:1.6;">
+            <strong>${item.title || item.name}</strong> was already requested by 
+            <strong style="color:var(--accent);">${existingReq.requester || 'someone'}</strong>
+          </p>
+          <div style="display:inline-block; padding:6px 14px; border-radius:8px; background:${existingReq.status === 'pending' ? 'var(--blue)' : 'var(--text-muted)'}; color:white; font-size:0.8rem; font-weight:600; margin-bottom:20px;">
+            ${existingReq.status === 'pending' ? '⏳ Pending' : existingReq.status}
+          </div>
+          <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">No need to request again — Cory already has it in the queue!</p>
+          <button class="torrent-btn" style="width:100%;" onclick="document.getElementById('detail-overlay').classList.remove('open')">
+            <i class="fa-solid fa-thumbs-up"></i> Got It!
+          </button>
+        </div>`;
+        overlay.classList.add('open');
+        return;
+      }
 
       // If signed in, show a quick request modal with note + priority
       if (currentUser) {
@@ -5357,7 +5546,7 @@
 
     window.bulkRequest = async () => {
       const selected = Array.from(document.querySelectorAll('.request-checkbox:checked')).map(cb => JSON.parse(decodeURIComponent(cb.dataset.item)));
-      if (selected.length === 0) return alert("No items selected!");
+      if (selected.length === 0) { showToast("No items selected!", "info"); return; }
       if (!confirm(`Request ${selected.length} items?`)) return;
       let count = 0;
       for (const item of selected) { await saveItemFromObject(item, 'pending', 'Bulk Request', 'User', 'normal', true); count++; }
@@ -5368,7 +5557,7 @@
 
     window.bulkDelete = async () => {
       const selected = Array.from(document.querySelectorAll('.request-checkbox:checked')).map(cb => JSON.parse(decodeURIComponent(cb.dataset.item)));
-      if (selected.length === 0) return alert("No items selected!");
+      if (selected.length === 0) { showToast("No items selected!", "info"); return; }
       if (!confirm(`Delete ${selected.length} requests? This cannot be undone.`)) return;
       for (const item of selected) {
         const docId = `${item.mediaType || 'movie'}_${item.id}`;
@@ -5433,9 +5622,9 @@
       else if (tabId === 'requests') document.getElementById('controls-requests').style.display = 'flex';
       else if (tabId === 'tracking') document.getElementById('controls-tracking').style.display = 'flex';
 
-      // Initial fetch if needed — clear filters on tab switch
-      if (tabId === 'movies') {
-        clearMovieFilters(); // Always reset filters when switching to movies
+      // Initial fetch if needed — only reset filters if movies haven't loaded yet
+      if (tabId === 'movies' && currentMovies.length === 0) {
+        fetchMovies(1, false);
       }
       if (tabId === 'tvshows' && currentTVShows.length === 0) fetchTrendingTV();
       if (tabId === 'coming' && currentComingSoon.length === 0) fetchComingSoon();
@@ -5628,7 +5817,11 @@
         }
       }
 
-      fetchHomeTrending();
+      // Only fetch trending if not recently fetched (prevent excessive API calls)
+      if (!window._homeTrendingFetched || shouldRefresh('home_trending', DAY_MS)) {
+        fetchHomeTrending();
+        window._homeTrendingFetched = true;
+      }
     }
 
     // RENDER COLLECTIONS
@@ -5846,9 +6039,7 @@
       document.getElementById('hero-overview').textContent = hero.overview || '';
     }
 
-    // Call updateHero after movies load
-    const origRenderGrid = renderGrid;
-    // We'll call updateHero in the observer instead
+    // Hero observer handles updateHero calls (origRenderGrid was unused dead code, removed)
 
     // TOAST NOTIFICATION
     function showToast(message, type = 'info') {
@@ -5971,7 +6162,7 @@
       // [OPT 1] Auto-hide header on scroll down — stays hidden until pull handle or absolute top
       let lastScrollY = 0;
       let scrollTicking = false;
-      let headerManuallyHidden = false;
+      window.headerManuallyHidden = false; // Exposed on window for inline handler access
       const stickyHeader = document.querySelector('.sticky-header');
 
       window.addEventListener('scroll', () => {
@@ -5984,12 +6175,12 @@
               if (currentScrollY > lastScrollY && currentScrollY > 50) {
                 // Scrolling down past 50px — hide header, keep it hidden
                 stickyHeader.classList.add('header-hidden');
-                headerManuallyHidden = true;
+                window.headerManuallyHidden = true;
                 if (pullHandle) pullHandle.style.display = 'flex';
               } else if (currentScrollY <= 0) {
                 // Only auto-show at absolute top of page
                 stickyHeader.classList.remove('header-hidden');
-                headerManuallyHidden = false;
+                window.headerManuallyHidden = false;
                 if (pullHandle) pullHandle.style.display = 'none';
               }
               // Otherwise: header stays hidden regardless of scroll direction
@@ -6296,19 +6487,10 @@
     };
 
     // ===========================================
-    // INIT: Hook into auth state for notifications + activity
+    // INIT: Notifications + activity (merged into main onAuthStateChanged at line ~3931)
+    // The duplicate onAuthStateChanged was removed to prevent race conditions.
+    // Notification init + activity feed are now triggered from the main handler.
     // ===========================================
-    const origOnAuthStateChanged = auth.onAuthStateChanged;
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        initNotificationBell(user);
-        loadActivityFeed();
-      } else {
-        const bell = document.getElementById('notif-bell');
-        if (bell) bell.style.display = 'none';
-        if (notifUnsubscribe) { notifUnsubscribe(); notifUnsubscribe = null; }
-      }
-    });
 
     // Load activity feed on page load regardless of auth
     document.addEventListener('DOMContentLoaded', () => {
@@ -6412,6 +6594,82 @@
       });
     }
 
+    // ===========================================
+    // PWA INSTALL PROMPT
+    // ===========================================
+    let deferredInstallPrompt = null;
+
+    // Android / Chrome: Capture the native install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      if (!localStorage.getItem('plexhub_install_dismissed')) {
+        showInstallBanner('native');
+      }
+    });
+
+    // iOS Safari: show a manual "Add to Home Screen" nudge
+    window.addEventListener('load', () => {
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      const isStandalone = window.navigator.standalone === true;
+      const isSafari = /safari/i.test(navigator.userAgent) && !/chrome|crios|fxios/i.test(navigator.userAgent);
+      if (isIOS && !isStandalone && isSafari && !localStorage.getItem('plexhub_install_dismissed')) {
+        setTimeout(() => showInstallBanner('ios'), 3000);
+      }
+    });
+
+    function showInstallBanner(type) {
+      // Don't show if already standalone/installed
+      if (window.matchMedia('(display-mode: standalone)').matches) return;
+
+      const banner = document.createElement('div');
+      banner.id = 'pwa-install-banner';
+      const isIOS = type === 'ios';
+      banner.style.cssText = `position:fixed; bottom:calc(var(--bottom-nav-height) + 15px); left:50%; transform:translateX(-50%); 
+        background:rgba(30,30,42,0.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); 
+        border:1px solid rgba(229,160,13,0.3); border-radius:16px; padding:14px 20px; z-index:9500; 
+        display:flex; align-items:center; gap:14px; max-width:90vw; width:380px; box-shadow:0 10px 30px rgba(0,0,0,0.5);
+        animation:fadeInUp 0.4s ease;`;
+
+      banner.innerHTML = `
+        <img src="https://img.icons8.com/color/48/plex.png" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
+        <div style="flex:1; min-width:0;">
+          <div style="font-weight:700; font-size:0.9rem; color:var(--text-primary);">Add PlexHub to Home Screen</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+            ${isIOS ? 'Tap <i class="fa-solid fa-arrow-up-from-bracket" style="color:var(--accent);"></i> then "Add to Home Screen"' : 'Install for a native app experience'}
+          </div>
+        </div>
+        ${isIOS ? '' : '<button id="pwa-install-btn" style="background:var(--accent); color:#000; border:none; padding:8px 16px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer; white-space:nowrap;">Install</button>'}
+        <button onclick="dismissInstallBanner()" style="background:none; border:none; color:var(--text-muted); font-size:1rem; cursor:pointer; padding:4px;">✕</button>
+      `;
+      document.body.appendChild(banner);
+
+      if (!isIOS) {
+        document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+          if (deferredInstallPrompt) {
+            deferredInstallPrompt.prompt();
+            const result = await deferredInstallPrompt.userChoice;
+            if (result.outcome === 'accepted') {
+              showToast('PlexHub installed! 🎉', 'success');
+            }
+            deferredInstallPrompt = null;
+          }
+          dismissInstallBanner();
+        });
+      }
+    }
+
+    window.dismissInstallBanner = () => {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) {
+        banner.style.opacity = '0';
+        banner.style.transform = 'translateX(-50%) translateY(20px)';
+        banner.style.transition = 'all 0.3s ease';
+        setTimeout(() => banner.remove(), 300);
+      }
+      localStorage.setItem('plexhub_install_dismissed', 'true');
+    };
+
   </script>
 
   <!-- MOBILE PERSISTENT BOTTOM NAV -->
@@ -6428,13 +6686,14 @@
       <i class="fa-solid fa-tv"></i>
       <span>TV</span>
     </div>
-    <div class="bottom-nav-item" onclick="switchTab('requests')">
+    <div class="bottom-nav-item" onclick="switchTab('requests')" style="position:relative;">
       <i class="fa-solid fa-list-check"></i>
+      <span id="req-count-nav" class="bottom-nav-badge" style="display:none;">0</span>
       <span>Requests</span>
     </div>
     <div class="bottom-nav-item"
       onclick="currentUser ? window.headerAuthAction() : document.getElementById('auth-overlay').classList.add('open')">
-      <i class="fa-solid fa-user"></i>
+      <span id="nav-account-icon"><i class="fa-solid fa-user"></i></span>
       <span class="bottom-nav-badge" id="nav-notif-badge">0</span>
       <span>Account</span>
     </div>
@@ -6594,11 +6853,86 @@
     </div>
   </div>
 
+  <!-- SMART ASSISTANT FAB -->
+  <div class="fab-assistant" id="fab-assistant" role="button" aria-label="Quick actions"
+    onclick="toggleAssistantMenu()">
+    <i class="fa-solid fa-bolt"></i>
+  </div>
+
+  <div class="assistant-menu" id="assistant-menu">
+    <button class="assistant-menu-item" onclick="assistantAction('trending')">
+      <i class="fa-solid fa-fire" style="color:#e50914;"></i> What's Trending
+    </button>
+    <button class="assistant-menu-item" onclick="assistantAction('request')">
+      <i class="fa-solid fa-paper-plane" style="color:var(--accent);"></i> Request a Movie
+    </button>
+    <button class="assistant-menu-item" onclick="assistantAction('myrequests')">
+      <i class="fa-solid fa-list-check" style="color:var(--blue);"></i> My Requests
+    </button>
+    <button class="assistant-menu-item" onclick="assistantAction('search')">
+      <i class="fa-solid fa-magnifying-glass" style="color:var(--green);"></i> Search Library
+    </button>
+  </div>
+
   <!-- FLOATING ACTION BUTTON (SEARCH) -->
   <div class="fab-search" role="button" aria-label="Open search"
     onclick="document.querySelector('.sticky-header').classList.remove('header-hidden'); if(typeof headerManuallyHidden!=='undefined') headerManuallyHidden=false; document.getElementById('header-pull-handle').style.display='none'; document.getElementById('search').focus(); window.scrollToTop();">
     <i class="fa-solid fa-magnifying-glass"></i>
   </div>
+
+  <script>
+    function toggleAssistantMenu() {
+      const menu = document.getElementById('assistant-menu');
+      const fab = document.getElementById('fab-assistant');
+      menu.classList.toggle('open');
+      fab.classList.toggle('open');
+    }
+
+    function assistantAction(action) {
+      const menu = document.getElementById('assistant-menu');
+      const fab = document.getElementById('fab-assistant');
+      menu.classList.remove('open');
+      fab.classList.remove('open');
+
+      switch (action) {
+        case 'trending':
+          window.switchTab('movies');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          break;
+        case 'request':
+          window.switchTab('movies');
+          setTimeout(() => {
+            document.querySelector('.sticky-header').classList.remove('header-hidden');
+            if (typeof window.headerManuallyHidden !== 'undefined') window.headerManuallyHidden = false;
+            document.getElementById('search').focus();
+          }, 300);
+          break;
+        case 'myrequests':
+          if (window.currentUser) {
+            window.switchTab('requests');
+          } else {
+            document.getElementById('auth-overlay').classList.add('open');
+          }
+          break;
+        case 'search':
+          document.querySelector('.sticky-header').classList.remove('header-hidden');
+          if (typeof window.headerManuallyHidden !== 'undefined') window.headerManuallyHidden = false;
+          document.getElementById('search').focus();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          break;
+      }
+    }
+
+    // Close assistant menu when tapping outside
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('assistant-menu');
+      const fab = document.getElementById('fab-assistant');
+      if (menu && fab && !menu.contains(e.target) && !fab.contains(e.target)) {
+        menu.classList.remove('open');
+        fab.classList.remove('open');
+      }
+    });
+  </script>
 
 </body>
 
