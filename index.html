@@ -6934,6 +6934,108 @@
     });
   </script>
 
+  <!-- ===========================================
+       GLASSMORPHISM OVERHAUL (v2) — dark theme only
+       Visual layer only. No markup/JS changed.
+       Scoped to body:not(.light-theme) so the light
+       theme and all existing behavior stay intact.
+       =========================================== -->
+  <style id="glass-overhaul-v2">
+    body:not(.light-theme) {
+      background:
+        radial-gradient(1200px 800px at 12% -8%, rgba(229,160,13,.10), transparent 55%),
+        radial-gradient(1000px 700px at 110% 10%, rgba(124,99,255,.12), transparent 55%),
+        radial-gradient(900px 900px at 50% 120%, rgba(0,210,160,.08), transparent 55%),
+        #0a0b10 !important;
+      background-attachment: fixed !important;
+    }
+    body:not(.light-theme)::before {
+      content: ""; position: fixed; inset: -20%; z-index: -2; pointer-events: none;
+      background:
+        radial-gradient(40% 40% at 20% 30%, rgba(229,160,13,.16), transparent 60%),
+        radial-gradient(45% 45% at 80% 20%, rgba(124,99,255,.18), transparent 60%),
+        radial-gradient(50% 50% at 60% 90%, rgba(0,210,160,.12), transparent 60%);
+      filter: blur(30px) saturate(120%);
+      animation: glassAurora 22s ease-in-out infinite alternate;
+    }
+    @keyframes glassAurora {
+      0%   { transform: translate3d(0,0,0) scale(1); }
+      50%  { transform: translate3d(2%,-2%,0) scale(1.06); }
+      100% { transform: translate3d(-2%,2%,0) scale(1.03); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body:not(.light-theme)::before { animation: none; }
+    }
+    /* Frosted surfaces */
+    body:not(.light-theme) header,
+    body:not(.light-theme) .sticky-header,
+    body:not(.light-theme) .controls-bar,
+    body:not(.light-theme) .mobile-bottom-nav,
+    body:not(.light-theme) .modal,
+    body:not(.light-theme) .modal-content {
+      background: rgba(18,20,28,.62) !important;
+      backdrop-filter: blur(22px) saturate(135%) !important;
+      -webkit-backdrop-filter: blur(22px) saturate(135%) !important;
+      border-color: rgba(255,255,255,.08) !important;
+    }
+    /* Glass cards */
+    body:not(.light-theme) .stat-card,
+    body:not(.light-theme) .movie-card,
+    body:not(.light-theme) .btn-card,
+    body:not(.light-theme) .search-container,
+    body:not(.light-theme) .search-input {
+      background: rgba(255,255,255,.045) !important;
+      -webkit-backdrop-filter: blur(14px) saturate(130%);
+      backdrop-filter: blur(14px) saturate(130%);
+      border: 1px solid rgba(255,255,255,.08) !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05) !important;
+    }
+    body:not(.light-theme) .movie-card {
+      border-radius: 18px !important; overflow: hidden;
+      transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s !important;
+    }
+    body:not(.light-theme) .movie-card:hover {
+      transform: translateY(-8px) scale(1.015) !important;
+      border-color: rgba(229,160,13,.55) !important;
+      box-shadow: 0 18px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(229,160,13,.25), 0 0 40px rgba(229,160,13,.18) !important;
+    }
+    body:not(.light-theme) .poster-img { transition: transform .5s ease !important; }
+    body:not(.light-theme) .movie-card:hover .poster-img { transform: scale(1.06) !important; }
+    body:not(.light-theme) .stat-card { border-radius: 18px !important; }
+    body:not(.light-theme) .stat-card:hover {
+      border-color: rgba(229,160,13,.4) !important;
+      box-shadow: 0 12px 40px rgba(0,0,0,.45), 0 0 30px rgba(229,160,13,.12) !important;
+    }
+    /* Search */
+    body:not(.light-theme) .search-input { border-radius: 14px !important; }
+    body:not(.light-theme) .search-input:focus {
+      border-color: rgba(229,160,13,.6) !important;
+      box-shadow: 0 0 0 3px rgba(229,160,13,.18), 0 8px 30px rgba(0,0,0,.4) !important;
+    }
+    /* Tabs */
+    body:not(.light-theme) .tab-btn { border-radius: 12px !important; transition: all .25s ease !important; }
+    body:not(.light-theme) .tab-btn.active {
+      background: linear-gradient(135deg, rgba(229,160,13,.22), rgba(229,160,13,.06)) !important;
+      border: 1px solid rgba(229,160,13,.45) !important;
+      box-shadow: 0 0 24px rgba(229,160,13,.22) !important;
+      color: var(--text-primary) !important;
+    }
+    /* Primary buttons */
+    body:not(.light-theme) .btn-hero-primary {
+      background: linear-gradient(135deg, #f4b020, #e5a00d) !important;
+      box-shadow: 0 10px 30px rgba(229,160,13,.35), inset 0 1px 0 rgba(255,255,255,.25) !important;
+      border: none !important;
+    }
+    body:not(.light-theme) .btn-hero-primary:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 16px 44px rgba(229,160,13,.5) !important;
+    }
+    /* Glass scrollbar */
+    body:not(.light-theme)::-webkit-scrollbar { width: 10px; }
+    body:not(.light-theme)::-webkit-scrollbar-thumb { background: rgba(229,160,13,.35); border-radius: 10px; }
+    body:not(.light-theme)::-webkit-scrollbar-thumb:hover { background: rgba(229,160,13,.55); }
+  </style>
+
 </body>
 
 </html>
