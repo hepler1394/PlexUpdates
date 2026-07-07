@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
   <title>Cory's Plex Hub — Request Movies & TV Shows</title>
 
   <!-- Cache Busting to ensure users always get the latest version without Hard Refresh -->
@@ -19,6 +19,14 @@
   <meta property="og:url" content="https://plex-updates.vercel.app">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Cory's Plex Hub — Request Movies & TV Shows">
+  <meta name="twitter:description" content="Browse trending movies, request titles for Cory's Plex server, and track new episodes.">
+  <meta name="twitter:image" content="https://image.tmdb.org/t/p/w1280/628Dep6AxEtDxjZoGP78TsOxYbK.jpg">
+  <meta property="og:image:alt" content="Cory's Plex Hub">
+  <meta property="og:site_name" content="Cory's Plex Hub">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Cory">
+  <meta name="color-scheme" content="dark light">
   <meta name="description"
     content="Request movies and TV shows for Cory's Plex server. Browse trending titles, track episodes, and manage your watchlist.">
 
@@ -26,6 +34,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PlexHub">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f0f2f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0a0a0f">
   <link rel="apple-touch-icon" href="https://img.icons8.com/color/180/plex.png">
   <link rel="icon" type="image/png" href="https://img.icons8.com/color/64/plex.png">
@@ -34,6 +45,17 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://image.tmdb.org">
+  <link rel="preconnect" href="https://api.themoviedb.org">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Cory's Plex Hub",
+    "url": "https://plex-updates.vercel.app/",
+    "description": "Request movies and TV shows for Cory's Plex server. Browse trending titles, track episodes, and manage your watchlist."
+  }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -608,11 +630,13 @@
       background-color: var(--bg-primary);
       color: var(--text-primary);
       min-height: 100vh;
+      min-height: 100dvh; /* 2026-07 audit: correct height under iOS URL bar */
       margin: 0;
       padding: 0;
       overflow-x: hidden;
       font-size: 16px;
       -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
 
     input,
@@ -621,6 +645,47 @@
     button {
       font-size: 16px !important;
       font-family: inherit;
+    }
+
+    /* 2026-07 audit: restore keyboard focus (the global outline:none reset
+       made the whole app unusable by keyboard) */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 3px solid var(--accent) !important;
+      outline-offset: 2px;
+    }
+
+    /* 2026-07 audit: skip-to-content for keyboard/screen-reader users */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      z-index: 3000;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: 0 0 8px 8px;
+      text-decoration: none;
+    }
+    .skip-link:focus {
+      left: 12px;
+    }
+
+    /* 2026-07 audit: smooth anchor scrolling + no orphan words in headings */
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    h1, h2, h3 { text-wrap: balance; }
+    section[id], div[id^="page-"] { scroll-margin-top: calc(var(--nav-height) + 12px); }
+
+    /* 2026-07 audit: faster taps, no accidental long-press selection on nav */
+    a, button, .bottom-nav-item { touch-action: manipulation; }
+    .mobile-bottom-nav, .bottom-nav-item {
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     /* ===========================================
@@ -636,6 +701,7 @@
       left: 0;
       width: var(--sidebar-width);
       height: 100vh;
+      height: 100dvh; /* 2026-07 audit: sidebar reaches bottom on mobile Safari */
       z-index: 1000;
       border-right: 1px solid var(--accent);
       overflow-y: auto;
@@ -2503,6 +2569,12 @@
 </head>
 
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <noscript>
+    <div style="padding:16px;text-align:center;background:#e5a00d;color:#000;font-weight:700;">
+      Cory's Plex Hub needs JavaScript enabled to browse and request titles.
+    </div>
+  </noscript>
   <!-- Loading Screen -->
   <div id="app-loader"
     style="position:fixed; inset:0; background:rgba(18,18,26,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:opacity 0.5s;">
@@ -2651,7 +2723,7 @@
   </button>
 
   <!-- MAIN CONTENT AREA -->
-  <main>
+  <main id="main-content">
 
     <!-- GLOBAL MESSAGE BANNER -->
     <div id="global-message-banner"
