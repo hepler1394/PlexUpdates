@@ -21,13 +21,16 @@ self.addEventListener('install', (event) => {
 // Activate: clean up old caches
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((names) => {
-            return Promise.all(
+        caches.keys()
+            .then((names) => Promise.all(
                 names.filter(n => n !== CACHE_NAME).map(n => caches.delete(n))
-            );
-        })
+            ))
+            .then(() => self.clients.claim())
+            .then(() => self.clients.matchAll({ type: 'window' }))
+            .then((windowClients) => Promise.all(
+                windowClients.map(client => client.navigate(client.url))
+            ))
     );
-    self.clients.claim();
 });
 
 // Fetch: network-first for API and page navigations, cache-first for assets
