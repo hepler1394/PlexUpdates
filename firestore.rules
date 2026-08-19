@@ -1,0 +1,98 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'coryh2014@gmail.com';
+    }
+
+    function validUserRequest() {
+      return signedIn()
+        && request.resource.data.keys().hasOnly([
+          'id', 'mediaType', 'title', 'poster_path', 'backdrop_path',
+          'overview', 'release_date', 'vote_average', 'timestamp',
+          'status', 'note', 'requester', 'priority', 'userId'
+        ])
+        && request.resource.data.id is int
+        && request.resource.data.mediaType in ['movie', 'tv']
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.poster_path is string
+        && request.resource.data.poster_path.size() <= 300
+        && request.resource.data.backdrop_path is string
+        && request.resource.data.backdrop_path.size() <= 300
+        && request.resource.data.overview is string
+        && request.resource.data.overview.size() <= 2000
+        && request.resource.data.release_date is string
+        && request.resource.data.release_date.size() <= 20
+        && request.resource.data.vote_average is number
+        && request.resource.data.timestamp is int
+        && request.resource.data.status == 'pending'
+        && request.resource.data.note is string
+        && request.resource.data.note.size() <= 500
+        && request.resource.data.requester is string
+        && request.resource.data.requester.size() > 0
+        && request.resource.data.requester.size() <= 80
+        && request.resource.data.priority in ['normal', 'high']
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    match /requests/{requestId} {
+      allow read: if true;
+      allow create: if isAdmin() || validUserRequest();
+      allow update: if isAdmin();
+      allow delete: if isAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    match /users/{userId} {
+      allow read: if isAdmin()
+        || (signedIn() && request.auth.uid == userId);
+
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.email == request.auth.token.email
+        && (
+          (isAdmin() && request.resource.data.role == 'admin')
+          || (!isAdmin() && request.resource.data.role == 'user')
+        );
+
+      allow update: if isAdmin()
+        || (
+          signedIn()
+          && request.auth.uid == userId
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
+        );
+
+      allow delete: if isAdmin()
+        || (signedIn() && request.auth.uid == userId);
+
+      match /notifications/{notificationId} {
+        allow read, update, delete: if signedIn()
+          && request.auth.uid == userId;
+        allow create: if isAdmin();
+      }
+    }
+
+    match /tracked_shows/{showId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /system/global_message {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

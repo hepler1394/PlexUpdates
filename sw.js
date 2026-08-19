@@ -1,4 +1,4 @@
-const CACHE_NAME = 'plexhub-v1';
+const CACHE_NAME = 'plexhub-v2-security';
 const SHELL_ASSETS = [
     '/',
     '/index.html',
@@ -30,12 +30,29 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch: network-first for API, cache-first for shell assets
+// Fetch: network-first for API and page navigations, cache-first for assets
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
     // Skip non-GET requests
     if (event.request.method !== 'GET') return;
+
+    // Always check the network for HTML so security fixes and releases are not
+    // trapped behind an old service-worker cache. Keep an offline fallback.
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    if (response.ok) {
+                        const responseClone = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+                    }
+                    return response;
+                })
+                .catch(async () => (await caches.match(event.request)) || caches.match('/index.html'))
+        );
+        return;
+    }
 
     // API calls (TMDB, Firebase) — network-first with cache fallback
     if (url.hostname.includes('themoviedb.org') ||
