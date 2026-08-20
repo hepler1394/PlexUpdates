@@ -1,4 +1,4 @@
-const CACHE_NAME = 'plexhub-v4-find';
+const CACHE_NAME = 'plexhub-v5-overhaul';
 const SHELL_ASSETS = [
     '/',
     '/index.html',
