@@ -3094,6 +3094,9 @@
       <!-- User Auth Section -->
       <div id="sidebar-auth" class="user-profile-section">
         <div id="sidebar-signed-out">
+          <button class="auth-btn sign-in yahoo" onclick="window.yahooSignIn()" style="background:#6001d2;border-color:#6001d2;margin-bottom:8px;">
+            <i class="fa-brands fa-yahoo" aria-hidden="true"></i> Sign in with Yahoo
+          </button>
           <button class="auth-btn sign-in" onclick="window.googleSignIn()">
             <svg class="google-icon-svg" viewBox="0 0 24 24">
               <path fill="#fff"
@@ -3711,6 +3714,10 @@
               style="background:white;color:black;font-weight:bold;padding:10px 20px;display:inline-flex;align-items:center;gap:8px;">
               <i class="fa-brands fa-google" aria-hidden="true"></i> Google
             </button>
+            <button class="torrent-btn" onclick="window.yahooSignIn()"
+              style="background:#6001d2;color:white;font-weight:bold;padding:10px 20px;display:inline-flex;align-items:center;gap:8px;">
+              <i class="fa-brands fa-yahoo" aria-hidden="true"></i> Yahoo
+            </button>
             <button class="torrent-btn" onclick="document.getElementById('auth-overlay').classList.add('open')"
               style="background:var(--blue);padding:10px 20px;">
               <i class="fa-solid fa-envelope"></i> Email
@@ -4114,6 +4121,9 @@
       <button class="torrent-btn"
         style="width:100%; background:white; color:black; font-weight:bold; border:1px solid #ccc; display:flex; align-items:center; justify-content:center; gap:10px;"
         onclick="window.googleSignIn()"><i class="fa-brands fa-google" aria-hidden="true"></i> Continue with Google</button>
+      <button class="auth-btn sign-in"
+        style="width:100%; margin-top:10px; background:#6001d2; color:white; font-weight:bold; border:1px solid #6001d2; display:flex; align-items:center; justify-content:center; gap:10px;"
+        onclick="window.yahooSignIn()"><i class="fa-brands fa-yahoo" aria-hidden="true"></i> Continue with Yahoo</button>
       <button
         style="background:none; border:none; color:var(--text-muted); margin-top:20px; cursor:pointer; font-size:0.85rem;"
         onclick="document.getElementById('auth-overlay').classList.remove('open');">Cancel</button>
@@ -4139,7 +4149,7 @@
     // FIREBASE CONFIGURATION
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot, setDoc, doc, updateDoc, deleteDoc, getDoc, getDocs, addDoc, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, GoogleAuthProvider, OAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCftljTkWcA2-CyojsF40Dpjm9rAiSlKNc",
@@ -4155,6 +4165,11 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
+    // Yahoo (for family members with Yahoo mail). Needs the provider enabled in
+    // Firebase Authentication with a Yahoo developer app's client id/secret.
+    const yahooProvider = new OAuthProvider('yahoo.com');
+    yahooProvider.addScope('email');
+    yahooProvider.addScope('profile');
     const TMDB_KEY = '5e30970a964f6e59d184fa77433b17ca';
     // SHA-256 of the account that receives the optional simplified "For You" UI.
     // This is personalization only, never an authorization boundary.
@@ -4342,7 +4357,9 @@
       'auth/unauthorized-domain': 'This address is not authorized for sign-in yet. Tell Cory.',
       'auth/network-request-failed': 'No connection to Google right now. Check your internet and try again.',
       'auth/operation-not-supported-in-this-environment': 'Sign-in is not supported in this browser. Open the site in Safari or Chrome.',
-      'auth/web-storage-unsupported': 'Sign-in needs cookies enabled for this site.'
+      'auth/web-storage-unsupported': 'Sign-in needs cookies enabled for this site.',
+      'auth/operation-not-allowed': 'That sign-in method is not switched on yet. Use Google for now, or tell Cory.',
+      'auth/account-exists-with-different-credential': 'This email is already signed up with a different method. Use the method you used the first time.'
     };
     function setSignInBusy(busy) {
       document.querySelectorAll('.auth-btn.sign-in, .header-user-btn').forEach(btn => {
@@ -4350,17 +4367,17 @@
         btn.style.opacity = busy ? '0.6' : '1';
       });
     }
-    window.googleSignIn = async () => {
+    async function signInWith(provider, label) {
       if (signInInProgress) return;
       signInInProgress = true;
       setSignInBusy(true);
       try {
         if (isInAppBrowser()) {
-          showToast('Opening Google sign-in. If it does not finish, open this site in Safari or Chrome.', 'info');
-          await signInWithRedirect(auth, googleProvider);
+          showToast(`Opening ${label} sign-in. If it does not finish, open this site in Safari or Chrome.`, 'info');
+          await signInWithRedirect(auth, provider);
           return;
         }
-        const result = await signInWithPopup(auth, googleProvider);
+        const result = await signInWithPopup(auth, provider);
         showToast(`Welcome, ${result.user.displayName || 'friend'}!`, 'success');
       } catch (error) {
         const code = error && error.code ? String(error.code) : '';
@@ -4374,7 +4391,9 @@
         signInInProgress = false;
         setSignInBusy(false);
       }
-    };
+    }
+    window.googleSignIn = () => signInWith(googleProvider, 'Google');
+    window.yahooSignIn = () => signInWith(yahooProvider, 'Yahoo');
 
     getRedirectResult(auth).then((result) => {
       if (result && result.user) {
@@ -6877,6 +6896,9 @@
           <button class="auth-btn sign-in" onclick="window.googleSignIn()" style="margin-bottom:12px;">
             <svg class="google-icon-svg" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Sign in with Google
+          </button>
+          <button class="auth-btn sign-in" onclick="window.yahooSignIn()" style="margin-bottom:12px; background:#6001d2; border-color:#6001d2;">
+            <i class="fa-brands fa-yahoo" aria-hidden="true"></i> Sign in with Yahoo
           </button>
           <button class="torrent-btn" style="background:#333; width:100%;" onclick="document.getElementById('detail-overlay').classList.remove('open')">Cancel</button>
         </div>`;
