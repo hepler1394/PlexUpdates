@@ -4720,7 +4720,7 @@
 
     // ===== FIRESTORE CLEANUP: Trailing-space doc IDs =====
     window.cleanupTrailingSpaceDocs = async () => {
-      if (!currentUser || !window.isAdmin || !window.isAdmin()) {
+      if (!currentUser || !isAdmin()) {
         showToast('Admin access required.', 'error');
         return;
       }
