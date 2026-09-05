@@ -2444,6 +2444,23 @@
       min-width: 0;
     }
 
+    /* Default avatar: the user's initial on the accent colour, used whenever
+       the provider gave no photo (Yahoo) or the photo URL fails to load. */
+    .avatar-initial {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #000;
+      font-weight: 800;
+      line-height: 1;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      border: 2px solid var(--accent);
+      user-select: none;
+    }
+
     .user-name {
       font-size: 0.9rem;
       font-weight: 600;
@@ -4317,6 +4334,29 @@
 
     // Escape every value that is interpolated into HTML. Requests and profile
     // fields are stored in Firestore and must be treated as untrusted input.
+    function avatarInitial(nameOrEmail) {
+      const s = String(nameOrEmail || '').trim();
+      return (s.charAt(0) || 'U').toUpperCase();
+    }
+    // Avatar markup with a built-in fallback: no URL -> initial badge; URL that
+    // 404s or is blocked -> swapped for the initial badge by window.avatarError.
+    function avatarHTML(url, nameOrEmail, size, extraStyle) {
+      const initial = escapeHTML(avatarInitial(nameOrEmail));
+      const base = `width:${size}px;height:${size}px;${extraStyle || ''}`;
+      const fallback = `<span class="avatar-initial" style="${base}font-size:${Math.round(size * 0.45)}px;">${initial}</span>`;
+      if (!url) return fallback;
+      return `<img src="${escapeHTML(url)}" alt="" referrerpolicy="no-referrer" style="${base}border-radius:50%;object-fit:cover;" data-initial="${initial}" data-size="${size}" data-extra="${escapeHTML(extraStyle || '')}" onerror="window.avatarError(this)">`;
+    }
+    window.avatarError = function (img) {
+      if (!img || !img.parentNode) return;
+      const size = parseInt(img.dataset.size, 10) || 40;
+      const span = document.createElement('span');
+      span.className = 'avatar-initial';
+      span.style.cssText = `width:${size}px;height:${size}px;${img.dataset.extra || ''}font-size:${Math.round(size * 0.45)}px;`;
+      span.textContent = img.dataset.initial || 'U';
+      img.replaceWith(span);
+    };
+
     function escapeHTML(value) {
       return String(value ?? '').replace(/[&<>'"]/g, char => ({
         '&': '&amp;',
@@ -4423,7 +4463,7 @@
         overlay.innerHTML = `
         <div class="modal" style="max-width:380px; padding:30px; text-align:center;">
           <div style="position:relative; display:inline-block; margin-bottom:15px;">
-            ${currentUser.photoURL ? `<img src="${escapeHTML(currentUser.photoURL)}" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--accent); object-fit:cover;">` : `<i class="fa-solid fa-user-circle" style="font-size:5rem; color:var(--text-muted);"></i>`}
+            ${avatarHTML(currentUser.photoURL, currentUser.displayName || currentUser.email, 80, 'border:3px solid var(--accent);')}
             <button onclick="document.getElementById('onboarding-overlay').classList.add('open'); overlay.classList.remove('open');" 
                     style="position:absolute; bottom:0; right:0; background:var(--accent); border:none; color:white; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:0.8rem;">
               <i class="fa-solid fa-pen"></i>
@@ -4714,19 +4754,26 @@
         if (signedIn) signedIn.style.display = 'block';
         if (userName) userName.textContent = user.displayName || 'User';
         if (userEmail) userEmail.textContent = user.email || '';
+        const showSidebarInitial = () => {
+          if (avatar) avatar.style.display = 'none';
+          if (placeholder) {
+            placeholder.textContent = avatarInitial(user.displayName || user.email);
+            placeholder.classList.add('avatar-initial');
+            placeholder.style.display = 'inline-flex';
+          }
+        };
         if (user.photoURL && avatar) {
+          avatar.referrerPolicy = 'no-referrer';
+          avatar.onerror = showSidebarInitial;
           avatar.src = user.photoURL;
           avatar.style.display = 'block';
           if (placeholder) placeholder.style.display = 'none';
         } else {
-          if (avatar) avatar.style.display = 'none';
-          if (placeholder) placeholder.style.display = 'flex';
+          showSidebarInitial();
         }
         // Header
-        if (headerBtn && user.photoURL) {
-          headerBtn.innerHTML = `<img src="${escapeHTML(user.photoURL)}" alt=""> <span class="user-btn-name">${escapeHTML(user.displayName?.split(' ')[0] || 'Me')}</span>`;
-        } else if (headerBtn) {
-          headerBtn.innerHTML = `<i class="fa-solid fa-user"></i> <span class="user-btn-name">${escapeHTML(user.displayName?.split(' ')[0] || 'Me')}</span>`;
+        if (headerBtn) {
+          headerBtn.innerHTML = `${avatarHTML(user.photoURL, user.displayName || user.email, 24)} <span class="user-btn-name">${escapeHTML(user.displayName?.split(' ')[0] || 'Me')}</span>`;
         }
         // Home Greeting
         const homeGreeting = document.getElementById('home-user-greeting');
@@ -4765,11 +4812,8 @@
       // Update mobile bottom-nav Account icon with avatar or initial
       const navAccountIcon = document.getElementById('nav-account-icon');
       if (navAccountIcon) {
-        if (user && user.photoURL) {
-          navAccountIcon.innerHTML = `<img src="${escapeHTML(user.photoURL)}" class="bottom-nav-avatar" alt="">`;
-        } else if (user) {
-          const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
-          navAccountIcon.innerHTML = `<span class="bottom-nav-initial">${escapeHTML(initial)}</span>`;
+        if (user) {
+          navAccountIcon.innerHTML = avatarHTML(user.photoURL, user.displayName || user.email, 22, 'border:1.5px solid var(--accent);');
         } else {
           navAccountIcon.innerHTML = `<i class="fa-solid fa-user"></i>`;
         }
@@ -4902,7 +4946,7 @@
         const usersList = document.getElementById('admin-users-list');
         usersList.innerHTML = users.map(u => `
           <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--bg-secondary); border-radius:10px; border:1px solid var(--border);">
-            ${u.photoURL ? `<img src="${escapeHTML(u.photoURL)}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">` : `<div style="width:36px; height:36px; border-radius:50%; background:var(--bg-card); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><i class="fa-solid fa-user"></i></div>`}
+            ${avatarHTML(u.photoURL, u.displayName || u.email, 36)}
             <div style="flex:1; min-width:0;">
               <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(u.displayName || 'Unknown')}</div>
               <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHTML(u.email || 'No email')}</div>
