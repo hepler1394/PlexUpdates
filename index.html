@@ -2863,6 +2863,11 @@
     }
     .discovery-card img {
       width: 100%;
+      /* height:auto is required: the <img> carries width/height attributes
+         (342x513) and without an explicit auto height the attribute height
+         wins over aspect-ratio, which rendered 513px-tall skinny posters in
+         the home "New on Plex" shelf. */
+      height: auto;
       aspect-ratio: 2 / 3;
       display: block;
       object-fit: cover;
@@ -8187,7 +8192,7 @@
         animation:fadeInUp 0.4s ease;`;
 
       banner.innerHTML = `
-        <img src="https://img.icons8.com/color/48/plex.png" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
+        <img src="assets/icon-192.png" alt="" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
         <div style="flex:1; min-width:0;">
           <div style="font-weight:700; font-size:0.9rem; color:var(--text-primary);">Add PlexHub to Home Screen</div>
           <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
