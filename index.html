@@ -4130,6 +4130,36 @@
     let currentUser = null;
     let globalRequests = [];
 
+    // Live library snapshot published by PlexClaw (Firestore library/movies and
+    // library/tv). Lets the site answer "already on Plex" before a request is
+    // submitted, and turns cards green for titles the server already has.
+    const plexLibrary = {
+      movie: { ids: new Set(), keys: new Set() },
+      tv: { ids: new Set(), keys: new Set() },
+      updated: null
+    };
+    window.plexHubLibrary = plexLibrary;
+    function normalizeLibraryTitle(value) {
+      return String(value || '').toLowerCase().trim()
+        .replace(/\s*\(\d{4}\)\s*$/, '')
+        .replace(/[’']/g, '')
+        .replace(/&/g, ' and ')
+        .replace(/[^a-z0-9 ]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+    function isOnPlex(item) {
+      if (!item) return false;
+      const kind = item.mediaType === 'tv' || item.media_type === 'tv' ? 'tv' : 'movie';
+      const lib = plexLibrary[kind];
+      if (!lib) return false;
+      if (item.id && lib.ids.has(Number(item.id))) return true;
+      const title = item.title || item.name || '';
+      const year = String(item.release_date || item.first_air_date || '').slice(0, 4);
+      return Boolean(title) && lib.keys.has(`${normalizeLibraryTitle(title)}|${year}`);
+    }
+    window.isOnPlex = isOnPlex;
+
     // Escape every value that is interpolated into HTML. Requests and profile
     // fields are stored in Firestore and must be treated as untrusted input.
     function escapeHTML(value) {
@@ -5148,8 +5178,9 @@
 
     function getDiscoveryRequestState(item) {
       const existing = globalRequests.find(request => Number(request.id) === Number(item.id) && request.mediaType === item.mediaType);
+      if (existing?.status === 'added' || isOnPlex(item)) return { label: 'On Plex', className: 'available', icon: 'fa-circle-check' };
       if (!existing) return { label: 'Request', className: '', icon: 'fa-plus' };
-      if (existing.status === 'added') return { label: 'Available', className: 'available', icon: 'fa-circle-check' };
+      if (existing.status === 'acknowledged') return { label: 'Downloading', className: 'requested', icon: 'fa-download' };
       return { label: 'Requested', className: 'requested', icon: 'fa-hourglass-half' };
     }
 
@@ -5207,8 +5238,8 @@
       }
 
       const existing = globalRequests.find(request => Number(request.id) === Number(item.id) && request.mediaType === item.mediaType);
-      if (existing?.status === 'added') {
-        showToast(`"${item.title}" is already available on Plex!`, 'success');
+      if (existing?.status === 'added' || isOnPlex(item)) {
+        showToast(`"${item.title}" is already on Plex.`, 'success');
         return;
       }
       if (existing) {
@@ -5619,6 +5650,20 @@
     }
 
     // 1. FIREBASE LISTENERS
+    ['movies', 'tv'].forEach(name => {
+      try {
+        onSnapshot(doc(db, 'library', name), snapshot => {
+          const data = snapshot.exists() ? snapshot.data() : {};
+          const kind = name === 'tv' ? 'tv' : 'movie';
+          plexLibrary[kind] = { ids: new Set((data.ids || []).map(Number)), keys: new Set(data.keys || []) };
+          plexLibrary.updated = data.updated || plexLibrary.updated;
+          if (typeof refreshDiscoveryRequestStates === 'function') refreshDiscoveryRequestStates();
+        }, error => console.log('Library snapshot unavailable:', error.message));
+      } catch (error) {
+        console.log('Library snapshot skipped:', error.message);
+      }
+    });
+
     onSnapshot(collection(db, "requests"), (snapshot) => {
       globalRequests = [];
       snapshot.forEach((doc) => {
@@ -6494,11 +6539,16 @@
       const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
       const overlay = document.getElementById('detail-overlay');
 
+      if (isOnPlex(item)) {
+        showToast(`"${item.title || item.name}" is already on Plex.`, 'success');
+        return;
+      }
+
       // Check for existing request (duplicate prevention)
       const existingReq = globalRequests.find(r => r.id === item.id && r.mediaType === (item.mediaType || 'movie'));
       if (existingReq) {
         if (existingReq.status === 'added') {
-          showToast(`"${item.title || item.name}" is already available on Plex! 🎉`, 'success');
+          showToast(`"${item.title || item.name}" is already on Plex.`, 'success');
           return;
         }
         const isOwnRequest = currentUser && existingReq.userId === currentUser.uid;
@@ -6586,6 +6636,10 @@
         const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
         const mediaType = item.mediaType === 'tv' ? 'tv' : 'movie';
         const existingItem = globalRequests.find(r => r.id === item.id && r.mediaType === mediaType);
+        if (status === 'pending' && !existingItem && !isAdmin() && isOnPlex(item)) {
+          if (!silent) showToast(`"${item.title}" is already on Plex.`, 'success');
+          return;
+        }
         const noteToSave = String(note || existingItem?.note || '').trim().slice(0, 500);
         const requesterToSave = String(requester || existingItem?.requester || currentUser.displayName || currentUser.email?.split('@')[0] || 'User').trim().slice(0, 80);
         const priorityToSave = ['normal', 'high'].includes(priority || existingItem?.priority) ? (priority || existingItem?.priority) : 'normal';
@@ -6619,7 +6673,7 @@
         // Create notification for the original requester when admin changes status
         if (isAdmin() && existingItem && existingItem.userId && existingItem.userId !== currentUser?.uid) {
           try {
-            const statusLabels = { added: 'is now available', acknowledged: 'has been acknowledged', pending: 'is pending' };
+            const statusLabels = { added: 'is now on Plex', acknowledged: 'is downloading', pending: 'is pending' };
             const notifMessage = `"${item.title}" ${statusLabels[status] || 'status updated'}!`;
             await addDoc(collection(db, 'users', existingItem.userId, 'notifications'), {
               message: notifMessage,
@@ -7022,7 +7076,7 @@
             ${item.priority === 'high' ? '<div class="priority-badge"><i class="fa-solid fa-fire"></i> HIGH</div>' : ''}
             ${['added', 'acknowledged', 'pending'].includes(item.status) ?
             `<div style="position:absolute; bottom:8px; right:8px; background:${item.status === 'added' ? 'var(--green)' : item.status === 'acknowledged' ? '#f39c12' : 'var(--blue)'}; color:white; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">
-                ${item.status === 'added' ? 'AVAILABLE' : item.status === 'acknowledged' ? 'ACKNOWLEDGED' : 'PENDING'}
+                ${item.status === 'added' ? 'ON PLEX' : item.status === 'acknowledged' ? 'DOWNLOADING' : 'PENDING'}
               </div>` : ''}
           </div>
           <div class="card-content">

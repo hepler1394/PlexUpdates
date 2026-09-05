@@ -81,6 +81,13 @@ service cloud.firestore {
       }
     }
 
+    // Library snapshot written by PlexClaw's service account (bypasses rules);
+    // the site only ever reads it.
+    match /library/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     match /tracked_shows/{showId} {
       allow read: if true;
       allow write: if isAdmin();
