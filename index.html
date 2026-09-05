@@ -5978,6 +5978,10 @@
           plexLibrary[kind] = { ids: new Set((data.ids || []).map(Number)), keys: new Set(data.keys || []) };
           plexLibrary.updated = data.updated || plexLibrary.updated;
           if (typeof refreshDiscoveryRequestStates === 'function') refreshDiscoveryRequestStates();
+          // Grids rendered before the snapshot arrived still say "Request" for owned titles.
+          if (document.getElementById('grid-movies')) renderGrid(currentMovies, 'grid-movies');
+          if (document.getElementById('grid-tvshows')) renderGrid(currentTVShows, 'grid-tvshows');
+          if (document.getElementById('grid-coming')) renderGrid(currentComingSoon, 'grid-coming');
         }, error => console.log('Library snapshot unavailable:', error.message));
       } catch (error) {
         console.log('Library snapshot skipped:', error.message);
@@ -6723,7 +6727,9 @@
 
       items.forEach(item => {
         const dbEntry = globalRequests.find(r => r.id === item.id && r.mediaType === item.mediaType);
-        const isAdded = dbEntry?.status === 'added';
+        // A title the server already has (live library snapshot) is "Available"
+        // even when nobody ever requested it.
+        const isAdded = dbEntry?.status === 'added' || isOnPlex(item);
         const isPending = dbEntry?.status === 'pending';
 
         const card = document.createElement('div');
