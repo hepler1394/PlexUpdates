@@ -4331,44 +4331,60 @@
     }
 
     // ===== GOOGLE AUTH FUNCTIONS =====
+    // Google sign-in. Popup only in real browsers: the redirect flow depends on
+    // third-party storage on the firebaseapp.com auth domain, which Chrome and
+    // Safari now block, so a redirect just lands the user back on the sign-in
+    // screen with nothing signed in. Redirect is kept only for in-app browsers
+    // (Instagram, Snapchat, Facebook) that cannot open popups at all.
+    let signInInProgress = false;
+    const SIGN_IN_MESSAGES = {
+      'auth/popup-blocked': 'Your browser blocked the sign-in window. Allow popups for this site and try again.',
+      'auth/unauthorized-domain': 'This address is not authorized for sign-in yet. Tell Cory.',
+      'auth/network-request-failed': 'No connection to Google right now. Check your internet and try again.',
+      'auth/operation-not-supported-in-this-environment': 'Sign-in is not supported in this browser. Open the site in Safari or Chrome.',
+      'auth/web-storage-unsupported': 'Sign-in needs cookies enabled for this site.'
+    };
+    function setSignInBusy(busy) {
+      document.querySelectorAll('.auth-btn.sign-in, .header-user-btn').forEach(btn => {
+        btn.disabled = busy;
+        btn.style.opacity = busy ? '0.6' : '1';
+      });
+    }
     window.googleSignIn = async () => {
+      if (signInInProgress) return;
+      signInInProgress = true;
+      setSignInBusy(true);
       try {
-        // Show loading state
-        const authBtns = document.querySelectorAll('.auth-btn.sign-in, .header-user-btn');
-        authBtns.forEach(btn => { btn.disabled = true; btn.style.opacity = '0.6'; });
-
         if (isInAppBrowser()) {
-          // In-app browsers block popups — use redirect
+          showToast('Opening Google sign-in. If it does not finish, open this site in Safari or Chrome.', 'info');
           await signInWithRedirect(auth, googleProvider);
-        } else {
-          try {
-            const result = await signInWithPopup(auth, googleProvider);
-            showToast(`Welcome, ${result.user.displayName}!`, 'success');
-          } catch (popupErr) {
-            if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request') {
-              // Fallback to redirect if popup blocked
-              await signInWithRedirect(auth, googleProvider);
-            } else if (popupErr.code !== 'auth/popup-closed-by-user') {
-              throw popupErr;
-            }
-          }
+          return;
         }
+        const result = await signInWithPopup(auth, googleProvider);
+        showToast(`Welcome, ${result.user.displayName || 'friend'}!`, 'success');
       } catch (error) {
-        console.error('Sign-in error:', error);
-        showToast('Sign-in failed. Please try again.', 'error');
-        const authBtns = document.querySelectorAll('.auth-btn.sign-in, .header-user-btn');
-        authBtns.forEach(btn => { btn.disabled = false; btn.style.opacity = '1'; });
+        const code = error && error.code ? String(error.code) : '';
+        if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+          // The person closed the window or tapped twice; nothing to report.
+        } else {
+          console.error('Sign-in error:', code, error);
+          showToast(SIGN_IN_MESSAGES[code] || `Sign-in failed (${code || 'unknown error'}). Please try again.`, 'error');
+        }
+      } finally {
+        signInInProgress = false;
+        setSignInBusy(false);
       }
     };
 
-    // Handle redirect result on page load
     getRedirectResult(auth).then((result) => {
       if (result && result.user) {
-        showToast(`Welcome back, ${result.user.displayName}!`, 'success');
+        showToast(`Welcome back, ${result.user.displayName || 'friend'}!`, 'success');
       }
     }).catch((error) => {
-      if (error.code !== 'auth/popup-closed-by-user') {
-        console.error('Redirect result error:', error);
+      const code = error && error.code ? String(error.code) : '';
+      if (code && code !== 'auth/popup-closed-by-user') {
+        console.error('Redirect result error:', code, error);
+        showToast(SIGN_IN_MESSAGES[code] || `Sign-in did not finish (${code}). Try the Google button again.`, 'error');
       }
     });
 
