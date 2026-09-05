@@ -3322,6 +3322,8 @@
                 <span>Notifications</span>
                 <button id="notif-alerts-btn" onclick="event.stopPropagation(); window.enableBrowserAlerts()"
                   style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; font-weight:600; margin-right:10px;">Browser alerts</button>
+                <button id="notif-email-btn" onclick="event.stopPropagation(); window.toggleEmailAlerts()" title="Email you when a request lands on Plex"
+                  style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; font-weight:600; margin-right:10px;">Email me</button>
                 <button onclick="event.stopPropagation(); clearAllNotifications()"
                   style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; font-weight:600;">Clear
                   All</button>
@@ -3822,9 +3824,14 @@
               <h3 id="mom-new-title"><i class="fa-solid fa-clapperboard" style="color:var(--accent)"></i> New on Plex</h3>
               <p>Added recently. These are ready to watch right now.</p>
             </div>
-            <button type="button" class="quick-find-submit" id="mom-alerts-btn" onclick="window.enableBrowserAlerts()" style="white-space:nowrap">
-              <i class="fa-solid fa-bell"></i> Tell me when requests arrive
-            </button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" class="quick-find-submit" id="mom-alerts-btn" onclick="window.enableBrowserAlerts()" style="white-space:nowrap">
+                <i class="fa-solid fa-bell"></i> Tell me when requests arrive
+              </button>
+              <button type="button" class="quick-find-submit" id="mom-email-btn" onclick="window.toggleEmailAlerts()" style="white-space:nowrap">
+                <i class="fa-solid fa-envelope"></i> Email me too
+              </button>
+            </div>
           </div>
           <div class="discovery-grid" id="grid-mom-new" aria-live="polite"></div>
         </section>
@@ -4229,11 +4236,40 @@
     // notification arrives (a request landing on Plex). Permission is only
     // ever requested from a click, never on load.
     const ALERTS_KEY = 'plexhub_browser_alerts';
+    // Email alerts live on the user's Firestore doc (users/{uid}.emailAlerts);
+    // PlexClaw reads it when a request lands and emails the address on the doc.
+    let userEmailAlerts = false;
+    window.toggleEmailAlerts = async () => {
+      if (!currentUser) { showToast('Sign in first to get email alerts.', 'info'); return; }
+      const next = !userEmailAlerts;
+      try {
+        await setDoc(doc(db, 'users', currentUser.uid), { emailAlerts: next, email: currentUser.email || '' }, { merge: true });
+        userEmailAlerts = next;
+        refreshAlertButtons();
+        showToast(next
+          ? `Email alerts are on. We will email ${currentUser.email} when a request lands on Plex.`
+          : 'Email alerts are off.', 'success');
+      } catch (error) {
+        showToast('Could not save that: ' + error.message, 'error');
+      }
+    };
+    function refreshEmailButtons() {
+      const on = userEmailAlerts;
+      document.querySelectorAll('#mom-email-btn, #notif-email-btn').forEach(btn => {
+        btn.hidden = !currentUser;
+        if (btn.id === 'mom-email-btn') btn.innerHTML = on
+          ? '<i class="fa-solid fa-envelope-circle-check"></i> Email alerts on'
+          : '<i class="fa-solid fa-envelope"></i> Email me too';
+        else btn.textContent = on ? 'Email on' : 'Email me';
+        btn.title = on ? 'Click to stop email alerts' : 'Email you when a request lands on Plex';
+      });
+    }
     function alertsSupported() { return 'Notification' in window; }
     function alertsEnabled() {
       try { return alertsSupported() && Notification.permission === 'granted' && localStorage.getItem(ALERTS_KEY) === '1'; } catch { return false; }
     }
     function refreshAlertButtons() {
+      refreshEmailButtons();
       const on = alertsEnabled();
       const supported = alertsSupported();
       document.querySelectorAll('#mom-alerts-btn, #notif-alerts-btn').forEach(btn => {
@@ -5146,6 +5182,8 @@
         checkUserOnboarding(user);
         userWatchedListener = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
           if (docSnap.exists()) {
+            userEmailAlerts = docSnap.data().emailAlerts === true;
+            refreshAlertButtons();
             userPlaylist = docSnap.data().playlist || [];
             userPlaylists = docSnap.data().playlists || [{ name: 'Watch Later', items: userPlaylist }];
             if (currentTab === 'playlist') renderPlaylist();
