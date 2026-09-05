@@ -88,6 +88,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Admin console: PlexClaw publishes admin/status and consumes admin/commands.
+    // Only the admin account can read or write here.
+    match /admin/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
     match /tracked_shows/{showId} {
       allow read: if true;
       allow write: if isAdmin();

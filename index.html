@@ -38,8 +38,8 @@
   <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f0f2f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0a0a0f">
-  <link rel="apple-touch-icon" href="https://img.icons8.com/color/180/plex.png">
-  <link rel="icon" type="image/png" href="https://img.icons8.com/color/64/plex.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="icon" type="image/png" href="assets/icon-192.png">
   <link rel="canonical" href="https://plex-updates.vercel.app/">
   <link rel="manifest" href="/manifest.json">
 
@@ -3295,6 +3295,8 @@
             <div class="notif-dropdown" id="notif-dropdown">
               <div class="notif-dropdown-header">
                 <span>Notifications</span>
+                <button id="notif-alerts-btn" onclick="event.stopPropagation(); window.enableBrowserAlerts()"
+                  style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; font-weight:600; margin-right:10px;">Browser alerts</button>
                 <button onclick="event.stopPropagation(); clearAllNotifications()"
                   style="background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; font-weight:600;">Clear
                   All</button>
@@ -3785,6 +3787,19 @@
           </div>
         </section>
 
+        <section class="mom-shelf" aria-labelledby="mom-new-title" id="mom-new-shelf" hidden>
+          <div class="discovery-section-heading">
+            <div>
+              <h3 id="mom-new-title"><i class="fa-solid fa-clapperboard" style="color:var(--accent)"></i> New on Plex</h3>
+              <p>Added recently. These are ready to watch right now.</p>
+            </div>
+            <button type="button" class="quick-find-submit" id="mom-alerts-btn" onclick="window.enableBrowserAlerts()" style="white-space:nowrap">
+              <i class="fa-solid fa-bell"></i> Tell me when requests arrive
+            </button>
+          </div>
+          <div class="discovery-grid" id="grid-mom-new" aria-live="polite"></div>
+        </section>
+
         <section class="mom-shelf" aria-labelledby="mom-familiar-title">
           <div class="discovery-section-heading">
             <div>
@@ -4048,6 +4063,19 @@
             <div class="stat-label">Pending</div>
           </div>
         </div>
+        <div id="admin-plexclaw" style="margin-bottom:22px; padding:14px; border:1px solid var(--border); border-radius:12px; background:var(--bg-secondary);">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+            <h3 style="margin:0; font-size:1rem; color:var(--text-secondary);"><i class="fa-solid fa-server" style="color:var(--accent);"></i> PlexClaw</h3>
+            <span id="admin-plexclaw-state" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; background:var(--bg-tertiary); color:var(--text-muted);">waiting for status</span>
+            <span style="flex:1"></span>
+            <button class="torrent-btn" style="padding:6px 12px; font-size:0.8rem;" onclick="window.plexclawCommand('sync')"><i class="fa-solid fa-rotate"></i> Sync requests</button>
+            <button class="torrent-btn" style="padding:6px 12px; font-size:0.8rem; background:#333;" onclick="window.plexclawCommand('rescan')"><i class="fa-solid fa-magnifying-glass"></i> Rescan Plex</button>
+            <button class="torrent-btn" style="padding:6px 12px; font-size:0.8rem; background:#333;" onclick="window.plexclawCommand('snapshot')"><i class="fa-solid fa-cloud-arrow-up"></i> Republish library</button>
+          </div>
+          <div id="admin-plexclaw-stats" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:8px; margin-bottom:10px;"></div>
+          <div id="admin-plexclaw-actions" style="font-size:0.78rem; color:var(--text-muted); line-height:1.6; max-height:150px; overflow:auto;"></div>
+          <div id="admin-plexclaw-commands" style="font-size:0.78rem; color:var(--text-muted); line-height:1.6; margin-top:6px;"></div>
+        </div>
         <h3 style="margin-bottom:12px; font-size:1rem; color:var(--text-secondary);"><i class="fa-solid fa-users"></i>
           Registered Users</h3>
         <div id="admin-users-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;"></div>
@@ -4159,6 +4187,113 @@
       return Boolean(title) && lib.keys.has(`${normalizeLibraryTitle(title)}|${year}`);
     }
     window.isOnPlex = isOnPlex;
+
+    // Browser alerts: fire a system notification when a new in-site
+    // notification arrives (a request landing on Plex). Permission is only
+    // ever requested from a click, never on load.
+    const ALERTS_KEY = 'plexhub_browser_alerts';
+    function alertsSupported() { return 'Notification' in window; }
+    function alertsEnabled() {
+      try { return alertsSupported() && Notification.permission === 'granted' && localStorage.getItem(ALERTS_KEY) === '1'; } catch { return false; }
+    }
+    function refreshAlertButtons() {
+      const on = alertsEnabled();
+      const supported = alertsSupported();
+      document.querySelectorAll('#mom-alerts-btn, #notif-alerts-btn').forEach(btn => {
+        if (!supported) { btn.hidden = true; return; }
+        btn.hidden = false;
+        if (btn.id === 'mom-alerts-btn') btn.innerHTML = on
+          ? '<i class="fa-solid fa-bell"></i> Alerts are on'
+          : '<i class="fa-solid fa-bell"></i> Tell me when requests arrive';
+        else btn.textContent = on ? 'Alerts on' : 'Browser alerts';
+        btn.disabled = on;
+      });
+    }
+    window.enableBrowserAlerts = async () => {
+      if (!alertsSupported()) { showToast('This browser cannot show alerts.', 'info'); return; }
+      let permission = Notification.permission;
+      if (permission !== 'granted') {
+        try { permission = await Notification.requestPermission(); } catch { permission = 'denied'; }
+      }
+      if (permission !== 'granted') {
+        showToast('Alerts stay off until the browser is allowed to show them.', 'info');
+        return;
+      }
+      try { localStorage.setItem(ALERTS_KEY, '1'); } catch {}
+      refreshAlertButtons();
+      showToast('Alerts are on. You will hear about it when a request lands on Plex.', 'success');
+      showBrowserAlert('Alerts are on', 'Requests that land on Plex will show up here.', 'plexhub-test');
+    };
+    async function showBrowserAlert(title, body, tag) {
+      if (!alertsEnabled()) return;
+      const options = { body, tag: tag || 'plexhub', icon: 'assets/icon-192.png', badge: 'assets/icon-192.png' };
+      try {
+        const reg = await navigator.serviceWorker?.getRegistration();
+        if (reg && reg.showNotification) { await reg.showNotification(title, options); return; }
+      } catch {}
+      try { new Notification(title, options); } catch (error) { console.log('Notification failed:', error.message); }
+    }
+    let seenNotificationIds = null;
+    function announceNewNotifications(list) {
+      const ids = new Set(list.map(n => n.id));
+      if (seenNotificationIds === null) { seenNotificationIds = ids; return; }
+      list.filter(n => !seenNotificationIds.has(n.id) && !n.read).slice(0, 3).forEach(n => {
+        showBrowserAlert(n.status === 'available' ? 'On Plex now' : 'Request update', n.message || n.title || '', 'plexhub-' + n.id);
+      });
+      seenNotificationIds = ids;
+    }
+    document.addEventListener('DOMContentLoaded', refreshAlertButtons);
+
+    // "New on Plex": PlexClaw publishes library/recent; posters come from TMDB.
+    let newOnPlexItems = [];
+    async function renderNewOnPlex(items) {
+      newOnPlexItems = Array.isArray(items) ? items.filter(i => i && i.id) : [];
+      const targets = [
+        { grid: 'grid-mom-new', shelf: 'mom-new-shelf' },
+        { grid: 'grid-home-new', shelf: 'home-new-shelf' }
+      ];
+      if (!newOnPlexItems.length) {
+        targets.forEach(t => { const el = document.getElementById(t.shelf); if (el) el.hidden = true; });
+        return;
+      }
+      ensureHomeNewShelf();
+      const detailed = (await Promise.all(newOnPlexItems.slice(0, 12).map(async item => {
+        try {
+          const kind = item.mediaType === 'tv' ? 'tv' : 'movie';
+          const res = await fetch(`https://api.themoviedb.org/3/${kind}/${item.id}?api_key=${TMDB_KEY}&language=en-US`);
+          if (!res.ok) return null;
+          const data = await res.json();
+          plexLibrary[kind].ids.add(Number(item.id));
+          return normalizeDiscoveryItem({ ...data, mediaType: kind, media_type: kind }, kind);
+        } catch { return null; }
+      }))).filter(Boolean);
+      targets.forEach(t => {
+        const shelf = document.getElementById(t.shelf);
+        if (shelf) shelf.hidden = detailed.length === 0;
+        if (document.getElementById(t.grid)) renderDiscoveryCards(detailed, t.grid, 12);
+      });
+    }
+    function ensureHomeNewShelf() {
+      if (document.getElementById('home-new-shelf')) return;
+      const home = document.getElementById('view-home');
+      const hero = document.getElementById('home-hero');
+      if (!home) return;
+      const section = document.createElement('section');
+      section.className = 'discovery-panel';
+      section.id = 'home-new-shelf';
+      section.setAttribute('aria-labelledby', 'home-new-title');
+      section.style.marginBottom = '24px';
+      section.innerHTML = `
+        <div class="discovery-section-heading">
+          <div>
+            <h3 id="home-new-title"><i class="fa-solid fa-clapperboard" style="color:var(--accent)"></i> New on Plex</h3>
+            <p>Just added to the server. Ready to watch.</p>
+          </div>
+        </div>
+        <div class="discovery-grid" id="grid-home-new" aria-live="polite"></div>`;
+      if (hero && hero.parentElement === home) hero.insertAdjacentElement('afterend', section);
+      else home.prepend(section);
+    }
 
     // Escape every value that is interpolated into HTML. Requests and profile
     // fields are stored in Firestore and must be treated as untrusted input.
@@ -4710,6 +4845,8 @@
       }
       const overlay = document.getElementById('admin-overlay');
       overlay.classList.add('open');
+      startPlexclawAdminFeeds();
+      renderPlexclawStatus();
 
       // Load users
       try {
@@ -4747,12 +4884,101 @@
               <div style="font-weight:600; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(r.title || r.name || 'Unknown')}</div>
               <div style="font-size:0.7rem; color:var(--text-muted);">By: ${escapeHTML(r.requester || 'Anonymous')} | ${r.timestamp ? new Date(r.timestamp).toLocaleDateString() : ''}</div>
             </div>
+            ${r.status !== 'added' ? `<button class="torrent-btn" style="padding:4px 8px; font-size:0.7rem;" title="Download now through PlexClaw" onclick="window.plexclawCommand('grab', { docId: '${escapeHTML(r.firestoreId || '')}', mediaType: '${r.mediaType === 'tv' ? 'tv' : 'movie'}', id: ${Number(r.id) || 0}, title: '${escapeHTML(String(r.title || r.name || '').replace(/'/g, ''))}', year: '${escapeHTML(String(r.release_date || '').slice(0, 4))}' })"><i class="fa-solid fa-bolt"></i> Grab</button>` : ''}
             <div style="padding:3px 8px; border-radius:4px; font-size:0.7rem; font-weight:600; color:white; background:${r.status === 'added' ? 'var(--green)' : r.status === 'pending' ? 'var(--blue)' : 'var(--text-muted)'};">${escapeHTML(r.status)}</div>
           </div>
         `).join('');
       } catch (e) {
         console.error('Admin panel error:', e);
         showToast('Error loading admin data.', 'error');
+      }
+    };
+
+    // ---- PlexClaw admin bridge -------------------------------------------
+    // PlexClaw (on the server) publishes admin/status and watches
+    // admin/commands; both are admin-only in the rules.
+    let plexclawStatus = null;
+    let plexclawUnsub = null;
+    let plexclawCmdUnsub = null;
+    function fmtAgo(iso) {
+      if (!iso) return 'never';
+      const t = new Date(iso).getTime();
+      if (!t) return String(iso);
+      const m = Math.round((Date.now() - t) / 60000);
+      if (m < 1) return 'just now';
+      if (m < 60) return `${m} min ago`;
+      const h = Math.round(m / 60);
+      return h < 48 ? `${h} h ago` : `${Math.round(h / 24)} d ago`;
+    }
+    function renderPlexclawStatus() {
+      const state = document.getElementById('admin-plexclaw-state');
+      const stats = document.getElementById('admin-plexclaw-stats');
+      const actions = document.getElementById('admin-plexclaw-actions');
+      if (!state || !stats || !actions) return;
+      const st = plexclawStatus;
+      if (!st) {
+        state.textContent = 'no status yet: PlexClaw has not published (service-account key missing or poller off)';
+        stats.innerHTML = '';
+        actions.innerHTML = '';
+        return;
+      }
+      const ageMin = st.updated ? (Date.now() - new Date(st.updated).getTime()) / 60000 : 999;
+      const live = ageMin < 20;
+      state.textContent = `${live ? 'online' : 'stale'} · updated ${fmtAgo(st.updated)} · write-back ${st.write_back ? 'on' : 'off'}`;
+      state.style.background = live ? 'rgba(0,210,106,0.15)' : 'rgba(229,9,20,0.15)';
+      state.style.color = live ? 'var(--green)' : '#ff6b6b';
+      const tile = (label, value) => `<div style="padding:8px 10px; border-radius:8px; background:var(--bg-tertiary);"><div style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted);">${label}</div><div style="font-size:1rem; font-weight:700;">${value}</div></div>`;
+      stats.innerHTML = [
+        tile('Movies', st.library?.movies ?? '-'),
+        tile('Shows', st.library?.shows ?? '-'),
+        tile('Downloading', st.downloads?.active ?? 0),
+        tile('Free space', st.storage?.free_gb != null ? `${Math.round(st.storage.free_gb)} GB` : '-'),
+        tile('Pending', st.requests?.pending ?? '-'),
+        tile('Last sync', fmtAgo(st.last_sync))
+      ].join('');
+      const rows = Array.isArray(st.recent_actions) ? st.recent_actions : [];
+      actions.innerHTML = rows.length
+        ? rows.map(a => `<div><span style="color:var(--text-secondary)">${escapeHTML(a.t || '')}</span> ${escapeHTML(a.text || '')}</div>`).join('')
+        : '<div>No poller activity yet.</div>';
+    }
+    function renderPlexclawCommands(list) {
+      const el = document.getElementById('admin-plexclaw-commands');
+      if (!el) return;
+      const labels = { queued: 'queued', running: 'running', done: 'done', error: 'failed' };
+      el.innerHTML = list.slice(0, 6).map(c => `<div><i class="fa-solid ${c.status === 'done' ? 'fa-check' : c.status === 'error' ? 'fa-triangle-exclamation' : 'fa-hourglass-half'}"></i> ${escapeHTML(c.type)}${c.args?.title ? ' · ' + escapeHTML(c.args.title) : ''}: ${escapeHTML(labels[c.status] || c.status)}${c.result ? ' · ' + escapeHTML(String(c.result).slice(0, 120)) : ''}</div>`).join('');
+    }
+    function startPlexclawAdminFeeds() {
+      if (!isAdmin()) return;
+      if (!plexclawUnsub) {
+        try {
+          plexclawUnsub = onSnapshot(doc(db, 'admin', 'status'), snap => {
+            plexclawStatus = snap.exists() ? snap.data() : null;
+            renderPlexclawStatus();
+          }, err => console.log('PlexClaw status unavailable:', err.message));
+        } catch (err) { console.log('PlexClaw status skipped:', err.message); }
+      }
+      if (!plexclawCmdUnsub) {
+        try {
+          const q = query(collection(db, 'admin', 'commands', 'items'), orderBy('createdAt', 'desc'), limit(8));
+          plexclawCmdUnsub = onSnapshot(q, snap => {
+            const list = [];
+            snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+            renderPlexclawCommands(list);
+          }, err => console.log('PlexClaw commands unavailable:', err.message));
+        } catch (err) { console.log('PlexClaw commands skipped:', err.message); }
+      }
+    }
+    window.plexclawCommand = async (type, args = {}) => {
+      if (!isAdmin()) { showToast('Admin access only.', 'error'); return; }
+      try {
+        await addDoc(collection(db, 'admin', 'commands', 'items'), {
+          type: String(type), args, status: 'queued', by: currentUser.email,
+          createdAt: Date.now(), result: ''
+        });
+        showToast(`Sent to PlexClaw: ${type}${args.title ? ' ' + args.title : ''}. It runs within about a minute.`, 'success');
+      } catch (err) {
+        console.error('PlexClaw command failed:', err);
+        showToast('Could not queue the command: ' + err.message, 'error');
       }
     };
 
@@ -5663,6 +5889,15 @@
         console.log('Library snapshot skipped:', error.message);
       }
     });
+
+    try {
+      onSnapshot(doc(db, 'library', 'recent'), snapshot => {
+        const data = snapshot.exists() ? snapshot.data() : {};
+        renderNewOnPlex(data.items || []);
+      }, error => console.log('Recent feed unavailable:', error.message));
+    } catch (error) {
+      console.log('Recent feed skipped:', error.message);
+    }
 
     onSnapshot(collection(db, "requests"), (snapshot) => {
       globalRequests = [];
@@ -7530,6 +7765,8 @@
           snapshot.forEach(d => userNotifications.push({ id: d.id, ...d.data() }));
           updateNotifBadge();
           renderNotifList();
+          announceNewNotifications(userNotifications);
+          refreshAlertButtons();
         });
       } catch (e) {
         console.log('Notifications not available:', e.message);
