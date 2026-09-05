@@ -7049,6 +7049,7 @@
         await setDoc(doc(db, "requests", docId), requestData);
         if (!silent) {
           if (status === 'added') showToast(`"${item.title}" marked as available!`, 'success');
+          else if (status === 'acknowledged') showToast(`"${item.title}" acknowledged. PlexClaw will grab it on its next pass.`, 'success');
           else showToast(`Request for "${item.title}" submitted!`, 'success');
           document.getElementById('detail-overlay').classList.remove('open');
         }
