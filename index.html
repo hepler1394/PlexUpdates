@@ -5138,7 +5138,7 @@
     async function checkHelperReady() {
       if (helperReady !== null) return helperReady;
       try {
-        const r = await fetch('/api/recommend', { cache: 'no-store' });
+        const r = await fetch('/api/recommend?t=' + Date.now(), { cache: 'no-store' });
         helperReady = r.ok && (await r.json()).ready === true;
       } catch { helperReady = false; }
       return helperReady;

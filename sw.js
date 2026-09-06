@@ -7,7 +7,7 @@
 // after the first the Firebase module imports failed inside the worker,
 // which left the page stuck on "Finding good options" with nothing
 // clickable. Never route third-party script imports through a worker.
-const CACHE_NAME = 'plexhub-v6-same-origin';
+const CACHE_NAME = 'plexhub-v7-no-api-cache';
 const SHELL_ASSETS = ['/', '/index.html', '/manifest.json', '/assets/icon-192.png', '/assets/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -33,6 +33,7 @@ self.addEventListener('fetch', (event) => {
   let url;
   try { url = new URL(request.url); } catch { return; }
   if (url.origin !== self.location.origin) return;   // third parties: browser default
+  if (url.pathname.startsWith('/api/')) return;      // live answers (the ask helper): never cached
 
   // HTML: network first so releases are never trapped behind the cache,
   // with the cached shell as the offline fallback.
