@@ -1523,7 +1523,13 @@
     #hero-overlay { z-index: 2; }
     @media (min-width: 1024px) {
       #hero-section::before { display: block; }
-      #hero-section::after { background-size: contain; background-position: right center; }
+      #hero-section::after {
+        background-size: contain;
+        background-position: right center;
+        /* soften the left edge of the sharp art into the blurred fill */
+        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22%);
+        mask-image: linear-gradient(to right, transparent 0, #000 22%);
+      }
     }
 
     .hero-content {
