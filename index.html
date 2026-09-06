@@ -995,6 +995,10 @@
       animation: fadeIn 0.4s ease;
     }
 
+    /* The wrapper that holds Home and For You keeps its bottom padding even
+       when both are hidden, which left a 100px gap above the other tabs. */
+    .container:not(:has(.view-section.active)) { padding-bottom: 0 !important; margin-top: 0 !important; }
+
     .view-section.active {
       display: block;
     }
@@ -1882,14 +1886,15 @@
       left: 20px;
       width: 48px;
       height: 48px;
-      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-      color: #fff;
+      background: var(--bg-card);
+      border: 1px solid rgba(229, 160, 13, 0.55);
+      color: var(--accent);
       border-radius: 50%;
       display: none;
       align-items: center;
       justify-content: center;
       font-size: 1.1rem;
-      box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
       z-index: 1000;
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -1900,8 +1905,9 @@
     }
 
     .fab-assistant.open {
-      background: linear-gradient(135deg, #a29bfe, #6c5ce7);
-      box-shadow: 0 4px 20px rgba(108, 92, 231, 0.6);
+      background: var(--accent);
+      color: #000;
+      box-shadow: 0 4px 20px rgba(229, 160, 13, 0.4);
     }
 
     .assistant-menu {
@@ -1911,7 +1917,7 @@
       background: rgba(30, 30, 42, 0.95);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(108, 92, 231, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 16px;
       padding: 8px;
       z-index: 1001;
@@ -2351,12 +2357,7 @@
       }
 
       #scroll-to-top {
-        bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 10px) + 20px);
-        right: 12px;
-        width: 44px;
-        height: 44px;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        display: none !important;   /* the search button in the same corner already scrolls to top */
       }
 
       /* Liquid Background for overlays on mobile */
@@ -3112,7 +3113,8 @@
 
     @media (max-width: 640px) {
       .discovery-panel { padding: 20px 16px; border-radius: 19px; }
-      .quick-find-form { align-items: stretch; }
+      .quick-find-form { align-items: stretch; flex-wrap: wrap; }
+      .quick-find-submit { flex: 1 1 100%; justify-content: center; min-height: 48px; }
       .quick-find-submit { width: 54px; padding: 0; font-size: 0 !important; }
       .quick-find-submit i { font-size: 1rem; }
       .discovery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -3695,7 +3697,7 @@
                 onclick="currentUser?window.headerAuthAction():document.getElementById('auth-overlay').classList.add('open')"
                 style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(10px);padding:9px 18px;border-radius:10px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-size:0.85rem;font-family:inherit;">
                 <i class="fa-solid fa-right-to-bracket" id="home-hero-auth-icon"></i> <span
-                  id="home-hero-auth-label">Sign In</span>
+                  id="home-hero-auth-label">Request access</span>
               </button>
             </div>
           </div>
@@ -4297,7 +4299,8 @@
   <!-- AUTH PANEL OVERLAY -->
   <div id="auth-overlay" class="overlay">
     <div class="modal" style="max-width:400px; padding:30px; text-align:center;">
-      <h2 style="margin-bottom:20px;">Sign In / Sign Up</h2>
+      <h2 style="margin-bottom:6px;">Sign in or request access</h2>
+      <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:18px; line-height:1.5;">This library is for Cory's family and friends. New people are approved by Cory before they can request.</p>
       <div id="auth-error" style="color:var(--red); margin-bottom:10px; font-size:0.9rem; display:none;"></div>
       <input type="email" id="auth-email" class="search-input" placeholder="Email Address"
         style="width:100%; margin-bottom:10px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:12px; color:white;">
@@ -4306,7 +4309,7 @@
       <button class="torrent-btn" style="width:100%; margin-bottom:10px; background:var(--green); font-weight:bold;"
         onclick="window.emailSignIn()"><i class="fa-solid fa-right-to-bracket"></i> Log In</button>
       <button class="torrent-btn" style="width:100%; margin-bottom:20px; background:var(--blue); font-weight:bold;"
-        onclick="window.emailSignUp()"><i class="fa-solid fa-user-plus"></i> Sign Up</button>
+        onclick="window.emailSignUp()"><i class="fa-solid fa-user-plus"></i> Request access with email</button>
 
       <div style="position:relative; text-align:center; margin: 20px 0;">
         <hr style="border:none; border-top:1px solid var(--border);">
