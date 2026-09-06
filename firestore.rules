@@ -12,6 +12,15 @@ service cloud.firestore {
         && request.auth.token.email == 'coryh2014@gmail.com';
     }
 
+    // Family and friends only: a person can request once Cory has flipped
+    // their users/{uid}.role from 'pending' to 'user' (site, Telegram, or PlexClaw).
+    function approved() {
+      return isAdmin()
+        || (signedIn()
+            && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'user');
+    }
+
     function validUserRequest() {
       return signedIn()
         && request.resource.data.keys().hasOnly([
@@ -46,7 +55,7 @@ service cloud.firestore {
 
     match /requests/{requestId} {
       allow read: if true;
-      allow create: if isAdmin() || validUserRequest();
+      allow create: if isAdmin() || (approved() && validUserRequest());
       allow update: if isAdmin();
       allow delete: if isAdmin()
         || (signedIn() && resource.data.userId == request.auth.uid);
@@ -61,7 +70,7 @@ service cloud.firestore {
         && request.resource.data.email == request.auth.token.email
         && (
           (isAdmin() && request.resource.data.role == 'admin')
-          || (!isAdmin() && request.resource.data.role == 'user')
+          || (!isAdmin() && request.resource.data.role == 'pending')
         );
 
       allow update: if isAdmin()

@@ -1479,10 +1479,9 @@
        =========================================== */
     #hero-section {
       position: relative;
+      overflow: hidden;
       width: 100%;
       height: 65vh;
-      background-size: cover;
-      background-position: center top;
       display: flex;
       align-items: flex-end;
       margin-bottom: -100px;
@@ -1500,9 +1499,36 @@
         linear-gradient(to right, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.4) 50%, transparent 70%);
     }
 
+    /* The backdrop art is drawn by two layers so a wide screen never crops a
+       face: ::after shows the whole image (contain, sat to the right, where
+       the overlay is lightest) and ::before is a blurred copy that fills the
+       rest. Phones keep a plain cover crop, which suits 16:9 art on a tall box. */
+    #hero-section::before,
+    #hero-section::after {
+      content: "";
+      position: absolute;
+      background-image: var(--hero-img);
+      background-repeat: no-repeat;
+      background-position: center 20%;
+      background-size: cover;
+      transition: background-image 0.5s ease-in-out;
+    }
+    #hero-section::before {
+      inset: -70px;
+      display: none;
+      filter: blur(36px) brightness(0.5) saturate(1.15);
+      z-index: 0;
+    }
+    #hero-section::after { inset: 0; z-index: 1; }
+    #hero-overlay { z-index: 2; }
+    @media (min-width: 1024px) {
+      #hero-section::before { display: block; }
+      #hero-section::after { background-size: contain; background-position: right center; }
+    }
+
     .hero-content {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       padding: 0 40px 120px 40px;
       max-width: 800px;
       animation: fadeInUp 0.8s ease;
@@ -2689,6 +2715,88 @@
     .quick-find-submit:hover,
     .discovery-request-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
 
+    /* Access-request states */
+    .access-banner {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 18px 20px;
+      margin-bottom: 22px;
+      border: 1px solid rgba(229, 160, 13, 0.35);
+      border-left: 4px solid var(--accent);
+      border-radius: 14px;
+      background: var(--bg-card);
+    }
+    .access-banner-icon {
+      flex: 0 0 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(229, 160, 13, 0.14);
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+    .access-banner h3 { margin: 0 0 4px; font-size: 1rem; }
+    .access-banner p { margin: 0; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; }
+    .access-chip {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(229, 160, 13, 0.16);
+      color: var(--accent);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .access-chip[hidden] { display: none; }
+    .admin-user-actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px; }
+    .admin-user-actions button { padding: 4px 10px; font-size: 0.7rem; }
+    .access-pending-note {
+      padding: 8px 12px;
+      margin-bottom: 4px;
+      border-radius: 10px;
+      background: rgba(229, 160, 13, 0.12);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    /* Ask-for-something helper */
+    .ask-helper[hidden] { display: none; }
+    .ask-status {
+      min-height: 22px;
+      margin-top: 14px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ask-status:empty { margin-top: 0; min-height: 0; }
+    .ask-status.is-error { color: #ff8a80; }
+    .ask-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(229, 160, 13, 0.3);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: askSpin 0.8s linear infinite;
+      flex: 0 0 auto;
+    }
+    @keyframes askSpin { to { transform: rotate(360deg); } }
+    .ask-helper .discovery-grid { margin-top: 14px; }
+    .ask-helper .discovery-grid:empty { display: none; }
+    .discovery-card-why {
+      margin: -4px 0 10px;
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+    body.mom-mode .discovery-card-why { font-size: 0.95rem; }
+
     .discovery-chips {
       display: flex;
       gap: 9px;
@@ -3119,7 +3227,7 @@
       <div id="sidebar-auth" class="user-profile-section">
         <div id="sidebar-signed-out">
           <button class="auth-btn sign-in yahoo" onclick="window.yahooSignIn()" style="background:#6001d2;border-color:#6001d2;margin-bottom:8px;">
-            <i class="fa-brands fa-yahoo" aria-hidden="true"></i> Sign in with Yahoo
+            <i class="fa-brands fa-yahoo" aria-hidden="true"></i> Continue with Yahoo
           </button>
           <button class="auth-btn sign-in" onclick="window.googleSignIn()">
             <svg class="google-icon-svg" viewBox="0 0 24 24">
@@ -3727,14 +3835,45 @@
           </div>
         </div>
 
+        <!-- Signed in but not approved yet -->
+        <div id="access-status-banner" class="access-banner" hidden>
+          <div class="access-banner-icon"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></div>
+          <div class="access-banner-body">
+            <h3 id="access-banner-title">Access requested</h3>
+            <p id="access-banner-copy">Cory has been notified. Browse all you like now; requesting unlocks as soon as he approves you, usually the same day.</p>
+          </div>
+        </div>
+
+        <!-- Ask-for-something helper (shown once approved and the helper is switched on) -->
+        <section class="discovery-panel ask-helper" id="ask-helper-home" data-scope="home" hidden aria-labelledby="ask-home-title">
+          <div class="discovery-eyebrow"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Ask for something</div>
+          <h2 class="discovery-title" id="ask-home-title">Tell me what you feel like watching</h2>
+          <p class="discovery-copy">Say it the way you would to a friend. You get six picks with a line on why each fits, and you can request any of them right there.</p>
+          <form class="quick-find-form" data-ask-form="home">
+            <label class="sr-only" for="ask-home-input">What do you feel like watching?</label>
+            <input class="quick-find-input" id="ask-home-input" type="text" maxlength="300" placeholder="Something funny for a rainy night, nothing scary" autocomplete="off">
+            <button class="quick-find-submit" type="submit"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Find picks</button>
+          </form>
+          <div class="discovery-chips" aria-label="Quick asks">
+            <button class="discovery-chip" type="button" data-ask="A feel-good comedy from the 80s or 90s">Feel-good comedy</button>
+            <button class="discovery-chip" type="button" data-ask="A good mystery or crime show to binge">A mystery to binge</button>
+            <button class="discovery-chip" type="button" data-ask="Something to watch with the grandkids">With the grandkids</button>
+            <button class="discovery-chip" type="button" data-ask="A romantic movie with a happy ending">Romantic, happy ending</button>
+            <button class="discovery-chip" type="button" data-ask="An inspiring true story">A true story</button>
+          </div>
+          <div class="ask-status" id="ask-home-status" aria-live="polite"></div>
+          <div class="discovery-grid" id="ask-home-grid" aria-live="polite"></div>
+        </section>
+
         <!-- Guest CTA -->
         <div id="guest-home-banner"
           style="display:none;text-align:center;padding:26px 20px;background:linear-gradient(135deg,rgba(229,160,13,0.07),rgba(22,22,31,0.95));border:1px solid rgba(229,160,13,0.2);border-radius:16px;backdrop-filter:blur(10px);margin-bottom:22px;">
           <i class="fa-solid fa-user-lock"
             style="font-size:2.2rem;color:var(--accent);margin-bottom:12px;display:block;"></i>
-          <h3 style="margin-bottom:8px;font-size:1rem;">Sign In to Request &amp; Track</h3>
-          <p style="color:var(--text-secondary);margin-bottom:18px;font-size:0.88rem;line-height:1.5;">Sign in to
-            request movies, track TV shows, and build your collection.</p>
+          <h3 style="margin-bottom:8px;font-size:1rem;">Request access</h3>
+          <p style="color:var(--text-secondary);margin-bottom:18px;font-size:0.88rem;line-height:1.5;">This library is for
+            Cory's family and friends. Sign in with Google or Yahoo to ask for access. Cory approves each person, and
+            you will see it here as soon as he does.</p>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
             <button class="torrent-btn" onclick="window.googleSignIn()"
               style="background:white;color:black;font-weight:bold;padding:10px 20px;display:inline-flex;align-items:center;gap:8px;">
@@ -3823,6 +3962,26 @@
             </div>
             <div class="discovery-grid" id="grid-mom-search" aria-live="polite"></div>
           </div>
+        </section>
+
+        <section class="discovery-panel ask-helper" id="ask-helper-mom" data-scope="mom" hidden aria-labelledby="ask-mom-title">
+          <div class="discovery-eyebrow"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Not sure what to watch?</div>
+          <h2 class="discovery-title" id="ask-mom-title">Just tell me the mood</h2>
+          <p class="discovery-copy">Type it like you would say it out loud. You get six ideas and a reason for each one. Tap <strong>Request</strong> on anything you like.</p>
+          <form class="quick-find-form" data-ask-form="mom">
+            <label class="sr-only" for="ask-mom-input">Tell me the mood</label>
+            <input class="quick-find-input" id="ask-mom-input" type="text" maxlength="300" placeholder="Something funny, nothing scary" autocomplete="off">
+            <button class="quick-find-submit" type="submit"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Give me ideas</button>
+          </form>
+          <div class="discovery-chips" aria-label="Quick asks">
+            <button class="discovery-chip" type="button" data-ask="A feel-good comedy from the 80s or 90s">Feel-good comedy</button>
+            <button class="discovery-chip" type="button" data-ask="A good mystery or crime show to binge">A mystery to binge</button>
+            <button class="discovery-chip" type="button" data-ask="A romantic movie with a happy ending">Romantic, happy ending</button>
+            <button class="discovery-chip" type="button" data-ask="A classic I might have missed">A classic I missed</button>
+            <button class="discovery-chip" type="button" data-ask="Something like Enchanted">Something like Enchanted</button>
+          </div>
+          <div class="ask-status" id="ask-mom-status" aria-live="polite"></div>
+          <div class="discovery-grid" id="ask-mom-grid" aria-live="polite"></div>
         </section>
 
         <section class="mom-shelf" aria-labelledby="mom-new-title" id="mom-new-shelf" hidden>
@@ -4442,7 +4601,7 @@
       'auth/operation-not-supported-in-this-environment': 'Sign-in is not supported in this browser. Open the site in Safari or Chrome.',
       'auth/web-storage-unsupported': 'Sign-in needs cookies enabled for this site.',
       'auth/operation-not-allowed': 'That sign-in method is not switched on yet. Use Google for now, or tell Cory.',
-      'auth/account-exists-with-different-credential': 'This email is already signed up with a different method. Use the method you used the first time.'
+      'auth/account-exists-with-different-credential': 'This email already has access through the other sign-in (Google or Yahoo). Use that one and you are in.'
     };
     function setSignInBusy(busy) {
       document.querySelectorAll('.auth-btn.sign-in, .header-user-btn').forEach(btn => {
@@ -4844,6 +5003,7 @@
         if (currentTab === 'collections') switchTab('home');
       }
 
+      refreshAccessUI();
       // Re-render grids to ensure admin-only buttons are hidden/shown immediately
       if (document.getElementById('grid-movies')) renderGrid(currentMovies, 'grid-movies');
       if (document.getElementById('grid-tvshows')) renderGrid(currentTVShows, 'grid-tvshows');
@@ -4873,13 +5033,18 @@
           photoURL: user.photoURL || '',
           lastLogin: Date.now()
         };
+        const adminEmail = Boolean(user.email) && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
         if (!userSnap.exists()) {
+          // New people wait for Cory's approval; he is told by PlexClaw within a minute.
           profileData.createdAt = Date.now();
-          profileData.role = user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user';
-        } else {
-          profileData.role = userSnap.data().role || (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user');
+          profileData.requestedAt = Date.now();
+          profileData.provider = (user.providerData && user.providerData[0] && user.providerData[0].providerId) || 'password';
+          profileData.role = adminEmail ? 'admin' : 'pending';
+        } else if (!userSnap.data().role) {
+          profileData.role = adminEmail ? 'admin' : 'pending';
         }
         await setDoc(userRef, profileData, { merge: true });
+        if (profileData.role) { userRole = profileData.role; refreshAccessUI(); }
 
         // Force Admin Password Change on First Login if Email/Password was used
         if (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
@@ -4901,6 +5066,131 @@
       const isCorrectEmail = (currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
       return Boolean(isCorrectEmail && currentUser.emailVerified);
     }
+
+    // ===== ACCESS (users/{uid}.role: pending -> user | denied) =====
+    let userRole = null;   // null = not loaded yet
+    function isApproved() { return isAdmin() || userRole === 'user'; }
+    const ACCESS_WAIT_MSG = 'Your access request is still waiting on Cory. You can request the moment he approves you.';
+    function refreshAccessUI() {
+      const signedIn = Boolean(currentUser);
+      const state = !signedIn ? 'out' : isApproved() ? 'ok' : userRole === 'denied' ? 'denied' : userRole === null ? 'loading' : 'pending';
+      const banner = document.getElementById('access-status-banner');
+      if (banner) {
+        banner.hidden = !(state === 'pending' || state === 'denied');
+        const title = document.getElementById('access-banner-title');
+        const copy = document.getElementById('access-banner-copy');
+        const icon = banner.querySelector('.access-banner-icon i');
+        if (state === 'pending') {
+          title.textContent = 'Access requested';
+          copy.textContent = 'Cory has been notified. Browse all you like now; requesting unlocks as soon as he approves you, usually the same day.';
+          icon.className = 'fa-solid fa-hourglass-half';
+        } else if (state === 'denied') {
+          title.textContent = 'Access not granted';
+          copy.textContent = "This library is for Cory's family and friends. If you think this is a mistake, ask him directly.";
+          icon.className = 'fa-solid fa-lock';
+        }
+      }
+      let chip = document.getElementById('sidebar-access-chip');
+      const emailEl = document.getElementById('sidebar-user-email');
+      if (!chip && emailEl) {
+        chip = document.createElement('div');
+        chip.id = 'sidebar-access-chip';
+        chip.className = 'access-chip';
+        emailEl.after(chip);
+      }
+      if (chip) {
+        chip.hidden = !(state === 'pending' || state === 'denied');
+        chip.textContent = state === 'pending' ? 'Waiting for approval' : 'Access not granted';
+      }
+      refreshHelperPanels();
+    }
+    window.setUserRole = async (uid, role) => {
+      if (!isAdmin()) { showToast('Admin access only.', 'error'); return; }
+      try {
+        const fields = { role, reviewedAt: Date.now(), reviewedBy: 'site' };
+        if (role === 'user') fields.approvedAt = Date.now();
+        await updateDoc(doc(db, 'users', uid), fields);
+        if (role === 'user') {
+          await addDoc(collection(db, 'users', uid, 'notifications'), {
+            message: "You're in. Cory approved your access - request anything you want to watch.",
+            status: 'approved', title: 'Access approved', read: false,
+            createdAt: new Date().toISOString(), source: 'site'
+          });
+        }
+        showToast(role === 'user' ? 'Approved. They can request now.' : 'Denied. They will see "access not granted".', 'success');
+        if (typeof window.openAdminPanel === 'function') window.openAdminPanel();
+      } catch (e) {
+        showToast('Could not update that person: ' + e.message, 'error');
+      }
+    };
+
+    // ===== ASK-FOR-SOMETHING HELPER (api/recommend.js) =====
+    let helperReady = null;
+    async function checkHelperReady() {
+      if (helperReady !== null) return helperReady;
+      try {
+        const r = await fetch('/api/recommend', { cache: 'no-store' });
+        helperReady = r.ok && (await r.json()).ready === true;
+      } catch { helperReady = false; }
+      return helperReady;
+    }
+    async function refreshHelperPanels() {
+      const ready = await checkHelperReady();
+      const show = ready && Boolean(currentUser) && isApproved();
+      document.querySelectorAll('.ask-helper').forEach(el => { el.hidden = !show; });
+    }
+    async function resolvePicks(picks) {
+      const out = [];
+      await Promise.all(picks.map(async (p, i) => {
+        const kind = p.type === 'tv' ? 'tv' : 'movie';
+        const base = `https://api.themoviedb.org/3/search/${kind}?api_key=${TMDB_KEY}&query=${encodeURIComponent(p.title)}`;
+        const yearParam = p.year ? `&${kind === 'tv' ? 'first_air_date_year' : 'year'}=${p.year}` : '';
+        try {
+          let hit = ((await (await fetch(base + yearParam)).json()).results || [])[0];
+          if (!hit && yearParam) hit = ((await (await fetch(base)).json()).results || [])[0];
+          if (hit) out[i] = { ...normalizeDiscoveryItem(hit, kind), why: p.why };
+        } catch { /* skip this pick */ }
+      }));
+      return out.filter(Boolean);
+    }
+    async function askHelper(scope, ask) {
+      const status = document.getElementById(`ask-${scope}-status`);
+      const grid = document.getElementById(`ask-${scope}-grid`);
+      const input = document.getElementById(`ask-${scope}-input`);
+      if (!status || !grid) return;
+      ask = String(ask || (input && input.value) || '').trim();
+      if (!ask) { status.className = 'ask-status'; status.textContent = 'Tell me a little about what you feel like watching.'; input?.focus(); return; }
+      if (input) input.value = ask;
+      if (!currentUser) { status.textContent = 'Sign in first.'; return; }
+      status.className = 'ask-status';
+      status.innerHTML = '<span class="ask-spinner" aria-hidden="true"></span> Thinking about it...';
+      grid.innerHTML = '';
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const liked = globalRequests.filter(r => r.userId === currentUser.uid).map(r => r.title).slice(0, 12);
+        const r = await fetch('/api/recommend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ ask, liked })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || 'The helper could not answer just now. Try again in a minute.');
+        const items = await resolvePicks(data.picks || []);
+        if (!items.length) { status.textContent = 'I could not find those titles. Try asking a different way.'; return; }
+        status.textContent = data.note || `Here is what fits "${ask}".`;
+        renderDiscoveryCards(items, grid.id, items.length);
+      } catch (e) {
+        status.className = 'ask-status is-error';
+        status.textContent = e.message;
+        grid.innerHTML = '';
+      }
+    }
+    document.querySelectorAll('[data-ask-form]').forEach(form => {
+      form.addEventListener('submit', event => { event.preventDefault(); askHelper(form.dataset.askForm); });
+    });
+    document.querySelectorAll('.ask-helper .discovery-chip').forEach(btn => {
+      btn.addEventListener('click', () => askHelper(btn.closest('.ask-helper').dataset.scope, btn.dataset.ask));
+    });
 
     window.messageAllUsers = async () => {
       const msg = prompt("Enter a message to send to all users (leave blank to clear the active message):");
@@ -4980,15 +5270,18 @@
         const usersSnap = await getDocs(collection(db, 'users'));
         const users = [];
         usersSnap.forEach(d => users.push({ id: d.id, ...d.data() }));
-        users.sort((a, b) => (b.lastLogin || 0) - (a.lastLogin || 0));
+        const roleRank = { pending: 0, denied: 1, admin: 2, user: 3 };
+        users.sort((a, b) => (roleRank[a.role] ?? 4) - (roleRank[b.role] ?? 4) || (b.lastLogin || 0) - (a.lastLogin || 0));
+        const waiting = users.filter(u => u.role === 'pending').length;
 
         document.getElementById('admin-total-users').textContent = users.length;
         document.getElementById('admin-total-requests').textContent = globalRequests.length;
         document.getElementById('admin-pending').textContent = globalRequests.filter(r => r.status === 'pending').length;
 
         const usersList = document.getElementById('admin-users-list');
-        usersList.innerHTML = users.map(u => `
-          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--bg-secondary); border-radius:10px; border:1px solid var(--border);">
+        const roleColor = { admin: 'var(--accent)', user: 'var(--blue)', pending: '#b8860b', denied: '#8a2b2b' };
+        usersList.innerHTML = (waiting ? `<div class="access-pending-note">${waiting} waiting for your approval</div>` : '') + users.map(u => `
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--bg-secondary); border-radius:10px; border:1px solid ${u.role === 'pending' ? 'rgba(229,160,13,0.5)' : 'var(--border)'};">
             ${avatarHTML(u.photoURL, u.displayName || u.email, 36)}
             <div style="flex:1; min-width:0;">
               <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(u.displayName || 'Unknown')}</div>
@@ -4996,7 +5289,11 @@
             </div>
             <div style="text-align:right; flex-shrink:0;">
               <div style="font-size:0.7rem; color:var(--text-muted);">Last: ${u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : 'N/A'}</div>
-              <div style="font-size:0.65rem; padding:2px 6px; border-radius:4px; background:${u.role === 'admin' ? 'var(--accent)' : 'var(--blue)'}; color:white; display:inline-block; margin-top:2px;">${escapeHTML(u.role || 'user')}</div>
+              <div style="font-size:0.65rem; padding:2px 6px; border-radius:4px; background:${roleColor[u.role] || '#555'}; color:white; display:inline-block; margin-top:2px;">${escapeHTML(u.role === 'pending' ? 'waiting' : (u.role || 'no role'))}</div>
+              ${u.role !== 'admin' ? `<div class="admin-user-actions">
+                ${u.role !== 'user' ? `<button class="torrent-btn" onclick="window.setUserRole('${escapeHTML(u.id)}','user')"><i class="fa-solid fa-check"></i> Approve</button>` : ''}
+                ${u.role !== 'denied' ? `<button class="torrent-btn" style="background:#444;" onclick="window.setUserRole('${escapeHTML(u.id)}','denied')"><i class="fa-solid fa-ban"></i> Deny</button>` : ''}
+              </div>` : ''}
             </div>
           </div>
         `).join('');
@@ -5189,6 +5486,8 @@
         checkUserOnboarding(user);
         userWatchedListener = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
           if (docSnap.exists()) {
+            userRole = docSnap.data().role || 'pending';
+            refreshAccessUI();
             userEmailAlerts = docSnap.data().emailAlerts === true;
             refreshAlertButtons();
             userPlaylist = docSnap.data().playlist || [];
@@ -5209,6 +5508,8 @@
           updateAdminUI();
         });
       } else {
+        userRole = null;
+        refreshAccessUI();
         userWatched = [];
         userPlaylist = [];
         userPlaylists = [];
@@ -5571,6 +5872,7 @@
             <div class="discovery-card-body">
               <div class="discovery-card-title">${escapeHTML(item.title)}</div>
               <div class="discovery-card-meta">${escapeHTML(typeLabel)} · ${escapeHTML(year)}</div>
+              ${item.why ? `<p class="discovery-card-why">${escapeHTML(item.why)}</p>` : ''}
               <button class="discovery-request-btn ${state.className}" type="button" aria-label="${state.label} ${escapeHTML(item.title)}"
                 onclick="event.stopPropagation(); window.quickRequest(${safeJsonForAttribute(item)})">
                 <i class="fa-solid ${state.icon}"></i> ${state.label}
@@ -5592,6 +5894,7 @@
         return;
       }
 
+      if (!isApproved()) { showToast(ACCESS_WAIT_MSG, 'info'); return; }
       const existing = globalRequests.find(request => Number(request.id) === Number(item.id) && request.mediaType === item.mediaType);
       if (existing?.status === 'added' || isOnPlex(item)) {
         showToast(`"${item.title}" is already on Plex.`, 'success');
@@ -6919,6 +7222,7 @@
       const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
       const overlay = document.getElementById('detail-overlay');
 
+      if (currentUser && !isApproved()) { showToast(ACCESS_WAIT_MSG, 'info'); return; }
       if (isOnPlex(item)) {
         showToast(`"${item.title || item.name}" is already on Plex.`, 'success');
         return;
@@ -6986,8 +7290,8 @@
       overlay.innerHTML = `
           <div class="modal" style="max-width: 420px; padding: 40px; text-align:center;">
           <i class="fa-solid fa-user-lock" style="font-size:3rem; color:var(--accent); margin-bottom:15px;"></i>
-          <h2 style="margin-bottom: 10px;">Sign In to Request</h2>
-          <p style="color:var(--text-secondary); margin-bottom:25px; line-height:1.6;">Sign in with your Google account to request <strong>${escapeHTML(item.title || item.name)}</strong> and track your requests.</p>
+          <h2 style="margin-bottom: 10px;">Request access first</h2>
+          <p style="color:var(--text-secondary); margin-bottom:25px; line-height:1.6;">This library is for family and friends. Sign in with Google or Yahoo and Cory is notified; once he approves you, you can request <strong>${escapeHTML(item.title || item.name)}</strong> and anything else.</p>
           <button class="auth-btn sign-in" onclick="window.googleSignIn()" style="margin-bottom:12px;">
             <svg class="google-icon-svg" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Sign in with Google
@@ -7014,6 +7318,10 @@
       try {
         if (!currentUser || !currentUser.emailVerified) {
           throw new Error('A verified account is required to save requests.');
+        }
+        if (!isApproved()) {
+          if (!silent) showToast(ACCESS_WAIT_MSG, 'info');
+          return;
         }
 
         const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
@@ -7678,7 +7986,7 @@
       const section = document.getElementById('hero-section');
       if (!section) return;
       if (hero.backdrop_path) {
-        section.style.backgroundImage = `url(https://image.tmdb.org/t/p/original${hero.backdrop_path})`;
+        section.style.setProperty('--hero-img', `url(https://image.tmdb.org/t/p/original${hero.backdrop_path})`);
         section.style.display = 'flex';
       }
       document.getElementById('hero-title').textContent = hero.title;

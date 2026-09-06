@@ -1,0 +1,10 @@
+{
+  "name": "plex-updates",
+  "private": true,
+  "type": "module",
+  "description": "Cory's Plex Hub: static site plus one serverless helper (api/recommend.js).",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.124.0",
+    "jose": "^6.2.12"
+  }
+}
