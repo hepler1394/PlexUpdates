@@ -9,14 +9,19 @@
 // doc through Firestore's REST API with that same token (the rules let a
 // person read their own doc) and require role user or admin.
 //
-// Cost: Claude Haiku 4.5 at roughly 700 input + 400 output tokens a call is
-// well under a cent; a family of ten asking daily stays around a dollar a month.
+// Provider: set ONE of these in Vercel's environment variables.
+//   DEEPSEEK_API_KEY   -> DeepSeek (deepseek-chat), OpenAI-style API, cheapest
+//   ANTHROPIC_API_KEY  -> Claude Haiku 4.5
+// Either way a call is ~700 input + 400 output tokens, a fraction of a cent;
+// a family of ten asking daily stays around a dollar a month or less.
 
 import Anthropic from "@anthropic-ai/sdk";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const PROJECT_ID = "plexmovies-530e4";
-const MODEL = "claude-haiku-4-5";
+const CLAUDE_MODEL = "claude-haiku-4-5";
+const DEEPSEEK_MODEL = "deepseek-chat";
+const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const JWKS = createRemoteJWKSet(
   new URL("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
 );
@@ -90,10 +95,11 @@ function parsePicks(text) {
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
-  const ready = Boolean(process.env.ANTHROPIC_API_KEY);
+  const provider = process.env.DEEPSEEK_API_KEY ? "deepseek" : process.env.ANTHROPIC_API_KEY ? "claude" : "";
+  const ready = Boolean(provider);
 
   if (req.method === "GET") {
-    return res.status(200).json({ ready });
+    return res.status(200).json({ ready, provider });
   }
   if (req.method !== "POST") {
     res.setHeader("Allow", "GET, POST");
@@ -120,16 +126,9 @@ export default async function handler(req, res) {
     caller.name ? `Their first name: ${caller.name.split(" ")[0]}` : "",
   ].filter(Boolean).join("\n");
 
-  const client = new Anthropic();
   let text = "";
   try {
-    const message = await client.messages.create({
-      model: MODEL,
-      max_tokens: 1024,
-      system: SYSTEM,
-      messages: [{ role: "user", content: userText }],
-    });
-    text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("\n");
+    text = provider === "deepseek" ? await askDeepSeek(userText) : await askClaude(userText);
   } catch (err) {
     const status = err?.status || 502;
     const msg = status === 429 ? "The helper is busy right now. Try again in a minute."
@@ -147,4 +146,36 @@ export default async function handler(req, res) {
 
 function safeJson(s) {
   try { return JSON.parse(s); } catch { return {}; }
+}
+
+async function askClaude(userText) {
+  const client = new Anthropic();
+  const message = await client.messages.create({
+    model: CLAUDE_MODEL,
+    max_tokens: 1024,
+    system: SYSTEM,
+    messages: [{ role: "user", content: userText }],
+  });
+  return message.content.filter((b) => b.type === "text").map((b) => b.text).join("\n");
+}
+
+async function askDeepSeek(userText) {
+  const r = await fetch(DEEPSEEK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}` },
+    body: JSON.stringify({
+      model: DEEPSEEK_MODEL,
+      max_tokens: 1024,
+      temperature: 0.8,
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: SYSTEM }, { role: "user", content: userText }],
+    }),
+  });
+  if (!r.ok) {
+    const err = new Error(`deepseek ${r.status}`);
+    err.status = r.status;
+    throw err;
+  }
+  const data = await r.json();
+  return data?.choices?.[0]?.message?.content || "";
 }
