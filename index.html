@@ -2722,6 +2722,64 @@
     .quick-find-submit:hover,
     .discovery-request-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
 
+    /* Motion: honour the OS setting everywhere, not just the page background */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; transition-duration: 0.001s !important; scroll-behavior: auto !important; }
+    }
+
+    /* Keyboard focus that is actually visible on cards, chips, and buttons */
+    .movie-card:focus-visible, .discovery-card:focus-visible, .discovery-chip:focus-visible,
+    .torrent-btn:focus-visible, .quick-find-submit:focus-visible, .auth-btn:focus-visible,
+    .detail-request-btn:focus-visible, .detail-share-btn:focus-visible, .tab-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* The install banner must not sit on top of an open dialog */
+    body:has(.overlay.open) #pwa-install-banner { display: none !important; }
+
+    /* Toast with one action */
+    .toast-action {
+      margin-left: 14px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .toast-action:hover { background: rgba(255, 255, 255, 0.16); }
+
+    /* Detail dialog: a title that is already on Plex */
+    .detail-request-btn.is-on-plex {
+      background: rgba(46, 204, 113, 0.14);
+      color: var(--green);
+      border: 1px solid rgba(46, 204, 113, 0.45);
+      cursor: default;
+    }
+
+    /* Helper: More picks */
+    .ask-more-btn {
+      margin-left: auto;
+      padding: 6px 12px;
+      border: 1px solid rgba(229, 160, 13, 0.5);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .ask-more-btn:hover { background: rgba(229, 160, 13, 0.12); }
+    body.mom-mode .ask-more-btn { min-height: 44px; font-size: 0.95rem; padding: 8px 16px; }
+
+    /* Mom mode: bigger targets on the cards she taps */
+    body.mom-mode .discovery-request-btn { min-height: 52px; font-size: 1rem; }
+    body.mom-mode .discovery-card-title { font-size: 1.05rem; }
+
     /* Access-request states */
     .access-banner {
       display: flex;
@@ -3111,6 +3169,10 @@
     body.light-theme .quick-find-form { background: #f3f4f7; border-color: #d9dce3; }
     body.light-theme .quick-find-input { color: #1c1e21; }
     body.light-theme .discovery-chip { border-color: #d9dce3; background: #f5f6f8; }
+    body.light-theme .access-banner { background: #fff; border-color: #f0d9a3; }
+    body.light-theme .access-banner p, body.light-theme .ask-status, body.light-theme .discovery-card-why { color: #4a4f5a; }
+    body.light-theme .toast-action { border-color: rgba(255, 255, 255, 0.35); }
+    body.light-theme .ask-more-btn { border-color: #d9a441; color: #8a5a00; }
 
     @media (max-width: 640px) {
       .discovery-panel { padding: 20px 16px; border-radius: 19px; }
@@ -3276,7 +3338,7 @@
       </div>
 
       <div style="margin-top:auto; font-size:0.8rem; color:var(--text-muted); text-align:center;">
-        v4.0 by Cory Hepler
+        v5.0 by Cory Hepler
       </div>
 
       <div style="margin-top:auto; font-size:0.8rem; color:var(--text-muted); text-align:center;">
@@ -3392,7 +3454,7 @@
           <i class="fa-solid fa-magnifying-glass search-icon"></i>
           <form id="main-search-form" action="javascript:void(0);"
             style="display:flex; flex:1; margin:0; padding:0; border:none; background:transparent;">
-            <input type="search" id="search" name="q_search" class="search-input"
+            <input type="search" id="search" name="q_search" class="search-input" enterkeyhint="search"
               placeholder="Search movies, TV, people..." autocomplete="off" autocorrect="off" autocapitalize="none"
               spellcheck="false" data-lpignore="true" data-form-type="other" style="width:100%;">
           </form>
@@ -3711,7 +3773,7 @@
           <p class="discovery-copy">Search any movie or show—new, old, popular, or obscure—and request it without digging through menus.</p>
           <form class="quick-find-form" id="discovery-search-form">
             <label class="sr-only" for="discovery-search-input">Search movies and TV shows</label>
-            <input class="quick-find-input" id="discovery-search-input" type="search"
+            <input class="quick-find-input" id="discovery-search-input" type="search" enterkeyhint="search"
               placeholder="Try Lost, Law & Order, an actor, or any title…" autocomplete="off">
             <button class="quick-find-submit" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
           </form>
@@ -3860,7 +3922,7 @@
           <p class="discovery-copy">Say it the way you would to a friend. You get six picks with a line on why each fits, and you can request any of them right there.</p>
           <form class="quick-find-form" data-ask-form="home">
             <label class="sr-only" for="ask-home-input">What do you feel like watching?</label>
-            <input class="quick-find-input" id="ask-home-input" type="text" maxlength="300" placeholder="Something funny for a rainy night, nothing scary" autocomplete="off">
+            <input class="quick-find-input" id="ask-home-input" type="text" maxlength="300" enterkeyhint="go" autocapitalize="sentences" placeholder="Something funny for a rainy night, nothing scary" autocomplete="off">
             <button class="quick-find-submit" type="submit"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Find picks</button>
           </form>
           <div class="discovery-chips" aria-label="Quick asks">
@@ -3956,7 +4018,7 @@
           <p class="discovery-copy">Search for anything you remember, or choose one of the familiar suggestions below. Tap <strong>Request</strong> and Cory will see it.</p>
           <form class="quick-find-form" id="mom-search-form">
             <label class="sr-only" for="mom-search-input">Search for a movie or TV show</label>
-            <input class="quick-find-input" id="mom-search-input" type="search"
+            <input class="quick-find-input" id="mom-search-input" type="search" enterkeyhint="search"
               placeholder="Type a show, movie, or actor…" autocomplete="off">
             <button class="quick-find-submit" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Find it</button>
           </form>
@@ -3979,7 +4041,7 @@
           <p class="discovery-copy">Type it like you would say it out loud. You get six ideas and a reason for each one. Tap <strong>Request</strong> on anything you like.</p>
           <form class="quick-find-form" data-ask-form="mom">
             <label class="sr-only" for="ask-mom-input">Tell me the mood</label>
-            <input class="quick-find-input" id="ask-mom-input" type="text" maxlength="300" placeholder="Something funny, nothing scary" autocomplete="off">
+            <input class="quick-find-input" id="ask-mom-input" type="text" maxlength="300" enterkeyhint="go" autocapitalize="sentences" placeholder="Something funny, nothing scary" autocomplete="off">
             <button class="quick-find-submit" type="submit"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Give me ideas</button>
           </form>
           <div class="discovery-chips" aria-label="Quick asks">
@@ -4569,6 +4631,12 @@
       img.replaceWith(span);
     };
 
+    // Poster URL sized for the screen: phones show two narrow columns, so w342 is plenty.
+    function posterUrl(path) {
+      if (!path) return '';
+      return `https://image.tmdb.org/t/p/${window.innerWidth <= 768 ? 'w342' : 'w500'}${path}`;
+    }
+
     function escapeHTML(value) {
       return String(value ?? '').replace(/[&<>'"]/g, char => ({
         '&': '&amp;',
@@ -4809,7 +4877,7 @@
         await user.reload(); // Refresh user data from Firebase
         if (user.emailVerified) {
           document.getElementById('verify-email-overlay').classList.remove('open');
-          showToast('Email verified! Welcome aboard! 🎉', 'success');
+          showToast('Email verified. Welcome aboard.', 'success');
           updateAuthUI(user);
           currentUser = user;
           // Show welcome overlay
@@ -4841,7 +4909,7 @@
             clearInterval(verifyPollTimer);
             verifyPollTimer = null;
             document.getElementById('verify-email-overlay').classList.remove('open');
-            showToast('Email verified! Welcome aboard! 🎉', 'success');
+            showToast('Email verified. Welcome aboard.', 'success');
             updateAuthUI(user);
             currentUser = user;
             const welcomeShown = localStorage.getItem('plexhub_welcome_shown_' + user.uid);
@@ -4905,7 +4973,7 @@
           }
         });
         if (batch.length === 0) {
-          showToast('✅ No trailing-space documents found. DB is clean!', 'success');
+          showToast('No trailing-space documents found. DB is clean!', 'success');
           return;
         }
         for (const item of batch) {
@@ -4915,7 +4983,7 @@
           await deleteDoc(doc(db, 'requests', item.oldId));
           cleaned++;
         }
-        showToast(`🧹 Cleaned ${cleaned} document(s) with trailing-space IDs.`, 'success');
+        showToast(`Cleaned ${cleaned} document(s) with trailing-space IDs.`, 'success');
       } catch (e) {
         console.error('Cleanup error:', e);
         showToast('Cleanup failed: ' + e.message, 'error');
@@ -5163,21 +5231,27 @@
       }));
       return out.filter(Boolean);
     }
-    async function askHelper(scope, ask) {
+    const askState = {};   // per panel: { ask, shown: [titles] }
+    const LAST_ASK_KEY = 'plexhub_last_ask';
+    async function askHelper(scope, ask, exclude = []) {
       const status = document.getElementById(`ask-${scope}-status`);
       const grid = document.getElementById(`ask-${scope}-grid`);
       const input = document.getElementById(`ask-${scope}-input`);
+      const submit = document.querySelector(`[data-ask-form="${scope}"] .quick-find-submit`);
       if (!status || !grid) return;
       ask = String(ask || (input && input.value) || '').trim();
       if (!ask) { status.className = 'ask-status'; status.textContent = 'Tell me a little about what you feel like watching.'; input?.focus(); return; }
       if (input) input.value = ask;
       if (!currentUser) { status.textContent = 'Sign in first.'; return; }
+      if (submit && submit.disabled) return;            // one ask at a time
+      if (submit) submit.disabled = true;
       status.className = 'ask-status';
       status.innerHTML = '<span class="ask-spinner" aria-hidden="true"></span> Thinking about it...';
       grid.innerHTML = '';
+      try { localStorage.setItem(LAST_ASK_KEY, ask); } catch {}
       try {
         const token = await auth.currentUser.getIdToken();
-        const liked = globalRequests.filter(r => r.userId === currentUser.uid).map(r => r.title).slice(0, 12);
+        const liked = globalRequests.filter(r => r.userId === currentUser.uid).map(r => r.title).concat(exclude).slice(0, 24);
         const r = await fetch('/api/recommend', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -5187,14 +5261,43 @@
         if (!r.ok) throw new Error(data.error || 'The helper could not answer just now. Try again in a minute.');
         const items = await resolvePicks(data.picks || []);
         if (!items.length) { status.textContent = 'I could not find those titles. Try asking a different way.'; return; }
+        askState[scope] = { ask, shown: (exclude || []).concat(items.map(i => i.title)) };
         status.textContent = data.note || `Here is what fits "${ask}".`;
+        const more = document.createElement('button');
+        more.type = 'button';
+        more.className = 'ask-more-btn';
+        more.textContent = 'More picks';
+        more.onclick = () => window.askMore(scope);
+        status.appendChild(more);
         renderDiscoveryCards(items, grid.id, items.length);
       } catch (e) {
         status.className = 'ask-status is-error';
         status.textContent = e.message;
         grid.innerHTML = '';
+      } finally {
+        if (submit) submit.disabled = false;
       }
     }
+    window.askMore = (scope) => {
+      const st = askState[scope];
+      if (!st) return;
+      askHelper(scope, st.ask, st.shown);
+    };
+    window.askMoreLike = ({ title }) => {
+      if (!title) return;
+      document.getElementById('detail-overlay')?.classList.remove('open');
+      const scope = document.body.classList.contains('mom-mode') ? 'mom' : 'home';
+      if (typeof window.switchTab === 'function') window.switchTab(scope === 'mom' ? 'for-you' : 'home');
+      setTimeout(() => {
+        document.getElementById(`ask-helper-${scope}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        askHelper(scope, `Something like ${title}`);
+      }, 350);
+    };
+    (() => {
+      let last = '';
+      try { last = localStorage.getItem(LAST_ASK_KEY) || ''; } catch {}
+      if (last) document.querySelectorAll('#ask-home-input, #ask-mom-input').forEach(i => { if (!i.value) i.placeholder = `Last time: ${last}`; });
+    })();
     document.querySelectorAll('[data-ask-form]').forEach(form => {
       form.addEventListener('submit', event => { event.preventDefault(); askHelper(form.dataset.askForm); });
     });
@@ -5228,7 +5331,7 @@
           const docId = `${req.mediaType || 'movie'}_${req.id}`;
           await updateDoc(doc(db, 'requests', docId), { status: 'acknowledged' });
         }
-        showToast(`✅ Acknowledged ${pendingReqs.length} request(s).`, 'success');
+        showToast(`Acknowledged ${pendingReqs.length} request(s).`, 'success');
       } catch (e) {
         console.error('Batch acknowledge error:', e);
         showToast('Failed to acknowledge some requests.', 'error');
@@ -5250,7 +5353,7 @@
           try {
             await addDoc(collection(db, 'users', item.userId, 'notifications'), {
               type: 'request_fulfilled',
-              title: `🎬 ${title} is now available!`,
+              title: `${title} is now available!`,
               message: `Your request for "${title}" has been added to Plex.`,
               timestamp: Date.now(),
               read: false
@@ -6812,7 +6915,7 @@
       recognition.onstart = () => {
         btn.style.color = 'var(--accent)';
         btn.classList.add('mic-pulsing');
-        showToast('🎤 Listening...', 'info');
+        showToast('Listening...', 'info');
       };
 
       recognition.onend = () => {
@@ -7095,7 +7198,7 @@
         card.dataset.item = encodeURIComponent(JSON.stringify(item));
 
         let poster;
-        if (item.poster_path) poster = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+        if (item.poster_path) poster = posterUrl(item.poster_path);
         else if (item.poster && item.poster.startsWith('http')) poster = item.poster;
         else poster = 'https://via.placeholder.com/500x750/16161f/ffffff?text=No+Poster';
 
@@ -7104,9 +7207,11 @@
 
         if (targetId === 'grid-coming') {
           if (item.release_date) {
-            const releaseDate = new Date(item.release_date);
+            const releaseDate = new Date(item.release_date + 'T12:00:00');
             year = releaseDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            releaseDateBadge = `<div class="priority-badge" style="background: var(--blue); left: auto; right: 10px;"><i class="fa-solid fa-calendar"></i> ${year}</div>`;
+            const days = Math.ceil((releaseDate - new Date()) / 86400000);
+            const when = days > 1 ? `In ${days} days` : days === 1 ? 'Tomorrow' : days === 0 ? 'Today' : 'Out now';
+            releaseDateBadge = `<div class="priority-badge" style="background: ${days < 0 ? 'var(--green)' : 'var(--blue)'}; left: auto; right: 10px;"><i class="fa-solid fa-calendar"></i> ${when}</div>`;
           } else {
             year = 'TBD';
             releaseDateBadge = `<div class="priority-badge" style="background: var(--text-muted); left: auto; right: 10px;"><i class="fa-solid fa-calendar"></i> TBD</div>`;
@@ -7281,7 +7386,7 @@
           <textarea id="request-note" class="modal-note-input" placeholder="Add a note (optional)" rows="3" maxlength="500"></textarea>
           <select id="request-priority" class="control-select" style="width:100%; margin-bottom:15px; padding:10px 14px; background:var(--bg-secondary); border:1px solid var(--border); color:var(--text-primary); border-radius:8px;">
             <option value="normal">Normal Priority</option>
-            <option value="high">🔥 High Priority</option>
+            <option value="high">High Priority</option>
           </select>
           <div style="display: flex; gap: 10px;">
             <button class="torrent-btn" style="flex: 1;" onclick="window.submitRequestAuth(${safeJsonForAttribute(item)})">
@@ -7368,7 +7473,11 @@
         if (!silent) {
           if (status === 'added') showToast(`"${item.title}" marked as available!`, 'success');
           else if (status === 'acknowledged') showToast(`"${item.title}" acknowledged. PlexClaw will grab it on its next pass.`, 'success');
-          else showToast(`Request for "${item.title}" submitted!`, 'success');
+          else {
+            const offerEmail = !userEmailAlerts && Boolean(currentUser && currentUser.email);
+            showToast(`Asked for "${item.title}". PlexClaw checks every 15 minutes and you get an alert here when it lands.`, 'success',
+              offerEmail ? { label: 'Email me too', onClick: () => window.toggleEmailAlerts() } : null);
+          }
           document.getElementById('detail-overlay').classList.remove('open');
         }
 
@@ -7567,7 +7676,13 @@
       allGrid.innerHTML = '';
 
       if (items.length === 0) {
-        allGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">No requests yet. Browse Movies or TV and click Request!</p>';
+        allGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-secondary); padding:40px 20px;">
+            <p style="margin-bottom:14px; font-size:1rem;">Nothing asked for yet. Find a title and tap Request, or let the helper suggest something.</p>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+              <button class="torrent-btn" type="button" onclick="window.openFinder && window.openFinder()"><i class="fa-solid fa-magnifying-glass"></i> Find a title</button>
+              <button class="torrent-btn" type="button" style="background:#333;" onclick="window.switchTab('home'); setTimeout(() => document.getElementById('ask-helper-home')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300)"><i class="fa-solid fa-wand-magic-sparkles"></i> Ask for something</button>
+            </div>
+          </div>`;
         if (mySection) mySection.style.display = 'none';
         return;
       }
@@ -7667,7 +7782,7 @@
         if (statsGrid) statsGrid.style.display = 'none';
         if (authLabel) authLabel.textContent = 'Sign In';
         if (authIcon) authIcon.className = 'fa-solid fa-right-to-bracket';
-        if (greeting) greeting.textContent = 'Browse trending content & request your favorites!';
+        if (greeting) greeting.textContent = 'Pick something for tonight. Anything not on Plex is one tap away.';
         // Re-show home hero for guests
         const homeHero = document.getElementById('home-hero');
         if (homeHero) homeHero.style.display = '';
@@ -7677,7 +7792,7 @@
         if (statsGrid) statsGrid.style.display = 'grid';
         if (authLabel) authLabel.textContent = 'My Profile';
         if (authIcon) authIcon.className = 'fa-solid fa-user-circle';
-        if (greeting) greeting.textContent = `Welcome back, ${currentUser.displayName || 'User'}! Browse trending content & track your requests.`;
+        if (greeting) greeting.textContent = `Welcome back, ${(currentUser.displayName || currentUser.email || '').split(/[ @]/)[0] || 'friend'}. Anything not on Plex is one tap away.`;
 
         // Hide home hero for signed-in users — more room for content
         const homeHero = document.getElementById('home-hero');
@@ -7764,7 +7879,7 @@
         card.dataset.item = encodeURIComponent(JSON.stringify(item));
 
         let poster;
-        if (item.poster_path) poster = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+        if (item.poster_path) poster = posterUrl(item.poster_path);
         else if (item.poster && item.poster.startsWith('http')) poster = item.poster;
         else poster = 'https://via.placeholder.com/500x750/16161f/ffffff?text=No+Poster';
 
@@ -7885,9 +8000,14 @@
               <p style="line-height:1.7; color:var(--text-primary); font-size:1.05rem; margin-bottom:40px;">${escapeHTML(item.overview || 'No description available.')}</p>
 
               <div class="detail-primary-actions">
-                <button class="detail-request-btn" onclick="window.openRequestModal(${safeJsonForAttribute(normalizeDiscoveryItem(item, item.mediaType || item.media_type))})">
-                  <i class="fa-solid fa-plus"></i> Request this title
-                </button>
+                ${(() => {
+                  const n = normalizeDiscoveryItem(item, item.mediaType || item.media_type);
+                  const owned = isOnPlex(n) || globalRequests.some(r => Number(r.id) === Number(n.id) && r.mediaType === n.mediaType && r.status === 'added');
+                  return owned
+                    ? `<button class="detail-request-btn is-on-plex" type="button" disabled><i class="fa-solid fa-circle-check"></i> On Plex, ready to watch</button>`
+                    : `<button class="detail-request-btn" onclick="window.openRequestModal(${safeJsonForAttribute(n)})"><i class="fa-solid fa-plus"></i> Request this title</button>`;
+                })()}
+                ${helperReady && isApproved() ? `<button class="detail-share-btn" onclick="window.askMoreLike(${safeJsonForAttribute({ title: item.title || item.name || '' })})"><i class="fa-solid fa-wand-magic-sparkles"></i> More like this</button>` : ''}
                 <button class="detail-share-btn" onclick="window.shareTitle(${safeJsonForAttribute(item)})">
                   <i class="fa-solid fa-share-nodes"></i> Share
                 </button>
@@ -7996,7 +8116,8 @@
       const section = document.getElementById('hero-section');
       if (!section) return;
       if (hero.backdrop_path) {
-        section.style.setProperty('--hero-img', `url(https://image.tmdb.org/t/p/original${hero.backdrop_path})`);
+        const heroSize = window.innerWidth <= 1024 ? 'w1280' : 'original';
+        section.style.setProperty('--hero-img', `url(https://image.tmdb.org/t/p/${heroSize}${hero.backdrop_path})`);
         section.style.display = 'flex';
       }
       document.getElementById('hero-title').textContent = hero.title;
@@ -8006,7 +8127,7 @@
     // Hero observer handles updateHero calls (origRenderGrid was unused dead code, removed)
 
     // TOAST NOTIFICATION
-    function showToast(message, type = 'info') {
+    function showToast(message, type = 'info', action = null) {
       // Remove existing toast if any
       const existing = document.querySelector('.toast-notification');
       if (existing) existing.remove();
@@ -8018,6 +8139,14 @@
       const bottomOffset = window.innerWidth <= 768 ? 'calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 10px) + 20px)' : '30px';
       toast.style.cssText = `position:fixed; bottom:${bottomOffset}; left:50%; transform:translateX(-50%); background: rgba(30,30,42,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-left: 4px solid ${colors[type] || colors.info}; color:white; padding:12px 24px; border-radius:12px; font-weight:600; z-index:10000; transition: transform 0.3s ease, opacity 0.3s ease; animation:fadeInUp 0.3s ease; box-shadow:0 10px 30px rgba(0,0,0,0.5); max-width:90vw; text-align:center; font-size:0.9rem; touch-action: pan-y;`;
       toast.textContent = message;
+      if (action && action.label && typeof action.onClick === 'function') {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'toast-action';
+        btn.textContent = action.label;
+        btn.onclick = (e) => { e.stopPropagation(); action.onClick(); toast.remove(); };
+        toast.appendChild(btn);
+      }
       document.body.appendChild(toast);
 
       // Swipe to dismiss logic
@@ -8275,6 +8404,14 @@
       }).join('');
     }
 
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const open = [...document.querySelectorAll('.overlay.open')].pop();
+      if (open) open.classList.remove('open');
+      document.getElementById('notif-dropdown')?.classList.remove('open');
+      document.body.classList.remove('sidebar-open');
+    });
+
     window.toggleNotifDropdown = () => {
       const dropdown = document.getElementById('notif-dropdown');
       if (dropdown) dropdown.classList.toggle('open');
@@ -8312,7 +8449,7 @@
       try {
         const notifRef = collection(db, 'users', userId, 'notifications');
         await addDoc(notifRef, {
-          message: `🎬 "${title}" is now ${status}!`,
+          message: `"${title}" is now ${status}!`,
           status: status,
           createdAt: serverTimestamp(),
           read: false
@@ -8672,7 +8809,7 @@
             deferredInstallPrompt.prompt();
             const result = await deferredInstallPrompt.userChoice;
             if (result.outcome === 'accepted') {
-              showToast('PlexHub installed! 🎉', 'success');
+              showToast('PlexHub is on your home screen now.', 'success');
             }
             deferredInstallPrompt = null;
           }
@@ -8815,7 +8952,7 @@
 
       <!-- Content -->
       <div style="padding:30px 35px;">
-        <h2 style="margin-bottom:6px; font-size:1.4rem;">Welcome aboard! 🎉</h2>
+        <h2 style="margin-bottom:6px; font-size:1.4rem;">Welcome aboard</h2>
         <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;">Your account is verified. Here's what
           you can do:</p>
 
