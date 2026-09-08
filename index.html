@@ -4481,6 +4481,10 @@
     // server cannot actually send mail, and then we hide the Email me buttons
     // rather than promise a message that will never arrive.
     let emailDeliveryOk = false;
+    // The simplified view is a per-person flag Cory sets from the admin list.
+    // MOM_EMAIL_HASH stays as a fallback so the original account keeps working
+    // no matter which address or provider it signs in with.
+    let userSimpleView = false;
     window.toggleEmailAlerts = async () => {
       if (!currentUser) { showToast('Sign in first to get email alerts.', 'info'); return; }
       if (!emailDeliveryOk) {
@@ -5190,6 +5194,17 @@
       }
       refreshHelperPanels();
     }
+    window.setSimpleView = async (uid, on) => {
+      if (!isAdmin()) { showToast('Admin access only.', 'error'); return; }
+      try {
+        await updateDoc(doc(db, 'users', uid), { simpleView: on === true });
+        showToast(on ? 'Simple view on for them.' : 'Back to the full page for them.', 'success');
+        if (typeof window.openAdminPanel === 'function') window.openAdminPanel();
+      } catch (e) {
+        showToast('Could not save that: ' + e.message, 'error');
+      }
+    };
+
     window.setUserRole = async (uid, role) => {
       if (!isAdmin()) { showToast('Admin access only.', 'error'); return; }
       try {
@@ -5414,6 +5429,7 @@
               ${u.role !== 'admin' ? `<div class="admin-user-actions">
                 ${u.role !== 'user' ? `<button class="torrent-btn" onclick="window.setUserRole('${escapeHTML(u.id)}','user')"><i class="fa-solid fa-check"></i> Approve</button>` : ''}
                 ${u.role !== 'denied' ? `<button class="torrent-btn" style="background:#444;" onclick="window.setUserRole('${escapeHTML(u.id)}','denied')"><i class="fa-solid fa-ban"></i> Deny</button>` : ''}
+                ${u.role === 'user' ? `<button class="torrent-btn" style="background:${u.simpleView ? 'var(--accent)' : '#444'};" title="A simpler page: one search box and picks chosen for them" onclick="window.setSimpleView('${escapeHTML(u.id)}', ${u.simpleView ? 'false' : 'true'})"><i class="fa-solid fa-wand-magic-sparkles"></i> ${u.simpleView ? 'Simple view on' : 'Simple view'}</button>` : ''}
               </div>` : ''}
             </div>
           </div>
@@ -5611,6 +5627,11 @@
             refreshAccessUI();
             userEmailAlerts = docSnap.data().emailAlerts === true;
             refreshAlertButtons();
+            const wantsSimple = docSnap.data().simpleView === true;
+            if (wantsSimple !== userSimpleView) {
+              userSimpleView = wantsSimple;
+              updateMomExperience(user);
+            }
             userPlaylist = docSnap.data().playlist || [];
             userPlaylists = docSnap.data().playlists || [{ name: 'Watch Later', items: userPlaylist }];
             if (currentTab === 'playlist') renderPlaylist();
@@ -6295,9 +6316,9 @@
     }
 
     async function updateMomExperience(user) {
-      let isMom = false;
+      let isMom = userSimpleView;
       try {
-        isMom = Boolean(user?.email) && await sha256Hex(user.email) === MOM_EMAIL_HASH;
+        if (!isMom) isMom = Boolean(user?.email) && await sha256Hex(user.email) === MOM_EMAIL_HASH;
       } catch (error) {
         console.error('Personalized view check failed:', error);
       }
