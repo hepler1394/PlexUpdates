@@ -4477,8 +4477,16 @@
     // Email alerts live on the user's Firestore doc (users/{uid}.emailAlerts);
     // PlexClaw reads it when a request lands and emails the address on the doc.
     let userEmailAlerts = false;
+    // PlexClaw publishes library/status.email_alerts. It is false whenever the
+    // server cannot actually send mail, and then we hide the Email me buttons
+    // rather than promise a message that will never arrive.
+    let emailDeliveryOk = false;
     window.toggleEmailAlerts = async () => {
       if (!currentUser) { showToast('Sign in first to get email alerts.', 'info'); return; }
+      if (!emailDeliveryOk) {
+        showToast('Email alerts are not switched on for the server yet. You will still get alerts here on the site.', 'info');
+        return;
+      }
       const next = !userEmailAlerts;
       try {
         await setDoc(doc(db, 'users', currentUser.uid), { emailAlerts: next, email: currentUser.email || '' }, { merge: true });
@@ -4494,7 +4502,7 @@
     function refreshEmailButtons() {
       const on = userEmailAlerts;
       document.querySelectorAll('#mom-email-btn, #notif-email-btn').forEach(btn => {
-        btn.hidden = !currentUser;
+        btn.hidden = !currentUser || !emailDeliveryOk;
         if (btn.id === 'mom-email-btn') btn.innerHTML = on
           ? '<i class="fa-solid fa-envelope-circle-check"></i> Email alerts on'
           : '<i class="fa-solid fa-envelope"></i> Email me too';
@@ -6450,6 +6458,16 @@
     });
 
     try {
+      onSnapshot(doc(db, 'library', 'status'), snapshot => {
+        const data = snapshot.exists() ? snapshot.data() : {};
+        emailDeliveryOk = data.email_alerts === true;
+        if (typeof refreshAlertButtons === 'function') refreshAlertButtons();
+      }, error => console.log('Server status unavailable:', error.message));
+    } catch (error) {
+      console.log('Server status skipped:', error.message);
+    }
+
+    try {
       onSnapshot(doc(db, 'library', 'recent'), snapshot => {
         const data = snapshot.exists() ? snapshot.data() : {};
         renderNewOnPlex(data.items || []);
@@ -7474,7 +7492,7 @@
           if (status === 'added') showToast(`"${item.title}" marked as available!`, 'success');
           else if (status === 'acknowledged') showToast(`"${item.title}" acknowledged. PlexClaw will grab it on its next pass.`, 'success');
           else {
-            const offerEmail = !userEmailAlerts && Boolean(currentUser && currentUser.email);
+            const offerEmail = emailDeliveryOk && !userEmailAlerts && Boolean(currentUser && currentUser.email);
             showToast(`Asked for "${item.title}". PlexClaw checks every 15 minutes and you get an alert here when it lands.`, 'success',
               offerEmail ? { label: 'Email me too', onClick: () => window.toggleEmailAlerts() } : null);
           }
