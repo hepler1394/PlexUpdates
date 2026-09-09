@@ -2818,8 +2818,21 @@
       letter-spacing: 0.02em;
     }
     .access-chip[hidden] { display: none; }
-    .admin-user-actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px; }
+    /* Wrap, or the row runs off a phone: three buttons need ~534px against a
+       341px row at 375px wide, and the page does not scroll sideways, so the
+       last one is simply unreachable. Two buttons already overflowed before
+       the auto-download toggle was added. */
+    .admin-user-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; margin-top: 6px; }
     .admin-user-actions button { padding: 4px 10px; font-size: 0.7rem; }
+    /* On a phone the buttons take their own full-width line instead of
+       competing with the name. Squeezing them side by side truncated the
+       email — the one thing you need to read before granting someone the
+       right to start downloads. Desktop keeps the right-aligned single row. */
+    @media (max-width: 560px) {
+      .admin-user-row { flex-wrap: wrap; }
+      .admin-user-row > div:last-child { flex-basis: 100%; flex-shrink: 1; min-width: 0; text-align: left !important; }
+      .admin-user-row .admin-user-actions { justify-content: flex-start; }
+    }
     .access-pending-note {
       padding: 8px 12px;
       margin-bottom: 4px;
@@ -5437,7 +5450,7 @@
         const usersList = document.getElementById('admin-users-list');
         const roleColor = { admin: 'var(--accent)', user: 'var(--blue)', pending: '#b8860b', denied: '#8a2b2b' };
         usersList.innerHTML = (waiting ? `<div class="access-pending-note">${waiting} waiting for your approval</div>` : '') + users.map(u => `
-          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--bg-secondary); border-radius:10px; border:1px solid ${u.role === 'pending' ? 'rgba(229,160,13,0.5)' : 'var(--border)'};">
+          <div class="admin-user-row" style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--bg-secondary); border-radius:10px; border:1px solid ${u.role === 'pending' ? 'rgba(229,160,13,0.5)' : 'var(--border)'};">
             ${avatarHTML(u.photoURL, u.displayName || u.email, 36)}
             <div style="flex:1; min-width:0;">
               <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(u.displayName || 'Unknown')}</div>
