@@ -2824,15 +2824,16 @@
        the auto-download toggle was added. */
     .admin-user-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; margin-top: 6px; }
     .admin-user-actions button { padding: 4px 10px; font-size: 0.7rem; }
-    /* On a phone the buttons take their own full-width line instead of
-       competing with the name. Squeezing them side by side truncated the
-       email — the one thing you need to read before granting someone the
-       right to start downloads. Desktop keeps the right-aligned single row. */
-    @media (max-width: 560px) {
-      .admin-user-row { flex-wrap: wrap; }
-      .admin-user-row > div:last-child { flex-basis: 100%; flex-shrink: 1; min-width: 0; text-align: left !important; }
-      .admin-user-row .admin-user-actions { justify-content: flex-start; }
-    }
+    /* Let the row reflow on its own instead of keying off the viewport: the
+       admin panel is a ~628px modal, so a 1920px screen still squeezed the
+       name column to 79px and truncated the email — the one thing you have to
+       read before granting someone the right to start downloads. Giving the
+       identity a real flex-basis and letting the actions column shrink pushes
+       the buttons onto their own line exactly when they no longer fit, at any
+       screen size. */
+    .admin-user-row { flex-wrap: wrap; }
+    .admin-user-id { flex: 1 1 170px; min-width: 170px; }
+    .admin-user-meta { text-align: right; flex: 0 1 auto; min-width: 0; margin-left: auto; }
     .access-pending-note {
       padding: 8px 12px;
       margin-bottom: 4px;
@@ -5452,11 +5453,11 @@
         usersList.innerHTML = (waiting ? `<div class="access-pending-note">${waiting} waiting for your approval</div>` : '') + users.map(u => `
           <div class="admin-user-row" style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--bg-secondary); border-radius:10px; border:1px solid ${u.role === 'pending' ? 'rgba(229,160,13,0.5)' : 'var(--border)'};">
             ${avatarHTML(u.photoURL, u.displayName || u.email, 36)}
-            <div style="flex:1; min-width:0;">
+            <div class="admin-user-id">
               <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(u.displayName || 'Unknown')}</div>
               <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHTML(u.email || 'No email')}</div>
             </div>
-            <div style="text-align:right; flex-shrink:0;">
+            <div class="admin-user-meta">
               <div style="font-size:0.7rem; color:var(--text-muted);">Last: ${u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : 'N/A'}</div>
               <div style="font-size:0.65rem; padding:2px 6px; border-radius:4px; background:${roleColor[u.role] || '#555'}; color:white; display:inline-block; margin-top:2px;">${escapeHTML(u.role === 'pending' ? 'waiting' : (u.role || 'no role'))}</div>
               ${u.role !== 'admin' ? `<div class="admin-user-actions">
