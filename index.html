@@ -5205,6 +5205,26 @@
       }
     };
 
+    // Trusting someone means their requests start downloading without waiting
+    // for Cory's tap. The Firestore rules keep `autoDownload` admin-only, so
+    // nobody can hand it to themselves; PlexClaw also ignores the flag on any
+    // account that is not currently approved, and still caps how many a
+    // trusted person can pull in a day.
+    window.setAutoDownload = async (uid, on) => {
+      if (!isAdmin()) { showToast('Admin access only.', 'error'); return; }
+      if (on === true && !confirm(
+            'Let this person’s requests download on their own, without asking you first?\n\n'
+            + 'Only do this for someone you trust with the drives.')) return;
+      try {
+        await updateDoc(doc(db, 'users', uid), { autoDownload: on === true });
+        showToast(on ? 'Their requests will download on their own.'
+                     : 'Their requests will wait for your OK.', 'success');
+        if (typeof window.openAdminPanel === 'function') window.openAdminPanel();
+      } catch (e) {
+        showToast('Could not save that: ' + e.message, 'error');
+      }
+    };
+
     window.setUserRole = async (uid, role) => {
       if (!isAdmin()) { showToast('Admin access only.', 'error'); return; }
       try {
@@ -5430,6 +5450,7 @@
                 ${u.role !== 'user' ? `<button class="torrent-btn" onclick="window.setUserRole('${escapeHTML(u.id)}','user')"><i class="fa-solid fa-check"></i> Approve</button>` : ''}
                 ${u.role !== 'denied' ? `<button class="torrent-btn" style="background:#444;" onclick="window.setUserRole('${escapeHTML(u.id)}','denied')"><i class="fa-solid fa-ban"></i> Deny</button>` : ''}
                 ${u.role === 'user' ? `<button class="torrent-btn" style="background:${u.simpleView ? 'var(--accent)' : '#444'};" title="A simpler page: one search box and picks chosen for them" onclick="window.setSimpleView('${escapeHTML(u.id)}', ${u.simpleView ? 'false' : 'true'})"><i class="fa-solid fa-wand-magic-sparkles"></i> ${u.simpleView ? 'Simple view on' : 'Simple view'}</button>` : ''}
+                ${u.role === 'user' ? `<button class="torrent-btn" style="background:${u.autoDownload ? 'var(--accent)' : '#444'};" title="${u.autoDownload ? 'Their requests download on their own, up to the daily limit' : 'Their requests wait until you tap Download'}" onclick="window.setAutoDownload('${escapeHTML(u.id)}', ${u.autoDownload ? 'false' : 'true'})"><i class="fa-solid ${u.autoDownload ? 'fa-bolt' : 'fa-hand'}"></i> ${u.autoDownload ? 'Downloads on their own' : 'Asks you first'}</button>` : ''}
               </div>` : ''}
             </div>
           </div>

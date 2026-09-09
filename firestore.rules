@@ -73,11 +73,17 @@ service cloud.firestore {
           || (!isAdmin() && request.resource.data.role == 'pending')
         );
 
+      // A person may edit their own profile, but never a field that grants
+      // them something: `role` is access to the site at all, and
+      // `autoDownload` lets their requests start a download without Cory
+      // tapping Download first. Both are admin-only, so a spam or stolen
+      // account cannot promote itself.
       allow update: if isAdmin()
         || (
           signedIn()
           && request.auth.uid == userId
-          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
+          && !request.resource.data.diff(resource.data)
+               .affectedKeys().hasAny(['role', 'autoDownload'])
         );
 
       allow delete: if isAdmin()
