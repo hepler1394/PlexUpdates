@@ -7550,7 +7550,7 @@
         await setDoc(doc(db, "requests", docId), requestData);
         if (!silent) {
           if (status === 'added') showToast(`"${item.title}" marked as available!`, 'success');
-          else if (status === 'acknowledged') showToast(`"${item.title}" acknowledged. PlexClaw will grab it on its next pass.`, 'success');
+          else if (status === 'acknowledged') showToast(`Marked "${item.title}" as downloading. PlexClaw grabs it on its next pass.`, 'success');
           else {
             const offerEmail = emailDeliveryOk && !userEmailAlerts && Boolean(currentUser && currentUser.email);
             showToast(`Asked for "${item.title}". PlexClaw checks every 15 minutes and you get an alert here when it lands.`, 'success',
