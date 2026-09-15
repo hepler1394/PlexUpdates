@@ -6699,6 +6699,7 @@
 
       try {
         const res = await fetch(apiUrl + params.toString());
+        if (!res.ok) throw new Error(`TMDB ${res.status}`);
         const data = await res.json();
         const newMovies = data.results.filter(notAdult).map(m => ({ ...m, mediaType: 'movie' }));
 
@@ -6715,6 +6716,7 @@
         }
       } catch (e) {
         console.error('Fetch movies error:', e);
+        showListLoadError('grid-movies', 'Movies');
       } finally {
         const loader = document.getElementById('loader-movies');
         if (loader) loader.style.display = 'none';
@@ -6737,6 +6739,7 @@
       if (loader) loader.style.display = 'flex';
       try {
         const res = await fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_KEY}&page=${page}`);
+        if (!res.ok) throw new Error(`TMDB ${res.status}`);
         const data = await res.json();
         const newShows = data.results.filter(notAdult).map(tv => ({
           ...tv, mediaType: 'tv', title: tv.name, release_date: tv.first_air_date
@@ -6753,6 +6756,7 @@
         updateLastRefreshUI();
       } catch (e) {
         console.error("TMDB TV Fetch Error", e);
+        showListLoadError('grid-tvshows', 'TV shows');
       } finally {
         const loader = document.getElementById('loader-tv');
         if (loader) loader.style.display = 'none';
@@ -6781,6 +6785,7 @@
         const future = futureDate.toISOString().split('T')[0];
 
         const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&include_adult=false&primary_release_date.gte=${today}&primary_release_date.lte=${future}&sort_by=popularity.desc`);
+        if (!res.ok) throw new Error(`TMDB ${res.status}`);
         const data = await res.json();
         currentComingSoon = data.results.filter(notAdult).map(m => ({ ...m, mediaType: 'movie' }));
         cacheData('coming_soon', currentComingSoon);
@@ -6788,6 +6793,7 @@
         updateLastRefreshUI();
       } catch (e) {
         console.error("TMDB Coming Soon Error", e);
+        showListLoadError('grid-coming', 'Upcoming movies');
       } finally {
         const loader = document.getElementById('loader-coming');
         if (loader) loader.style.display = 'none';
@@ -7232,10 +7238,16 @@
       const genre = e.target.value;
       if (!genre) { fetchTrendingTV(); }
       else {
-        const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&include_adult=false&with_genres=${genre}&sort_by=popularity.desc`);
-        const data = await res.json();
-        currentTVShows = data.results.filter(notAdult).map(tv => ({ ...tv, mediaType: 'tv', title: tv.name, release_date: tv.first_air_date }));
-        renderGrid(currentTVShows, 'grid-tvshows');
+        try {
+          const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&include_adult=false&with_genres=${genre}&sort_by=popularity.desc`);
+          if (!res.ok) throw new Error(`TMDB ${res.status}`);
+          const data = await res.json();
+          currentTVShows = data.results.filter(notAdult).map(tv => ({ ...tv, mediaType: 'tv', title: tv.name, release_date: tv.first_air_date }));
+          renderGrid(currentTVShows, 'grid-tvshows');
+        } catch (e) {
+          console.error('TV genre fetch error', e);
+          showListLoadError('grid-tvshows', 'Shows in that genre');
+        }
       }
       mobileAutoHideHeader();
     });
@@ -7252,6 +7264,17 @@
         if (pullHandle) pullHandle.style.display = 'flex';
         // Scroll to top of content (below header)
         setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+      }
+    }
+
+    // A TMDB list that fails to load used to leave its grid blank. An empty
+    // grid now says so; a grid that still shows cards keeps them and gets a toast.
+    function showListLoadError(targetId, what) {
+      const grid = document.getElementById(targetId);
+      if (grid && !grid.querySelector('.movie-card')) {
+        grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:gray; padding:40px;">${what} could not load. Check your connection and try again.</p>`;
+      } else {
+        showToast(`${what} could not load. Try again in a minute.`, 'error');
       }
     }
 
