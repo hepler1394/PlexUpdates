@@ -7507,7 +7507,9 @@
     };
 
     // DATABASE ACTIONS
-    window.saveItemFromObject = async (itemObj, status, note = '', requester = '', priority = 'normal', silent = false) => {
+    // An empty priority keeps the one the request already has, so a status
+    // change (Ack, Done, Mark Available) no longer resets High to normal.
+    window.saveItemFromObject = async (itemObj, status, note = '', requester = '', priority = '', silent = false) => {
       try {
         if (!currentUser || !currentUser.emailVerified) {
           throw new Error('A verified account is required to save requests.');
