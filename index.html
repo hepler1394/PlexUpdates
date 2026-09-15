@@ -4447,6 +4447,10 @@
     yahooProvider.addScope('email');
     yahooProvider.addScope('profile');
     const TMDB_KEY = '5e30970a964f6e59d184fa77433b17ca';
+    // TMDB marks explicit titles adult: true. Search and discover requests ask
+    // it to leave them out (include_adult=false); trending, similar and
+    // recommendations take no such option, so every list read is also filtered.
+    const notAdult = item => item?.adult !== true;
     // SHA-256 of the account that receives the optional simplified "For You" UI.
     // This is personalization only, never an authorization boundary.
     const MOM_EMAIL_HASH = 'f7416d26cc17d0c64e37d0c48f8354a00515c24fd3eaac1ff03125f85ec9e540';
@@ -5278,11 +5282,11 @@
       const out = [];
       await Promise.all(picks.map(async (p, i) => {
         const kind = p.type === 'tv' ? 'tv' : 'movie';
-        const base = `https://api.themoviedb.org/3/search/${kind}?api_key=${TMDB_KEY}&query=${encodeURIComponent(p.title)}`;
+        const base = `https://api.themoviedb.org/3/search/${kind}?api_key=${TMDB_KEY}&include_adult=false&query=${encodeURIComponent(p.title)}`;
         const yearParam = p.year ? `&${kind === 'tv' ? 'first_air_date_year' : 'year'}=${p.year}` : '';
         try {
-          let hit = ((await (await fetch(base + yearParam)).json()).results || [])[0];
-          if (!hit && yearParam) hit = ((await (await fetch(base)).json()).results || [])[0];
+          let hit = ((await (await fetch(base + yearParam)).json()).results || []).filter(notAdult)[0];
+          if (!hit && yearParam) hit = ((await (await fetch(base)).json()).results || []).filter(notAdult)[0];
           if (hit) out[i] = { ...normalizeDiscoveryItem(hit, kind), why: p.why };
         } catch { /* skip this pick */ }
       }));
@@ -5935,25 +5939,25 @@
       crime: {
         title: 'Crime & mystery favorites',
         copy: 'Investigations, courtroom stories, and mysteries worth solving.',
-        url: () => `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&with_genres=80,9648&sort_by=vote_average.desc&vote_count.gte=300`,
+        url: () => `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&include_adult=false&with_genres=80,9648&sort_by=vote_average.desc&vote_count.gte=300`,
         fallbackType: 'tv'
       },
       '2000s': {
         title: 'Great shows from the 2000s',
         copy: 'Familiar favorites from 2000 through 2009.',
-        url: () => `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&first_air_date.gte=2000-01-01&first_air_date.lte=2009-12-31&sort_by=vote_average.desc&vote_count.gte=350`,
+        url: () => `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&include_adult=false&first_air_date.gte=2000-01-01&first_air_date.lte=2009-12-31&sort_by=vote_average.desc&vote_count.gte=350`,
         fallbackType: 'tv'
       },
       comfort: {
         title: 'Easy comedy picks',
         copy: 'Lighter shows that are easy to settle into.',
-        url: () => `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&with_genres=35&sort_by=popularity.desc&vote_count.gte=250`,
+        url: () => `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&include_adult=false&with_genres=35&sort_by=popularity.desc&vote_count.gte=250`,
         fallbackType: 'tv'
       },
       classics: {
         title: 'Older favorites worth revisiting',
         copy: 'Well-loved television from before 2000.',
-        url: () => `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&first_air_date.lte=1999-12-31&sort_by=vote_average.desc&vote_count.gte=250`,
+        url: () => `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&include_adult=false&first_air_date.lte=1999-12-31&sort_by=vote_average.desc&vote_count.gte=250`,
         fallbackType: 'tv'
       }
     };
@@ -6187,7 +6191,7 @@
       }
 
       try {
-        const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(searchQuery)}&page=1`, { signal: controller.signal });
+        const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&include_adult=false&query=${encodeURIComponent(searchQuery)}&page=1`, { signal: controller.signal });
         if (!response.ok) throw new Error(`Search failed (${response.status})`);
         const data = await response.json();
         const expandedResults = (data.results || []).flatMap(item => {
@@ -6195,7 +6199,7 @@
           return [item];
         });
         const results = expandedResults
-          .filter(item => item.media_type === 'movie' || item.media_type === 'tv')
+          .filter(item => (item.media_type === 'movie' || item.media_type === 'tv') && notAdult(item))
           .map(item => normalizeDiscoveryItem(item, item.media_type));
         let uniqueResults = results.filter((item, index, all) =>
           all.findIndex(candidate => candidate.id === item.id && candidate.mediaType === item.mediaType) === index
@@ -6241,7 +6245,7 @@
         const response = await fetch(shelf.url());
         if (!response.ok) throw new Error(`Suggestions failed (${response.status})`);
         const data = await response.json();
-        const items = (data.results || [])
+        const items = (data.results || []).filter(notAdult)
           .filter(item => shelf.fallbackType || item.media_type === 'movie' || item.media_type === 'tv')
           .map(item => normalizeDiscoveryItem(item, shelf.fallbackType || item.media_type));
         lastFinderItems = items;
@@ -6253,12 +6257,12 @@
     }
 
     async function findSpecificTVShow(title, firstAirYear) {
-      const response = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}`);
+      const response = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&include_adult=false&query=${encodeURIComponent(title)}`);
       if (!response.ok) throw new Error(`Could not find ${title}`);
       const data = await response.json();
-      const exact = (data.results || []).find(item =>
+      const exact = (data.results || []).filter(notAdult).find(item =>
         String(item.name || '').toLowerCase() === title.toLowerCase() && String(item.first_air_date || '').startsWith(String(firstAirYear))
-      ) || (data.results || [])[0];
+      ) || (data.results || []).find(notAdult);
       return exact ? normalizeDiscoveryItem(exact, 'tv') : null;
     }
 
@@ -6273,7 +6277,7 @@
         const fallback = await fetch(fallbackUrl).then(response => response.ok ? response.json() : { results: [] });
         items = [...items, ...(fallback.results || [])];
       }
-      return items.map(item => normalizeDiscoveryItem(item, 'tv')).filter(item => item.id !== seed.id);
+      return items.filter(notAdult).map(item => normalizeDiscoveryItem(item, 'tv')).filter(item => item.id !== seed.id);
     }
 
     async function loadMomRecommendations(force = false) {
@@ -6288,8 +6292,8 @@
         renderDiscoveryCards([lost, lawAndOrder].filter(Boolean), 'grid-mom-favorites', 2);
 
         const [lostSuggestions, crimeSuggestions] = await Promise.all([
-          fetchTVSuggestions(lost, `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&with_genres=9648,18&first_air_date.lte=2018-12-31&sort_by=vote_average.desc&vote_count.gte=250`),
-          fetchTVSuggestions(lawAndOrder, `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&with_genres=80,18&first_air_date.lte=2020-12-31&sort_by=vote_average.desc&vote_count.gte=250`)
+          fetchTVSuggestions(lost, `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&include_adult=false&with_genres=9648,18&first_air_date.lte=2018-12-31&sort_by=vote_average.desc&vote_count.gte=250`),
+          fetchTVSuggestions(lawAndOrder, `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&include_adult=false&with_genres=80,18&first_air_date.lte=2020-12-31&sort_by=vote_average.desc&vote_count.gte=250`)
         ]);
         renderDiscoveryCards(crimeSuggestions, 'grid-mom-crime', 8);
         renderDiscoveryCards(lostSuggestions, 'grid-mom-lost', 8);
@@ -6334,7 +6338,7 @@
         const requestedKeys = new Set(globalRequests.map(request => `${request.mediaType}_${request.id}`));
         const items = [...(recommendations.results || []), ...(similar.results || [])]
           .map(item => normalizeDiscoveryItem(item, seed.mediaType))
-          .filter(item => !requestedKeys.has(`${item.mediaType}_${item.id}`));
+          .filter(item => notAdult(item) && !requestedKeys.has(`${item.mediaType}_${item.id}`));
         renderDiscoveryCards(items, 'grid-personalized', 8);
       } catch (error) {
         console.error('Personalized suggestions error:', error);
@@ -6696,7 +6700,7 @@
       try {
         const res = await fetch(apiUrl + params.toString());
         const data = await res.json();
-        const newMovies = data.results.map(m => ({ ...m, mediaType: 'movie' }));
+        const newMovies = data.results.filter(notAdult).map(m => ({ ...m, mediaType: 'movie' }));
 
         if (append) {
           currentMovies = [...currentMovies, ...newMovies];
@@ -6734,7 +6738,7 @@
       try {
         const res = await fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_KEY}&page=${page}`);
         const data = await res.json();
-        const newShows = data.results.map(tv => ({
+        const newShows = data.results.filter(notAdult).map(tv => ({
           ...tv, mediaType: 'tv', title: tv.name, release_date: tv.first_air_date
         }));
 
@@ -6776,9 +6780,9 @@
         futureDate.setMonth(futureDate.getMonth() + 3);
         const future = futureDate.toISOString().split('T')[0];
 
-        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&primary_release_date.gte=${today}&primary_release_date.lte=${future}&sort_by=popularity.desc`);
+        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&include_adult=false&primary_release_date.gte=${today}&primary_release_date.lte=${future}&sort_by=popularity.desc`);
         const data = await res.json();
-        currentComingSoon = data.results.map(m => ({ ...m, mediaType: 'movie' }));
+        currentComingSoon = data.results.filter(notAdult).map(m => ({ ...m, mediaType: 'movie' }));
         cacheData('coming_soon', currentComingSoon);
         renderGrid(currentComingSoon, 'grid-coming');
         updateLastRefreshUI();
@@ -6837,10 +6841,10 @@
     window.showAddShowModal = () => {
       const searchQuery = prompt("Enter TV show name to track:");
       if (!searchQuery) return;
-      fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(searchQuery)}`)
+      fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&include_adult=false&query=${encodeURIComponent(searchQuery)}`)
         .then(res => res.json())
         .then(data => {
-          if (data.results && data.results.length > 0) addShowToTracking(data.results[0]);
+          if (data.results && data.results.some(notAdult)) addShowToTracking(data.results.find(notAdult));
           else showToast("Show not found!", "error");
         });
     };
@@ -7122,10 +7126,10 @@
 
         liveSearchTimeout = setTimeout(async () => {
           try {
-            const url = `https://api.themoviedb.org/3/search/${type}?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}&page=1`;
+            const url = `https://api.themoviedb.org/3/search/${type}?api_key=${TMDB_KEY}&include_adult=false&query=${encodeURIComponent(val)}&page=1`;
             const res = await fetch(url);
             const data = await res.json();
-            window.renderLiveResults(data.results || []);
+            window.renderLiveResults((data.results || []).filter(notAdult));
           } catch (e) {
             console.error("Live search error:", e);
             liveResultsContainer.innerHTML = '<div style="padding:15px; text-align:center; color:var(--red); font-size:0.9rem;">Search failed.</div>';
@@ -7150,11 +7154,11 @@
           else if (currentTab === 'tvshows') showLoader('grid-tvshows');
           else if (currentTab === 'coming') showLoader('grid-coming');
 
-          let apiUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
-          if (type === 'tv') apiUrl = `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
-          else if (type === 'person') apiUrl = `https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
+          let apiUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&include_adult=false&query=${encodeURIComponent(val)}`;
+          if (type === 'tv') apiUrl = `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&include_adult=false&query=${encodeURIComponent(val)}`;
+          else if (type === 'person') apiUrl = `https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&include_adult=false&query=${encodeURIComponent(val)}`;
           else if (type === 'company') apiUrl = `https://api.themoviedb.org/3/search/company?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
-          else if (type === 'multi') apiUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(val)}`;
+          else if (type === 'multi') apiUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&include_adult=false&query=${encodeURIComponent(val)}`;
           try {
             const res = await fetch(apiUrl);
             const data = await res.json();
@@ -7163,7 +7167,7 @@
               ...item, mediaType: item.media_type || (type === 'tv' ? 'tv' : 'movie'),
               title: item.title || item.name,
               release_date: item.release_date || item.first_air_date
-            })).filter(i => i.mediaType === 'movie' || i.mediaType === 'tv');
+            })).filter(i => (i.mediaType === 'movie' || i.mediaType === 'tv') && notAdult(i));
             if (currentTab === 'movies' || currentTab === 'tvshows') renderGrid(formatted, currentTab === 'movies' ? 'grid-movies' : 'grid-tvshows');
             else if (currentTab === 'coming') renderGrid(formatted, 'grid-coming');
           } catch (err) { console.error("Search Error", err); }
@@ -7228,9 +7232,9 @@
       const genre = e.target.value;
       if (!genre) { fetchTrendingTV(); }
       else {
-        const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&with_genres=${genre}&sort_by=popularity.desc`);
+        const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&include_adult=false&with_genres=${genre}&sort_by=popularity.desc`);
         const data = await res.json();
-        currentTVShows = data.results.map(tv => ({ ...tv, mediaType: 'tv', title: tv.name, release_date: tv.first_air_date }));
+        currentTVShows = data.results.filter(notAdult).map(tv => ({ ...tv, mediaType: 'tv', title: tv.name, release_date: tv.first_air_date }));
         renderGrid(currentTVShows, 'grid-tvshows');
       }
       mobileAutoHideHeader();
@@ -7799,7 +7803,7 @@
         const data = await res.json();
 
         scrollContainer.innerHTML = '';
-        const items = data.results.filter(i => i.media_type === 'movie' || i.media_type === 'tv').slice(0, 15);
+        const items = data.results.filter(i => (i.media_type === 'movie' || i.media_type === 'tv') && notAdult(i)).slice(0, 15);
 
         items.forEach(item => {
           let poster = item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : 'https://via.placeholder.com/200x300/16161f/ffffff?text=No+Poster';
@@ -8158,7 +8162,7 @@
           container.innerHTML = '<div style="padding:10px; color:var(--text-muted);">No similar titles found.</div>';
           return;
         }
-        const filtered = data.results.filter(r => r.id !== id);
+        const filtered = data.results.filter(r => r.id !== id && notAdult(r));
         container.innerHTML = filtered.map(rec => {
           const normalizedRec = normalizeDiscoveryItem(rec, type);
           return `
