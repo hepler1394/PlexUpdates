@@ -7278,7 +7278,7 @@
         let poster;
         if (item.poster_path) poster = posterUrl(item.poster_path);
         else if (item.poster && item.poster.startsWith('http')) poster = item.poster;
-        else poster = 'https://via.placeholder.com/500x750/16161f/ffffff?text=No+Poster';
+        else poster = 'https://placehold.co/500x750/16161f/ffffff?text=No+Poster';
 
         let year;
         let releaseDateBadge = '';
@@ -7808,7 +7808,7 @@
         const items = data.results.filter(i => (i.media_type === 'movie' || i.media_type === 'tv') && notAdult(i)).slice(0, 15);
 
         items.forEach(item => {
-          let poster = item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : 'https://via.placeholder.com/200x300/16161f/ffffff?text=No+Poster';
+          let poster = item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : 'https://placehold.co/200x300/16161f/ffffff?text=No+Poster';
           const title = item.title || item.name;
           const routeType = item.media_type === 'movie' ? 'movies' : 'tvshows';
 
@@ -7961,7 +7961,7 @@
         let poster;
         if (item.poster_path) poster = posterUrl(item.poster_path);
         else if (item.poster && item.poster.startsWith('http')) poster = item.poster;
-        else poster = 'https://via.placeholder.com/500x750/16161f/ffffff?text=No+Poster';
+        else poster = 'https://placehold.co/500x750/16161f/ffffff?text=No+Poster';
 
         card.innerHTML = `
           <div class="poster-wrapper">
