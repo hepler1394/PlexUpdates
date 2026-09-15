@@ -7446,6 +7446,9 @@
 
       // Check for existing request (duplicate prevention)
       const existingReq = globalRequests.find(r => r.id === item.id && r.mediaType === (item.mediaType || 'movie'));
+      // A family member sees the status in words, never the stored code.
+      const statusWords = { pending: 'Waiting to be picked up', acknowledged: 'Downloading now', added: 'On Plex' };
+      const statusWord = s => statusWords[s] || 'In the queue';
       if (existingReq) {
         if (existingReq.status === 'added') {
           showToast(`"${item.title || item.name}" is already on Plex.`, 'success');
@@ -7453,24 +7456,24 @@
         }
         const isOwnRequest = currentUser && existingReq.userId === currentUser.uid;
         if (isOwnRequest) {
-          showToast(`You already requested "${item.title || item.name}"! It's ${existingReq.status}.`, 'info');
+          showToast(`You already asked for "${item.title || item.name}". Status: ${statusWord(existingReq.status)}.`, 'info');
           return;
         }
         // Someone else requested it — show "already requested" with upvote option
         overlay.innerHTML = `
         <div class="modal" style="max-width: 420px; padding: 40px; text-align:center;">
           <i class="fa-solid fa-circle-check" style="font-size:3rem; color:var(--blue); margin-bottom:15px; display:block;"></i>
-          <h2 style="margin-bottom: 10px;">Already Requested!</h2>
+          <h2 style="margin-bottom: 10px;">Already requested</h2>
           <p style="color:var(--text-secondary); margin-bottom:8px; font-size:0.95rem; line-height:1.6;">
             <strong>${escapeHTML(item.title || item.name)}</strong> was already requested by
             <strong style="color:var(--accent);">${escapeHTML(existingReq.requester || 'someone')}</strong>
           </p>
           <div style="display:inline-block; padding:6px 14px; border-radius:8px; background:${existingReq.status === 'pending' ? 'var(--blue)' : 'var(--text-muted)'}; color:white; font-size:0.8rem; font-weight:600; margin-bottom:20px;">
-            ${existingReq.status === 'pending' ? '⏳ Pending' : escapeHTML(existingReq.status)}
+            ${escapeHTML(statusWord(existingReq.status))}
           </div>
-          <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">No need to request again — Cory already has it in the queue!</p>
+          <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">No need to ask again. It is already in the queue.</p>
           <button class="torrent-btn" style="width:100%;" onclick="document.getElementById('detail-overlay').classList.remove('open')">
-            <i class="fa-solid fa-thumbs-up"></i> Got It!
+            <i class="fa-solid fa-thumbs-up"></i> Got it
           </button>
         </div>`;
         overlay.classList.add('open');
