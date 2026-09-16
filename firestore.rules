@@ -26,7 +26,8 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly([
           'id', 'mediaType', 'title', 'poster_path', 'backdrop_path',
           'overview', 'release_date', 'vote_average', 'timestamp',
-          'status', 'note', 'requester', 'priority', 'userId'
+          'status', 'note', 'requester', 'priority', 'userId',
+          'season', 'episode'
         ])
         && request.resource.data.id is int
         && request.resource.data.mediaType in ['movie', 'tv']
@@ -50,7 +51,21 @@ service cloud.firestore {
         && request.resource.data.requester.size() > 0
         && request.resource.data.requester.size() <= 80
         && request.resource.data.priority in ['normal', 'high']
-        && request.resource.data.userId == request.auth.uid;
+        && request.resource.data.userId == request.auth.uid
+        // A single-episode request carries both numbers or neither, and they
+        // have to be small ints: PlexClaw turns them into a SxxExx search.
+        && (
+          (!('season' in request.resource.data) && !('episode' in request.resource.data))
+          || (
+            request.resource.data.mediaType == 'tv'
+            && request.resource.data.season is int
+            && request.resource.data.season > 0
+            && request.resource.data.season <= 50
+            && request.resource.data.episode is int
+            && request.resource.data.episode > 0
+            && request.resource.data.episode <= 999
+          )
+        );
     }
 
     match /requests/{requestId} {

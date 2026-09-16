@@ -7,7 +7,7 @@
 // after the first the Firebase module imports failed inside the worker,
 // which left the page stuck on "Finding good options" with nothing
 // clickable. Never route third-party script imports through a worker.
-const CACHE_NAME = 'plexhub-v9-no-api-cache';
+const CACHE_NAME = 'plexhub-v10-episode-requests';
 const SHELL_ASSETS = ['/', '/index.html', '/manifest.json', '/assets/icon-192.png', '/assets/icon-512.png'];
 
 self.addEventListener('install', (event) => {

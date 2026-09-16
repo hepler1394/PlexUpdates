@@ -6959,13 +6959,19 @@
     }
 
     window.requestEpisode = async (show, episode) => {
-      const title = `${show.name} - S${episode.season_number}E${episode.episode_number}`;
+      const season = Number(episode.season_number);
+      const number = Number(episode.episode_number);
+      const pad = n => String(n).padStart(2, '0');
+      // Padded, the way every release is named, so the search on the server
+      // side matches: "Dr. Stone S04E30", not "Dr. Stone - S4E30".
+      const title = `${show.name} S${pad(season)}E${pad(number)}`;
       await saveItemFromObject({
-        id: show.id, mediaType: 'tv', title: title, poster_path: show.poster_path,
+        id: show.id, mediaType: 'tv', title: title, season: season, episode: number,
+        poster_path: show.poster_path,
         backdrop_path: show.backdrop_path, overview: episode.overview || show.overview,
         release_date: episode.air_date, vote_average: show.vote_average
-      }, 'pending', `Episode: ${episode.name}`, 'User', 'normal');
-      showToast(`Requested: ${title}`, "success");
+      }, 'pending', `Episode: ${episode.name}`, '', 'normal');
+      showToast(`Asked for ${title}. It shows up here when it lands.`, "success");
     };
 
     window.toggleAutoRequest = async (docId, enabled) => {
@@ -7547,8 +7553,18 @@
 
         const item = typeof itemObj === 'string' ? JSON.parse(itemObj) : itemObj;
         const mediaType = item.mediaType === 'tv' ? 'tv' : 'movie';
-        const existingItem = globalRequests.find(r => r.id === item.id && r.mediaType === mediaType);
-        if (status === 'pending' && !existingItem && !isAdmin() && isOnPlex(item)) {
+        // One episode is its own request. It needs its own document, or asking
+        // for S4E30 overwrites the show's request and drags the whole series
+        // back to pending; and "the show is on Plex" says nothing about
+        // whether that episode is.
+        const season = mediaType === 'tv' ? Number(item.season) : NaN;
+        const episode = mediaType === 'tv' ? Number(item.episode) : NaN;
+        const isEpisode = Number.isInteger(season) && Number.isInteger(episode)
+          && season > 0 && season <= 50 && episode > 0 && episode <= 999;
+        const existingItem = globalRequests.find(r => r.id === item.id && r.mediaType === mediaType
+          && (Number(r.season) || 0) === (isEpisode ? season : 0)
+          && (Number(r.episode) || 0) === (isEpisode ? episode : 0));
+        if (status === 'pending' && !existingItem && !isAdmin() && !isEpisode && isOnPlex(item)) {
           if (!silent) showToast(`"${item.title}" is already on Plex.`, 'success');
           return;
         }
@@ -7557,7 +7573,9 @@
         const priorityToSave = ['normal', 'high'].includes(priority || existingItem?.priority) ? (priority || existingItem?.priority) : 'normal';
         const safeMediaId = String(item.id ?? '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 80);
         if (!safeMediaId) throw new Error('Invalid media ID.');
-        const docId = `${mediaType}_${safeMediaId}`;
+        const pad = n => String(n).padStart(2, '0');
+        const epSuffix = isEpisode ? `_s${pad(season)}e${pad(episode)}` : '';
+        const docId = `${mediaType}_${safeMediaId}${epSuffix}`;
         const timestamp = existingItem ? existingItem.timestamp : Date.now();
         const requestData = {
           id: item.id,
@@ -7575,6 +7593,7 @@
           priority: priorityToSave,
           userId: existingItem?.userId || currentUser.uid
         };
+        if (isEpisode) { requestData.season = season; requestData.episode = episode; }
         await setDoc(doc(db, "requests", docId), requestData);
         if (!silent) {
           if (status === 'added') showToast(`"${item.title}" marked as available!`, 'success');
